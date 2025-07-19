@@ -1,0 +1,125 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "services": "Services",
+    "rental": "Rental",
+    "sales": "Sales",
+    "contact": "Contact",
+    "fleet": "Fleet",
+    "book_now": "Book Now"
+  },
+  "hero": {
+    "welcome": "Welcome to you in Caros",
+    "description": "Experience luxury and reliability with our premium fleet. From airport transfers to special events, we've got you covered.",
+    "premium_fleet": "Premium Fleet",
+    "safe_secure": "Safe & Secure",
+    "service_247": "24/7 Service"
+  },
+  "services": {
+    "airport_transfer": "Airport Transfer",
+    "intercity_trips": "Intercity Trips",
+    "wedding_events": "Wedding Events",
+    "business_meetings": "Business Meetings",
+    "car_rental": "Car Rental",
+    "view_all": "View All Services",
+    "section_header": "Our Premium Services",
+    "section_description": "From airport transfers to special events, we provide comprehensive transportation solutions tailored to your needs.",
+    "airport_transfer_desc": "Reliable and comfortable airport pickup and drop-off services.",
+    "intercity_trips_desc": "Long-distance travel with professional drivers and premium vehicles.",
+    "wedding_events_desc": "Make your special day memorable with our luxury wedding cars.",
+    "business_meetings_desc": "Professional transportation for corporate events and meetings.",
+    "learn_more": "Learn More"
+  },
+  "promo": {
+    "headline": "Get 70% Off Your First Booking!",
+    "description": "New customers get an exclusive discount on their first rental. Limited time offer - don't miss out!",
+    "cta": "Claim Your Discount",
+    "terms": "*Terms and conditions apply. Valid for first-time customers only."
+  },
+  "fleet": {
+    "our_fleet": "Our Premium Fleet",
+    "choose": "Choose from our carefully curated selection of luxury and premium vehicles for any occasion.",
+    "view_all": "View All Vehicles"
+  },
+  "why_choose_us": {
+    "title": "Why Choose Caros?",
+    "safe": "Safe & Secure",
+    "safe_desc": "All our vehicles are regularly maintained and insured for your peace of mind.",
+    "service": "24/7 Service",
+    "service_desc": "Round-the-clock availability for airport transfers and emergency bookings.",
+    "quality": "Premium Quality",
+    "quality_desc": "Only the finest vehicles with top-notch amenities and professional drivers.",
+    "selection": "Wide Fleet Selection",
+    "selection_desc": "From economy to luxury, we have the perfect vehicle for every occasion.",
+    "drivers": "Professional Drivers",
+    "drivers_desc": "Experienced, licensed, and courteous drivers for a comfortable journey.",
+    "awards": "Award Winning",
+    "awards_desc": "Recognized for excellence in customer service and vehicle quality."
+  },
+  "footer": {
+    "company": "Premium car rental and transport services. Your trusted partner for all your transportation needs.",
+    "our_services": "Our Services",
+    "quick_links": "Quick Links",
+    "about_us": "About Us",
+    "our_fleet": "Our Fleet",
+    "cars_for_sale": "Cars for Sale",
+    "book_now": "Book Now",
+    "contact": "Contact",
+    "contact_info": "Contact Info",
+    "address": "123 Main Street, City, State 12345",
+    "phone": "+1 (555) 123-4567",
+    "email": "info@caros.com"
+  },
+  "booking": {
+    "title": "Book Your Ride",
+    "description": "Reserve this premium vehicle for your next journey. Our team is ready to assist you with the booking process.",
+    "first_name": "First Name",
+    "last_name": "Last Name",
+    "email": "Email",
+    "phone": "Phone Number",
+    "pickup_location": "Pickup Location",
+    "dropoff_location": "Dropoff Location",
+    "pickup_date": "Pickup Date",
+    "return_date": "Return Date",
+    "return_time": "Return Time",
+    "passengers": "Passengers",
+    "special_requests": "Special Requests",
+    "submit": "Submit Booking",
+    "pickup_address": "Pick up Address",
+    "pickup_address_placeholder": "Enter pick up address",
+    "dropoff_address": "Drop off Address",
+    "dropoff_address_placeholder": "Enter drop off address",
+    "way_type": "Way Type",
+    "date": "Date",
+    "date_placeholder": "Select date",
+    "pickup_time": "Pickup Time",
+    "time_placeholder": "Select time",
+    "time_caption": "Time",
+    "distance": "Distance",
+    "hourly": "Hourly",
+    "flat_rate": "Flat Rate",
+    "searchbtn": "Search Available cars"
+  },
+  "contact": {
+    "title": "Contact Us",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "subject": "Subject",
+    "message": "Message",
+    "send": "Send Message"
+  },
+  "misc": {
+    "one_way": "One Way",
+    "round_trip": "Round Trip",
+    "not_found": "Not Found",
+    "back": "Back",
+    "available": "Available",
+    "not_available": "Not Available",
+    "view_details": "View Details"
+  },
+  "brand": {
+    "name": "Caros"
+  }
+} 
