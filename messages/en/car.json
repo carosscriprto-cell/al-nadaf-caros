@@ -1,0 +1,204 @@
+{
+  "car": {
+    "card": {
+      "featured": "Featured",
+      "rent_or_buy": "Rent or Buy",
+      "new_arrival": "New Arrival",
+      "view_details": "View Details",
+      "seats": "Seats",
+      "gearbox": "Gearbox",
+      "fuel": "Fuel",
+      "range": "Range",
+      "daily_rate": "Daily Rate",
+      "purchase_price": "Purchase Price",
+      "price_on_request": "Price on request",
+      "was": "Was",
+      "also_available": "Also available",
+      "to_buy": "to buy",
+      "explore_specs": "Explore Full Specs",
+      "available_for_rent": "Available for Rent",
+      "available_for_sale": "Available for Sale",
+      "available_for_both": "Available for Rent & Sale",
+      "cta_rent": "Book this car instantly via WhatsApp",
+      "cta_buy": "Contact via Whatsapp to purchase",
+      "cta_both": "Contact via Whatsapp for details"
+    },
+    "actions": {
+      "book_now": "Book Now",
+      "buy_now": "Buy Now",
+      "contact_whatsapp": "Contact on WhatsApp",
+      "book_vehicle": "Book This Vehicle",
+      "request_information": "Request Information",
+      "rent_or_buy_vehicle": "Rent or Buy This Vehicle",
+      "browse_vehicles": "Browse Vehicles",
+      "contact_now": "Contact Now"
+    },
+    "detail": {
+      "not_found_title": "Vehicle Not Found",
+      "not_found_description": "The vehicle you are looking for does not exist.",
+      "back_to_vehicles": "Back to Vehicles",
+      "learn_more_about": "Know more about {vehicle}",
+      "available_now": "Available Now",
+      "unavailable": "Unavailable",
+      "rental_price": "Rental Price",
+      "sale_price": "Sale Price",
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "hourly": "Hourly",
+      "vehicle_specifications": "Vehicle Specifications",
+      "description": "Description",
+      "features": "Features",
+      "comfort_features": "Comfort Features",
+      "safety_features": "Safety Features",
+      "entertainment_features": "Entertainment Features",
+      "rental_details": "Rental Details",
+      "purchase_details": "Purchase Details",
+      "quick_overview": "Quick Overview",
+      "quick_highlights": "Quick Highlights",
+      "ideal_for": "Ideal For",
+      "pros": "Pros",
+      "cons": "Considerations",
+      "included_services": "Included Services",
+      "similar_vehicles": "Similar Vehicles",
+      "pickup_locations": "Pickup Locations",
+      "rental_requirements": "Rental Requirements",
+      "booking_purchase_summary": "Booking / Purchase Summary",
+      "cta": {
+        "primary": "{intent, select, rent {Book This Vehicle} sale {Request Purchase Details} both {Rent or Buy This Vehicle} other {Contact Us}}",
+        "secondary": "Chat on WhatsApp",
+        "helper": "{intent, select, rent {We usually reply within minutes and confirm availability, delivery, and the next booking steps.} sale {We usually reply within minutes with pricing details, financing options, and the next purchase steps.} both {We usually reply within minutes and help you choose the best rent or buy option.} other {We usually reply within minutes and guide you through the next steps.}}"
+      },
+      "trust": {
+        "rating_reviews": "{rating} rating • {count} reviews",
+        "delivery_available": "Delivery available",
+        "accident_free": "Accident-free",
+        "service_history": "Service history available"
+      },
+      "flags": {
+        "featured": "Featured",
+        "popular": "Popular",
+        "new_arrival": "New Arrival",
+        "best_seller": "Best Seller"
+      },
+      "formats": {
+        "acceleration": "0-100 km/h in {seconds}s",
+        "seats": "{count} seats",
+        "horsepower": "{value} HP",
+        "speed": "{value} km/h",
+        "distance": "{value} km",
+        "fuel_consumption": "{value} L / 100km",
+        "days": "{count} days",
+        "torque": "{value} Nm",
+        "cylinders": "{value} cylinders",
+        "fuel_tank_capacity": "{value} L",
+        "fuel_range_20l": "{value} km per 20L"
+      },
+      "labels": {
+        "year": "Year",
+        "transmission": "Transmission",
+        "fuel_type": "Fuel Type",
+        "seats": "Seats",
+        "doors": "Doors",
+        "engine": "Engine",
+        "horsepower": "Horsepower",
+        "torque": "Torque",
+        "cylinders": "Cylinders",
+        "top_speed": "Top Speed",
+        "acceleration": "Acceleration",
+        "drivetrain": "Drivetrain",
+        "location": "Location",
+        "address": "Address",
+        "mileage": "Mileage",
+        "security_deposit": "Security Deposit",
+        "minimum_rental_days": "Minimum Rental Days",
+        "delivery_available": "Delivery Available",
+        "availability": "Availability",
+        "price_negotiable": "Price Negotiable",
+        "financing_available": "Financing Available",
+        "monthly_installment": "Monthly Installment",
+        "previous_owners": "Previous Owners",
+        "accident_free": "Accident Free",
+        "service_history": "Service History",
+        "warranty": "Warranty",
+        "condition": "Condition",
+        "category": "Category",
+        "class": "Class",
+        "color": "Color",
+        "interior": "Interior",
+        "fuel_consumption": "Fuel Consumption",
+        "fuel_consumption_city": "City Consumption",
+        "fuel_consumption_highway": "Highway Consumption",
+        "fuel_tank_capacity": "Fuel Tank Capacity",
+        "distance_per_20l": "Distance per 20L",
+        "electric_range": "Electric Range",
+        "savings": "Save {value}"
+      },
+      "enums": {
+        "category": {
+          "sedan": "Sedan",
+          "suv": "SUV",
+          "coupe": "Coupe",
+          "hatchback": "Hatchback",
+          "convertible": "Convertible",
+          "pickup": "Pickup",
+          "electric": "Electric",
+          "sports": "Sports"
+        },
+        "class": {
+          "economy": "Economy",
+          "standard": "Standard",
+          "premium": "Premium",
+          "luxury": "Luxury",
+          "executive": "Executive",
+          "performance": "Performance",
+          "ultra-luxury": "Ultra Luxury"
+        },
+        "condition": {
+          "new": "New",
+          "used": "Used",
+          "certified": "Certified"
+        },
+        "fuelType": {
+          "petrol": "Petrol",
+          "diesel": "Diesel",
+          "hybrid": "Hybrid",
+          "electric": "Electric"
+        },
+        "transmission": {
+          "automatic": "Automatic",
+          "manual": "Manual"
+        },
+        "drivetrain": {
+          "FWD": "FWD",
+          "RWD": "RWD",
+          "AWD": "AWD",
+          "4WD": "4WD"
+        }
+      },
+      "values": {
+        "yes": "Yes",
+        "no": "No",
+        "available": "Available",
+        "reviews": "reviews",
+        "day": "day"
+      }
+    },
+    "messages": {
+      "interest": "Hi! I'm interested in the {vehicle}.",
+      "sale_interest": "Hi! I'm interested in the {vehicle}. What is the best price?",
+      "rental_interest": "Hi! I'm interested in booking the {vehicle}.",
+      "generic_interest": "Hi! I'm interested in your services.",
+      "sell_car": "Hi! I'm interested in selling my car through your platform."
+    },
+    "vip_delivery": "VIP Delivery Available",
+    "car_listing": {
+      "showing-cars": "Showing {count} cars",
+      "tabs-filter":{
+        "any": "Any Prices",
+        "low-high": "Price: Low to High",
+        "high-low": "Price: High to Low",
+        "newest": "Newest Arrivals"
+      }
+    }
+  }
+}

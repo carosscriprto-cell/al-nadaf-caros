@@ -1,0 +1,73 @@
+{
+  "booking": {
+    "title": "Book Your Ride",
+    "description": "Reserve your premium transportation service. Fill out the form below and we'll confirm your booking shortly.",
+    "select_service_type": "Select Service Type",
+    "select_vehicle": "Select Vehicle",
+    "date_and_time": "Date & Time",
+    "personal_information": "Personal Information",
+    "special_requests": "Special Requests",
+    "pickup_date": "Pickup Date",
+    "pickup_time": "Pickup Time",
+    "return_date": "Return Date",
+    "return_time": "Return Time",
+    "pickup_location": "Pickup Location",
+    "dropoff_location": "Dropoff Location",
+    "passengers": "Number of Passengers",
+    "first_name": "First Name",
+    "last_name": "Last Name",
+    "email": "Email Address",
+    "phone": "Phone Number",
+    "pickup_address_placeholder": "Enter pickup address",
+    "dropoff_address_placeholder": "Enter dropoff address",
+    "first_name_placeholder": "Enter your first name",
+    "last_name_placeholder": "Enter your last name",
+    "email_placeholder": "Enter your email",
+    "phone_placeholder": "Enter your phone number",
+    "special_requests_placeholder": "Any special requirements or requests...",
+    "submit": "Submit Booking",
+    "submitting": "Submitting...",
+    "success": "Booking submitted successfully! We will contact you shortly.",
+    "validation": {
+      "service_type_required": "Please select a service type",
+      "vehicle_required": "Please select a vehicle",
+      "pickup_date_required": "Please select pickup date",
+      "pickup_time_required": "Please select pickup time",
+      "pickup_location_required": "Please enter pickup location",
+      "dropoff_location_required": "Please enter dropoff location",
+      "first_name_required": "First name is required",
+      "last_name_required": "Last name is required",
+      "email_invalid": "Please enter a valid email",
+      "phone_required": "Phone number is required"
+    },
+    "service_options": {
+      "airport-transfer": {
+        "name": "Airport Transfer",
+        "description": "Reliable airport pickup and drop-off"
+      },
+      "intercity-trip": {
+        "name": "Intercity Trip",
+        "description": "Long-distance travel between cities"
+      },
+      "wedding-event": {
+        "name": "Wedding Event",
+        "description": "Luxury transportation for special occasions"
+      },
+      "business-meeting": {
+        "name": "Business Meeting",
+        "description": "Professional corporate transportation"
+      },
+      "car-rental": {
+        "name": "Car Rental",
+        "description": "Self-drive vehicle rental"
+      }
+    },
+    "vehicle_card": {
+      "per_day": "per day"
+    },
+    "passenger_labels": {
+      "one": "Passenger",
+      "other": "Passengers"
+    }
+  }
+}

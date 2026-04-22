@@ -1,384 +1,1529 @@
-// Centralized car data for the app
+export type ListingType = "rent" | "sale" | "both";
+
+export type CarCondition = "new" | "used" | "certified";
+export type FuelType = "petrol" | "diesel" | "hybrid" | "electric";
+export type Transmission = "automatic" | "manual";
+export type Drivetrain = "FWD" | "RWD" | "AWD" | "4WD";
+export type Currency = "USD" | "EUR" | "AED";
+
+export type Brand =
+  | "bmw"
+  | "audi"
+  | "mercedes-benz"
+  | "porsche"
+  | "tesla"
+  | "toyota"
+  | "kia"
+  | "hyundai"
+  | "nissan"
+  | "chevrolet"
+  | "ford"
+  | "lexus"
+  | "range-rover"
+  | "lamborghini"
+  | "bentley"
+  | "ferrari"
+  | "rolls-royce";
 
 export type Car = {
   id: string | number;
-  name: string;
-  class: string;
-  year?: string;
-  price: number;
-  per: string;
-  rating: number;
-  reviews: number;
-  mileage?: string;
-  fuelType?: string;
-  transmission?: string;
-  engine?: string;
-  power?: string;
-  seats?: number;
-  doors?: number;
-  features: string[];
-  specifications?: Record<string, string>;
-  description?: string;
-  available?: boolean;
-  location?: string;
-  contact?: {
-    phone: string;
-    email: string;
+  slug: string;
+
+  brand: Brand;
+  model: string;
+  trim?: string;
+  year: number;
+  isHero?: boolean;
+
+  listingType: ListingType;
+  condition: CarCondition;
+
+  category:
+    | "sedan"
+    | "suv"
+    | "coupe"
+    | "hatchback"
+    | "convertible"
+    | "pickup"
+    | "electric"
+    | "sports";
+
+  class:
+    | "economy"
+    | "standard"
+    | "premium"
+    | "luxury"
+    | "executive"
+    | "performance"
+    | "ultra-luxury";
+
+  pricing: {
+    currency: Currency;
+
+    hourly?: number;
+    daily?: number;
+    weekly?: number;
+    monthly?: number;
+    securityDeposit?: number;
+    minimumRentalDays?: number;
+
+    total?: number;
+    oldPrice?: number;
+    negotiable?: boolean;
+    financingAvailable?: boolean;
+    monthlyInstallment?: number;
   };
-  image: string;
-  category?: string;
+
+  available: boolean;
+  isFeatured?: boolean;
+  isPopular?: boolean;
+  isNewArrival?: boolean;
+  isBestSeller?: boolean;
+
+  transmission: Transmission;
+  fuelType: FuelType;
+  drivetrain?: Drivetrain;
+
+  seats: number;
+  doors: number;
+  mileage: number;
+
+  color?: string;
+  interiorColor?: string;
+
+  engine?: string;
+  cylinders?: number;
+  horsepower?: number;
+  torque?: number;
+  topSpeed?: number;
+  acceleration?: string;
+
+  fuelConsumption?: {
+    city?: number;
+    highway?: number;
+    combined?: number;
+    approxPer20Km?: number;
+  };
+
+  fuelTankCapacity?: number;
+  electricRange?: number;
+
+  city: string;
+  country: string;
+  address?: string;
+  deliveryAvailable?: boolean;
+  pickupLocations?: string[];
+
+  thumbnail: string;
+  images: string[];
+
+  ownershipHistory?: {
+    owners?: number;
+    accidentFree?: boolean;
+    serviceHistory?: boolean;
+  };
+
+  rating?: number;
+  reviewsCount?: number;
 };
 
 export const cars: Car[] = [
   {
     id: 1,
-    name: 'BMW 5 Series',
-    class: 'Luxury Sedan',
-    year: '2023',
-    price: 89,
-    per: 'day',
-    rating: 4.8,
-    reviews: 124,
-    mileage: '15,000',
-    fuelType: 'Petrol',
-    transmission: 'Automatic',
-    engine: '2.0L Turbo',
-    power: '248 HP',
+    slug: "bmw-5-series-2023",
+    brand: "bmw",
+    model: "5 Series",
+    trim: "M Sport",
+    year: 2023,
+    listingType: "rent",
+    condition: "new",
+    category: "sedan",
+    class: "luxury",
+    isHero: true,
+    pricing: {
+      currency: "USD",
+      hourly: 15,
+      daily: 90,
+      weekly: 550,
+      monthly: 1800,
+      securityDeposit: 500,
+      minimumRentalDays: 2
+    },
+    available: true,
+    isFeatured: true,
+    isPopular: true,
+    transmission: "automatic",
+    fuelType: "petrol",
+    drivetrain: "RWD",
     seats: 5,
     doors: 4,
-    features: ['Leather Seats', 'Navigation System', 'Bluetooth Connectivity', 'Backup Camera', 'Parking Sensors', 'Heated Seats', 'Sunroof', 'Premium Sound System', '5 Seats', 'Automatic', 'Premium'],
-    specifications: {
-      'Engine': '2.0L Turbo',
-      'Power': '248 HP',
-      'Transmission': '8-Speed Automatic',
-      'Drivetrain': 'RWD',
-      'Fuel Economy': '25 MPG City / 33 MPG Highway',
-      'Cargo Space': '14.0 cu ft',
-      'Length': '194.6 inches',
-      'Width': '73.5 inches',
-      'Height': '58.2 inches',
-      'Wheelbase': '117.1 inches',
+    mileage: 15000,
+    color: "Black",
+    interiorColor: "Beige",
+    engine: "2.0L Turbo",
+    cylinders: 4,
+    horsepower: 248,
+    torque: 350,
+    topSpeed: 250,
+    acceleration: "0-100 km/h in 6.1s",
+    fuelConsumption: {
+      city: 8.2,
+      highway: 5.9,
+      combined: 7.1,
+      approxPer20Km: 1.4
     },
-    description: 'The BMW 5 Series represents the perfect balance of luxury, performance, and technology. This executive sedan offers a refined driving experience with premium materials and cutting-edge features that make every journey exceptional.',
-    available: true,
-    location: 'New York, NY',
-    contact: {
-      phone: '+1 (555) 123-4567',
-      email: 'booking@caros.com',
-    },
-    image: '/Fleet/bmw-5.webp',
-    category: 'sedan',
-  },
-  {
-    id: 2,
-    name: 'Mercedes E-Class',
-    class: 'Executive Sedan',
-    year: '2023',
-    price: 95,
-    per: 'day',
+    fuelTankCapacity: 68,
+    city: "Dubai",
+    country: "UAE",
+    deliveryAvailable: true,
+    pickupLocations: [
+      "Dubai Marina",
+      "Airport",
+      "Downtown"
+    ],
+    thumbnail: "/Fleet/bmw-5-series-2023/bmw-5-series-2023-1.webp",
+    images: [
+      "/Fleet/bmw-5-series-2023/bmw-5-series-2023-1.webp",
+      "/Fleet/bmw-5-series-2023/bmw-5-series-2023-2.webp",
+      "/Fleet/bmw-5-series-2023/bmw-5-series-2023-3.webp",
+      "/Fleet/bmw-5-series-2023/bmw-5-series-2023-3.webp",
+      "/Fleet/bmw-5-series-2023/bmw-5-series-2023-3.webp",
+      "/Fleet/bmw-5-series-2023/bmw-5-series-2023-3.webp"
+    ],
     rating: 4.9,
-    reviews: 98,
-    mileage: '12,000',
-    fuelType: 'Petrol',
-    transmission: 'Automatic',
-    engine: '2.0L Turbo',
-    power: '255 HP',
-    seats: 5,
-    doors: 4,
-    features: ['MBUX Infotainment', 'Heated & Ventilated Seats', '360° Camera', 'Adaptive Cruise Control', 'Lane Keep Assist', 'Wireless Charging', 'Panoramic Sunroof', 'Burmester Sound System', '5 Seats', 'Automatic', 'Luxury'],
-    specifications: {
-      'Engine': '2.0L Turbo',
-      'Power': '255 HP',
-      'Transmission': '9-Speed Automatic',
-      'Drivetrain': 'RWD',
-      'Fuel Economy': '24 MPG City / 32 MPG Highway',
-      'Cargo Space': '13.1 cu ft',
-      'Length': '194.3 inches',
-      'Width': '72.9 inches',
-      'Height': '57.8 inches',
-      'Wheelbase': '115.7 inches',
-    },
-    description: 'The Mercedes E-Class sets the standard for executive luxury sedans. With its sophisticated design, advanced technology, and unparalleled comfort, it provides an exceptional driving experience for discerning customers.',
-    available: true,
-    location: 'Los Angeles, CA',
-    contact: {
-      phone: '+1 (555) 123-4568',
-      email: 'booking@caros.com',
-    },
-    image: '/Fleet/mercedes-e-class.webp',
-    category: 'sedan',
+    reviewsCount: 24
   },
   {
-    id: 3,
-    name: 'Audi A6',
-    class: 'Premium Sedan',
-    year: '2023',
-    price: 82,
-    per: 'day',
+    id: 11,
+    slug: "bmw-7-series-2022",
+    brand: "bmw",
+    model: "7 Series",
+    trim: "740i M Package",
+    year: 2022,
+    listingType: "sale",
+    condition: "used",
+    category: "sedan",
+    class: "luxury",
+    pricing: {
+      currency: "USD",
+      total: 95000,
+      oldPrice: 99000,
+      negotiable: true,
+      financingAvailable: true,
+      monthlyInstallment: 1450
+    },
+    available: true,
+    isFeatured: true,
+    transmission: "automatic",
+    fuelType: "petrol",
+    drivetrain: "RWD",
+    seats: 5,
+    doors: 4,
+    mileage: 38000,
+    color: "White",
+    interiorColor: "Black",
+    engine: "3.0L Turbo",
+    cylinders: 6,
+    horsepower: 335,
+    torque: 450,
+    topSpeed: 250,
+    fuelConsumption: {
+      combined: 8.4,
+      approxPer20Km: 1.7
+    },
+    fuelTankCapacity: 74,
+    city: "Dubai",
+    country: "UAE",
+    thumbnail: "/Fleet/bmw-7-series-2022/bmw-7-series-2022-1.webp",
+    images: [
+      "/Fleet/bmw-7-series-2022/bmw-7-series-2022-1.webp",
+      "/Fleet/bmw-7-series-2022/bmw-7-series-2022-2.webp",
+      "/Fleet/bmw-7-series-2022/bmw-7-series-2022-3.webp"
+    ],
+    ownershipHistory: {
+      owners: 1,
+      accidentFree: true,
+      serviceHistory: true
+    },
+    rating: 4.8,
+    reviewsCount: 12
+  },
+  {
+    id: 21,
+    slug: "tesla-model-s-2024",
+    brand: "tesla",
+    model: "Model S",
+    year: 2024,
+    listingType: "both",
+    condition: "new",
+    category: "electric",
+    class: "performance",
+    pricing: {
+      currency: "USD",
+      daily: 140,
+      weekly: 850,
+      monthly: 2900,
+      total: 82000,
+      negotiable: false
+    },
+    available: true,
+    isFeatured: true,
+    isNewArrival: true,
+    transmission: "automatic",
+    fuelType: "electric",
+    drivetrain: "AWD",
+    seats: 5,
+    doors: 4,
+    mileage: 5000,
+    color: "Grey",
+    interiorColor: "White",
+    horsepower: 670,
+    topSpeed: 250,
+    acceleration: "0-100 km/h in 3.2s",
+    electricRange: 652,
+    city: "Dubai",
+    country: "UAE",
+    deliveryAvailable: true,
+    thumbnail: "/Fleet/default/default-1.webp",
+    images: [
+      "/Fleet/default/default-1.webp",
+      "/Fleet/default/default-2.webp",
+      "/Fleet/default/default-3.webp"
+    ],
+    rating: 5,
+    reviewsCount: 8
+  },
+  {
+    id: 31,
+    slug: "mercedes-e-class-2024",
+    brand: "mercedes-benz",
+    model: "E-Class",
+    trim: "E 350 AMG Line",
+    year: 2024,
+    listingType: "rent",
+    condition: "new",
+    category: "sedan",
+    class: "executive",
+    pricing: {
+      currency: "USD",
+      hourly: 25,
+      daily: 145,
+      weekly: 920,
+      monthly: 3100,
+      securityDeposit: 700,
+      minimumRentalDays: 2
+    },
+    available: true,
+    isPopular: true,
+    transmission: "automatic",
+    fuelType: "petrol",
+    drivetrain: "RWD",
+    seats: 5,
+    doors: 4,
+    mileage: 13000,
+    color: "Selenite Grey",
+    interiorColor: "Black",
+    engine: "2.0L Inline-4 Turbo",
+    cylinders: 4,
+    horsepower: 255,
+    torque: 370,
+    topSpeed: 250,
+    acceleration: "0-100 km/h in 6.2s",
+    fuelConsumption: {
+      city: 8.7,
+      highway: 6.1,
+      combined: 7.6,
+      approxPer20Km: 1.6
+    },
+    fuelTankCapacity: 66,
+    city: "Abu Dhabi",
+    country: "UAE",
+    deliveryAvailable: true,
+    pickupLocations: [
+      "Yas Island",
+      "Airport",
+      "Corniche"
+    ],
+    thumbnail: "/Fleet/default/default-1.webp",
+    images: [
+      "/Fleet/default/default-1.webp",
+      "/Fleet/default/default-2.webp",
+      "/Fleet/default/default-3.webp"
+    ],
     rating: 4.7,
-    reviews: 156,
-    mileage: '18,000',
-    fuelType: 'Petrol',
-    transmission: 'Automatic',
-    engine: '2.0L Turbo',
-    power: '248 HP',
+    reviewsCount: 18
+  },
+  {
+    id: 32,
+    slug: "audi-q8-2023",
+    brand: "audi",
+    model: "Q8",
+    trim: "45 TFSI quattro",
+    year: 2023,
+    listingType: "rent",
+    condition: "new",
+    category: "suv",
+    class: "premium",
+    pricing: {
+      currency: "USD",
+      hourly: 22,
+      daily: 135,
+      weekly: 860,
+      monthly: 2800,
+      securityDeposit: 650,
+      minimumRentalDays: 2
+    },
+    available: true,
+    isFeatured: true,
+    transmission: "automatic",
+    fuelType: "petrol",
+    drivetrain: "AWD",
     seats: 5,
     doors: 4,
-    features: ['Virtual Cockpit', 'MMI Navigation Plus', 'Quattro AWD', 'Adaptive Air Suspension', 'Bang & Olufsen Sound', 'Wireless Apple CarPlay', 'Head-up Display', 'Traffic Jam Assist', '5 Seats', 'Automatic', 'Sport'],
-    specifications: {
-      'Engine': '2.0L Turbo',
-      'Power': '248 HP',
-      'Transmission': '7-Speed S tronic',
-      'Drivetrain': 'Quattro AWD',
-      'Fuel Economy': '23 MPG City / 31 MPG Highway',
-      'Cargo Space': '13.7 cu ft',
-      'Length': '194.4 inches',
-      'Width': '74.3 inches',
-      'Height': '57.4 inches',
-      'Wheelbase': '115.3 inches',
+    mileage: 14000,
+    color: "Nautilus Blue",
+    interiorColor: "Grey",
+    engine: "3.0L V6 Turbo",
+    cylinders: 6,
+    horsepower: 335,
+    torque: 500,
+    topSpeed: 250,
+    acceleration: "0-100 km/h in 5.9s",
+    fuelConsumption: {
+      city: 10.2,
+      highway: 7.2,
+      combined: 8.9,
+      approxPer20Km: 2
     },
-    description: 'The Audi A6 combines sophisticated design with cutting-edge technology. Its quattro all-wheel drive system and premium interior make it a standout choice for those who appreciate both performance and luxury.',
-    available: true,
-    location: 'Chicago, IL',
-    contact: {
-      phone: '+1 (555) 123-4569',
-      email: 'booking@caros.com',
-    },
-    image: '/Fleet/audi-a6.webp',
-    category: 'sedan',
-  },
-  {
-    id: 4,
-    name: 'Range Rover Sport',
-    class: 'Luxury SUV',
-    year: '2023',
-    price: 120,
-    per: 'day',
-    rating: 4.9,
-    reviews: 87,
-    mileage: '10,000',
-    fuelType: 'Petrol',
-    transmission: 'Automatic',
-    engine: '3.0L Turbo',
-    power: '355 HP',
-    seats: 7,
-    doors: 5,
-    features: ['Terrain Response', 'Panoramic Roof', 'Meridian Sound', 'Heated Steering Wheel', 'Adaptive Cruise', 'Blind Spot Assist', 'Surround Camera', 'Premium LED Headlights', '7 Seats', '4WD', 'Premium'],
-    specifications: {
-      'Engine': '3.0L Turbo',
-      'Power': '355 HP',
-      'Transmission': '8-Speed Automatic',
-      'Drivetrain': '4WD',
-      'Fuel Economy': '19 MPG City / 24 MPG Highway',
-      'Cargo Space': '27.5 cu ft',
-      'Length': '192.1 inches',
-      'Width': '81.6 inches',
-      'Height': '71.0 inches',
-      'Wheelbase': '115.1 inches',
-    },
-    description: 'The Range Rover Sport is the ultimate luxury SUV, blending off-road capability with on-road refinement. Its spacious interior and advanced features make it perfect for families and adventurers alike.',
-    available: true,
-    location: 'Miami, FL',
-    contact: {
-      phone: '+1 (555) 123-4570',
-      email: 'booking@caros.com',
-    },
-    image: '/Fleet/rangerover-sport.webp',
-    category: 'suv',
-  },
-  {
-    id: 5,
-    name: 'Tesla Model S',
-    class: 'Electric Luxury',
-    year: '2023',
-    price: 110,
-    per: 'day',
+    fuelTankCapacity: 75,
+    city: "Dubai",
+    country: "UAE",
+    deliveryAvailable: true,
+    pickupLocations: [
+      "Palm Jumeirah",
+      "Airport",
+      "Business Bay"
+    ],
+    thumbnail: "/Fleet/default/default-1.webp",
+    images: [
+      "/Fleet/default/default-1.webp",
+      "/Fleet/default/default-2.webp",
+      "/Fleet/default/default-3.webp"
+    ],
     rating: 4.8,
-    reviews: 203,
-    mileage: '8,000',
-    fuelType: 'Electric',
-    transmission: 'Automatic',
-    engine: 'Dual Motor',
-    power: '670 HP',
-    seats: 5,
-    doors: 4,
-    features: ['Autopilot', 'Long Range', 'Premium Interior', 'HEPA Air Filtration', 'All-Wheel Drive', 'Glass Roof', 'Wireless Charging', '5 Seats', 'Electric', 'Autopilot'],
-    specifications: {
-      'Engine': 'Dual Motor',
-      'Power': '670 HP',
-      'Transmission': '1-Speed Automatic',
-      'Drivetrain': 'AWD',
-      'Fuel Economy': '124 MPGe',
-      'Cargo Space': '28.4 cu ft',
-      'Length': '196.0 inches',
-      'Width': '77.3 inches',
-      'Height': '56.9 inches',
-      'Wheelbase': '116.5 inches',
-    },
-    description: 'The Tesla Model S is a benchmark for electric luxury sedans, offering blistering acceleration, cutting-edge technology, and a spacious, high-tech cabin.',
-    available: true,
-    location: 'San Francisco, CA',
-    contact: {
-      phone: '+1 (555) 123-4571',
-      email: 'booking@caros.com',
-    },
-    image: '/Fleet/tesla-model-s.webp',
-    category: 'electric',
+    reviewsCount: 27
   },
   {
-    id: 6,
-    name: 'Porsche 911',
-    class: 'Sports Car',
-    year: '2023',
-    price: 150,
-    per: 'day',
-    rating: 4.9,
-    reviews: 67,
-    mileage: '5,000',
-    fuelType: 'Petrol',
-    transmission: 'Manual',
-    engine: '3.0L Twin-Turbo',
-    power: '379 HP',
+    id: 33,
+    slug: "porsche-911-carrera-2023",
+    brand: "porsche",
+    model: "911 Carrera",
+    year: 2023,
+    listingType: "rent",
+    condition: "new",
+    category: "sports",
+    class: "performance",
+    pricing: {
+      currency: "USD",
+      hourly: 45,
+      daily: 275,
+      weekly: 1700,
+      monthly: 5400,
+      securityDeposit: 1500,
+      minimumRentalDays: 1
+    },
+    available: true,
+    isFeatured: true,
+    transmission: "automatic",
+    fuelType: "petrol",
+    drivetrain: "RWD",
     seats: 2,
     doors: 2,
-    features: ['Sport Chrono', 'BOSE Surround', 'Rear Axle Steering', 'Adaptive Sport Seats', 'LED Matrix Headlights', '2 Seats', 'Manual', 'Sport'],
-    specifications: {
-      'Engine': '3.0L Twin-Turbo',
-      'Power': '379 HP',
-      'Transmission': '7-Speed Manual',
-      'Drivetrain': 'RWD',
-      'Fuel Economy': '18 MPG City / 24 MPG Highway',
-      'Cargo Space': '4.6 cu ft',
-      'Length': '177.9 inches',
-      'Width': '72.9 inches',
-      'Height': '50.8 inches',
-      'Wheelbase': '96.5 inches',
+    mileage: 9000,
+    color: "Racing Yellow",
+    interiorColor: "Black",
+    engine: "3.0L Flat-6 Twin Turbo",
+    cylinders: 6,
+    horsepower: 385,
+    torque: 450,
+    topSpeed: 295,
+    acceleration: "0-100 km/h in 4.2s",
+    fuelConsumption: {
+      city: 12.5,
+      highway: 8.5,
+      combined: 10.5,
+      approxPer20Km: 2.4
     },
-    description: 'The Porsche 911 is an icon of performance and design. With its rear-engine layout and legendary handling, it delivers an exhilarating driving experience.',
-    available: true,
-    location: 'Las Vegas, NV',
-    contact: {
-      phone: '+1 (555) 123-4572',
-      email: 'booking@caros.com',
-    },
-    image: '/Fleet/porche-911.webp',
-    category: 'sports',
-  },
-  {
-    id: 7,
-    name: 'Bentley Continental',
-    class: 'Ultra Luxury',
-    year: '2023',
-    price: 200,
-    per: 'day',
+    fuelTankCapacity: 64,
+    city: "Dubai",
+    country: "UAE",
+    deliveryAvailable: true,
+    pickupLocations: [
+      "Marina",
+      "Mall of the Emirates",
+      "Airport"
+    ],
+    thumbnail: "/Fleet/default/default-1.webp",
+    images: [
+      "/Fleet/default/default-1.webp",
+      "/Fleet/default/default-2.webp",
+      "/Fleet/default/default-3.webp"
+    ],
     rating: 4.9,
-    reviews: 45,
-    mileage: '3,000',
-    fuelType: 'Petrol',
-    transmission: 'Automatic',
-    engine: '6.0L W12',
-    power: '626 HP',
-    seats: 4,
-    doors: 2,
-    features: ['Naim Audio', 'Massage Seats', 'Rotating Display', 'All-Wheel Drive', 'Heated Armrests', 'Diamond Quilted Leather', '4 Seats', 'Automatic', 'Luxury'],
-    specifications: {
-      'Engine': '6.0L W12',
-      'Power': '626 HP',
-      'Transmission': '8-Speed Dual-Clutch',
-      'Drivetrain': 'AWD',
-      'Fuel Economy': '12 MPG City / 20 MPG Highway',
-      'Cargo Space': '12.6 cu ft',
-      'Length': '190.9 inches',
-      'Width': '76.9 inches',
-      'Height': '55.3 inches',
-      'Wheelbase': '112.2 inches',
-    },
-    description: 'The Bentley Continental redefines ultra-luxury grand touring. Its handcrafted interior, immense power, and advanced technology make every drive unforgettable.',
-    available: true,
-    location: 'Palm Beach, FL',
-    contact: {
-      phone: '+1 (555) 123-4573',
-      email: 'booking@caros.com',
-    },
-    image: '/Fleet/Bentley-Continental.webp',
-    category: 'luxury',
+    reviewsCount: 16
   },
   {
-    id: 8,
-    name: 'BMW X5',
-    class: 'Luxury SUV',
-    year: '2023',
-    price: 105,
-    per: 'day',
-    rating: 4.7,
-    reviews: 112,
-    mileage: '14,000',
-    fuelType: 'Petrol',
-    transmission: 'Automatic',
-    engine: '3.0L Turbo',
-    power: '335 HP',
-    seats: 5,
-    doors: 5,
-    features: ['xDrive AWD', 'Panoramic Roof', 'Harman Kardon Audio', 'Wireless Charging', 'Heated Seats', 'Gesture Control', '5 Seats', '4WD', 'Premium'],
-    specifications: {
-      'Engine': '3.0L Turbo',
-      'Power': '335 HP',
-      'Transmission': '8-Speed Automatic',
-      'Drivetrain': 'AWD',
-      'Fuel Economy': '21 MPG City / 26 MPG Highway',
-      'Cargo Space': '33.9 cu ft',
-      'Length': '194.3 inches',
-      'Width': '78.9 inches',
-      'Height': '69.0 inches',
-      'Wheelbase': '117.1 inches',
+    id: 34,
+    slug: "range-rover-velar-2024",
+    brand: "range-rover",
+    model: "Velar",
+    year: 2024,
+    listingType: "rent",
+    condition: "new",
+    category: "suv",
+    class: "luxury",
+    pricing: {
+      currency: "USD",
+      hourly: 28,
+      daily: 175,
+      weekly: 1100,
+      monthly: 3600,
+      securityDeposit: 800,
+      minimumRentalDays: 2
     },
-    description: 'The BMW X5 is a benchmark for luxury SUVs, offering a perfect blend of performance, comfort, and versatility. Its spacious cabin and advanced features make it a top choice for families.',
     available: true,
-    location: 'Dallas, TX',
-    contact: {
-      phone: '+1 (555) 123-4574',
-      email: 'booking@caros.com',
-    },
-    image: '/Fleet/bmw-x5.webp',
-    category: 'suv',
-  },
-  {
-    id: 9,
-    name: 'Tesla Model 3',
-    class: 'Electric Sedan',
-    year: '2023',
-    price: 75,
-    per: 'day',
-    rating: 4.6,
-    reviews: 189,
-    mileage: '9,000',
-    fuelType: 'Electric',
-    transmission: 'Automatic',
-    engine: 'Single Motor',
-    power: '283 HP',
+    isNewArrival: true,
+    transmission: "automatic",
+    fuelType: "petrol",
+    drivetrain: "AWD",
     seats: 5,
     doors: 4,
-    features: ['Autopilot', 'Glass Roof', 'Premium Audio', 'Wireless Charging', '5 Seats', 'Electric', 'Autopilot'],
-    specifications: {
-      'Engine': 'Single Motor',
-      'Power': '283 HP',
-      'Transmission': '1-Speed Automatic',
-      'Drivetrain': 'RWD',
-      'Fuel Economy': '138 MPGe',
-      'Cargo Space': '15.0 cu ft',
-      'Length': '184.8 inches',
-      'Width': '72.8 inches',
-      'Height': '56.8 inches',
-      'Wheelbase': '113.2 inches',
+    mileage: 10000,
+    color: "Narvik Black",
+    interiorColor: "Ebony",
+    engine: "2.0L Turbo",
+    cylinders: 4,
+    horsepower: 300,
+    torque: 400,
+    topSpeed: 241,
+    acceleration: "0-100 km/h in 6.4s",
+    fuelConsumption: {
+      city: 10.8,
+      highway: 7.8,
+      combined: 9.5,
+      approxPer20Km: 2.2
     },
-    description: 'The Tesla Model 3 is a game-changer in the world of electric vehicles. It offers impressive range, advanced technology, and a minimalist interior at an accessible price.',
-    available: true,
-    location: 'Austin, TX',
-    contact: {
-      phone: '+1 (555) 123-4575',
-      email: 'booking@caros.com',
-    },
-    image: '/Fleet/tesla-model-3.webp',
-    category: 'electric',
+    fuelTankCapacity: 69,
+    city: "Dubai",
+    country: "UAE",
+    deliveryAvailable: true,
+    pickupLocations: [
+      "Jumeirah",
+      "Airport",
+      "Business Bay"
+    ],
+    thumbnail: "/Fleet/default/default-1.webp",
+    images: [
+      "/Fleet/default/default-1.webp",
+      "/Fleet/default/default-2.webp",
+      "/Fleet/default/default-3.webp"
+    ],
+    rating: 4.8,
+    reviewsCount: 21
   },
-]; 
+  {
+    id: 35,
+    slug: "lexus-ls-2023",
+    brand: "lexus",
+    model: "LS",
+    trim: "500h Luxury",
+    year: 2023,
+    listingType: "rent",
+    condition: "new",
+    category: "sedan",
+    class: "executive",
+    pricing: {
+      currency: "USD",
+      hourly: 20,
+      daily: 130,
+      weekly: 820,
+      monthly: 2700,
+      securityDeposit: 650,
+      minimumRentalDays: 2
+    },
+    available: true,
+    transmission: "automatic",
+    fuelType: "hybrid",
+    drivetrain: "RWD",
+    seats: 5,
+    doors: 4,
+    mileage: 11000,
+    color: "Cloudburst Grey",
+    interiorColor: "Saddle Brown",
+    engine: "3.5L V6 Hybrid",
+    cylinders: 6,
+    horsepower: 354,
+    torque: 400,
+    topSpeed: 250,
+    acceleration: "0-100 km/h in 5.4s",
+    fuelConsumption: {
+      city: 7.5,
+      highway: 6.5,
+      combined: 7,
+      approxPer20Km: 1.4
+    },
+    fuelTankCapacity: 82,
+    city: "Dubai",
+    country: "UAE",
+    deliveryAvailable: true,
+    pickupLocations: [
+      "Jumeirah",
+      "Airport",
+      "Dubai Mall"
+    ],
+    thumbnail: "/Fleet/default/default-1.webp",
+    images: [
+      "/Fleet/default/default-1.webp",
+      "/Fleet/default/default-2.webp",
+      "/Fleet/default/default-3.webp"
+    ],
+    rating: 4.9,
+    reviewsCount: 19
+  },
+  {
+    id: 36,
+    slug: "nissan-patrol-2024",
+    brand: "nissan",
+    model: "Patrol",
+    trim: "Platinum Edition",
+    year: 2024,
+    listingType: "rent",
+    condition: "new",
+    category: "suv",
+    class: "premium",
+    pricing: {
+      currency: "USD",
+      hourly: 20,
+      daily: 125,
+      weekly: 780,
+      monthly: 2500,
+      securityDeposit: 600,
+      minimumRentalDays: 2
+    },
+    available: true,
+    transmission: "automatic",
+    fuelType: "petrol",
+    drivetrain: "4WD",
+    seats: 7,
+    doors: 4,
+    mileage: 9000,
+    color: "Pearl White",
+    interiorColor: "Beige",
+    engine: "5.6L V8",
+    cylinders: 8,
+    horsepower: 400,
+    torque: 560,
+    topSpeed: 220,
+    acceleration: "0-100 km/h in 7.1s",
+    fuelConsumption: {
+      city: 16.5,
+      highway: 12.1,
+      combined: 14.8,
+      approxPer20Km: 3
+    },
+    fuelTankCapacity: 140,
+    city: "Abu Dhabi",
+    country: "UAE",
+    deliveryAvailable: true,
+    pickupLocations: [
+      "Yas Island",
+      "Airport",
+      "Al Maryah Island"
+    ],
+    thumbnail: "/Fleet/default/default-1.webp",
+    images: [
+      "/Fleet/default/default-1.webp",
+      "/Fleet/default/default-2.webp",
+      "/Fleet/default/default-3.webp"
+    ],
+    rating: 4.6,
+    reviewsCount: 22
+  },
+  {
+    id: 37,
+    slug: "toyota-land-cruiser-2023",
+    brand: "toyota",
+    model: "Land Cruiser",
+    trim: "ZX",
+    year: 2023,
+    listingType: "rent",
+    condition: "new",
+    category: "suv",
+    class: "premium",
+    pricing: {
+      currency: "USD",
+      hourly: 18,
+      daily: 115,
+      weekly: 720,
+      monthly: 2300,
+      securityDeposit: 650,
+      minimumRentalDays: 2
+    },
+    available: true,
+    transmission: "automatic",
+    fuelType: "hybrid",
+    drivetrain: "4WD",
+    seats: 7,
+    doors: 4,
+    mileage: 12000,
+    color: "Midnight Black",
+    interiorColor: "Brown",
+    engine: "3.5L Twin-Turbo V6 Hybrid",
+    cylinders: 6,
+    horsepower: 409,
+    torque: 650,
+    topSpeed: 210,
+    acceleration: "0-100 km/h in 6.9s",
+    fuelConsumption: {
+      city: 11.2,
+      highway: 9,
+      combined: 10.1,
+      approxPer20Km: 2.1
+    },
+    fuelTankCapacity: 93,
+    city: "Dubai",
+    country: "UAE",
+    deliveryAvailable: true,
+    pickupLocations: [
+      "Dubai Marina",
+      "Airport",
+      "Dubai Hills"
+    ],
+    thumbnail: "/Fleet/default/default-1.webp",
+    images: [
+      "/Fleet/default/default-1.webp",
+      "/Fleet/default/default-2.webp",
+      "/Fleet/default/default-3.webp"
+    ],
+    rating: 4.7,
+    reviewsCount: 29
+  },
+  {
+    id: 38,
+    slug: "hyundai-i30-2024",
+    brand: "hyundai",
+    model: "i30",
+    year: 2024,
+    listingType: "rent",
+    condition: "new",
+    category: "hatchback",
+    class: "economy",
+    pricing: {
+      currency: "USD",
+      hourly: 10,
+      daily: 60,
+      weekly: 380,
+      monthly: 1100,
+      securityDeposit: 300,
+      minimumRentalDays: 1
+    },
+    available: true,
+    transmission: "automatic",
+    fuelType: "petrol",
+    drivetrain: "FWD",
+    seats: 5,
+    doors: 4,
+    mileage: 8000,
+    color: "Phantom Black",
+    interiorColor: "Grey",
+    engine: "1.5L Turbo",
+    cylinders: 4,
+    horsepower: 160,
+    torque: 253,
+    topSpeed: 210,
+    acceleration: "0-100 km/h in 8.9s",
+    fuelConsumption: {
+      city: 7.3,
+      highway: 5.5,
+      combined: 6.4,
+      approxPer20Km: 1.3
+    },
+    fuelTankCapacity: 53,
+    city: "Sharjah",
+    country: "UAE",
+    deliveryAvailable: true,
+    pickupLocations: [
+      "Expo City",
+      "Airport",
+      "Al Majaz"
+    ],
+    thumbnail: "/Fleet/default/default-1.webp",
+    images: [
+      "/Fleet/default/default-1.webp",
+      "/Fleet/default/default-2.webp",
+      "/Fleet/default/default-3.webp"
+    ],
+    rating: 4.5,
+    reviewsCount: 14
+  },
+  {
+    id: 39,
+    slug: "kia-stinger-2024",
+    brand: "kia",
+    model: "Stinger",
+    trim: "GT-Line",
+    year: 2024,
+    listingType: "rent",
+    condition: "new",
+    category: "coupe",
+    class: "premium",
+    pricing: {
+      currency: "USD",
+      hourly: 20,
+      daily: 120,
+      weekly: 780,
+      monthly: 2450,
+      securityDeposit: 650,
+      minimumRentalDays: 2
+    },
+    available: true,
+    transmission: "automatic",
+    fuelType: "petrol",
+    drivetrain: "RWD",
+    seats: 5,
+    doors: 4,
+    mileage: 7000,
+    color: "Deep Chroma Red",
+    interiorColor: "Black",
+    engine: "2.5L Turbocharged I4",
+    cylinders: 4,
+    horsepower: 300,
+    torque: 421,
+    topSpeed: 250,
+    acceleration: "0-100 km/h in 5.2s",
+    fuelConsumption: {
+      city: 10.4,
+      highway: 7.8,
+      combined: 8.9,
+      approxPer20Km: 2
+    },
+    fuelTankCapacity: 60,
+    city: "Dubai",
+    country: "UAE",
+    deliveryAvailable: true,
+    pickupLocations: [
+      "Downtown",
+      "Airport",
+      "Dubai Hills"
+    ],
+    thumbnail: "/Fleet/default/default-1.webp",
+    images: [
+      "/Fleet/default/default-1.webp",
+      "/Fleet/default/default-2.webp",
+      "/Fleet/default/default-3.webp"
+    ],
+    rating: 4.6,
+    reviewsCount: 13
+  },
+  {
+    id: 41,
+    slug: "mercedes-s-class-2021",
+    brand: "mercedes-benz",
+    model: "S-Class",
+    trim: "S 500",
+    year: 2021,
+    listingType: "sale",
+    condition: "used",
+    category: "sedan",
+    class: "ultra-luxury",
+    pricing: {
+      currency: "USD",
+      total: 125000,
+      oldPrice: 138000,
+      negotiable: true,
+      financingAvailable: true,
+      monthlyInstallment: 1900
+    },
+    available: true,
+    transmission: "automatic",
+    fuelType: "petrol",
+    drivetrain: "RWD",
+    seats: 5,
+    doors: 4,
+    mileage: 42000,
+    color: "Obsidian Black",
+    interiorColor: "Porcelain",
+    engine: "3.0L Inline-6",
+    cylinders: 6,
+    horsepower: 429,
+    torque: 520,
+    topSpeed: 250,
+    fuelConsumption: {
+      city: 10.5,
+      highway: 7.2,
+      combined: 8.9,
+      approxPer20Km: 2
+    },
+    fuelTankCapacity: 80,
+    city: "Dubai",
+    country: "UAE",
+    thumbnail: "/Fleet/default/default-1.webp",
+    images: [
+      "/Fleet/default/default-1.webp",
+      "/Fleet/default/default-2.webp",
+      "/Fleet/default/default-3.webp"
+    ],
+    ownershipHistory: {
+      owners: 2,
+      accidentFree: true,
+      serviceHistory: true
+    },
+    rating: 4.9,
+    reviewsCount: 14
+  },
+  {
+    id: 42,
+    slug: "audi-rs7-2022",
+    brand: "audi",
+    model: "RS 7",
+    year: 2022,
+    listingType: "sale",
+    condition: "used",
+    category: "sports",
+    class: "performance",
+    pricing: {
+      currency: "USD",
+      total: 98000,
+      oldPrice: 105000,
+      negotiable: true,
+      financingAvailable: true,
+      monthlyInstallment: 1450
+    },
+    available: true,
+    transmission: "automatic",
+    fuelType: "petrol",
+    drivetrain: "AWD",
+    seats: 5,
+    doors: 4,
+    mileage: 28000,
+    color: "Nardo Grey",
+    interiorColor: "Black",
+    engine: "4.0L V8 Twin Turbo",
+    cylinders: 8,
+    horsepower: 600,
+    torque: 800,
+    topSpeed: 305,
+    acceleration: "0-100 km/h in 3.6s",
+    fuelConsumption: {
+      city: 14,
+      highway: 9.7,
+      combined: 11.8,
+      approxPer20Km: 2.6
+    },
+    fuelTankCapacity: 82,
+    city: "Dubai",
+    country: "UAE",
+    thumbnail: "/Fleet/default/default-1.webp",
+    images: [
+      "/Fleet/default/default-1.webp",
+      "/Fleet/default/default-2.webp",
+      "/Fleet/default/default-3.webp"
+    ],
+    ownershipHistory: {
+      owners: 1,
+      accidentFree: true,
+      serviceHistory: true
+    },
+    rating: 4.8,
+    reviewsCount: 11
+  },
+  {
+    id: 43,
+    slug: "porsche-cayenne-turbo-2022",
+    brand: "porsche",
+    model: "Cayenne Turbo",
+    year: 2022,
+    listingType: "sale",
+    condition: "used",
+    category: "suv",
+    class: "luxury",
+    pricing: {
+      currency: "USD",
+      total: 98000,
+      oldPrice: 104000,
+      negotiable: true,
+      financingAvailable: true,
+      monthlyInstallment: 1450
+    },
+    available: true,
+    transmission: "automatic",
+    fuelType: "petrol",
+    drivetrain: "AWD",
+    seats: 5,
+    doors: 4,
+    mileage: 29000,
+    color: "Jet Black",
+    interiorColor: "Black",
+    engine: "4.0L V8 Twin Turbo",
+    cylinders: 8,
+    horsepower: 541,
+    torque: 770,
+    topSpeed: 286,
+    acceleration: "0-100 km/h in 4.1s",
+    fuelConsumption: {
+      city: 15.4,
+      highway: 10.2,
+      combined: 12.7,
+      approxPer20Km: 2.8
+    },
+    fuelTankCapacity: 90,
+    city: "Dubai",
+    country: "UAE",
+    thumbnail: "/Fleet/default/default-1.webp",
+    images: [
+      "/Fleet/default/default-1.webp",
+      "/Fleet/default/default-2.webp",
+      "/Fleet/default/default-3.webp"
+    ],
+    ownershipHistory: {
+      owners: 2,
+      accidentFree: true,
+      serviceHistory: true
+    },
+    rating: 4.7,
+    reviewsCount: 15
+  },
+  {
+    id: 44,
+    slug: "range-rover-sport-2021",
+    brand: "range-rover",
+    model: "Sport",
+    year: 2021,
+    listingType: "sale",
+    condition: "used",
+    category: "suv",
+    class: "luxury",
+    pricing: {
+      currency: "USD",
+      total: 89000,
+      oldPrice: 94000,
+      negotiable: true,
+      financingAvailable: true,
+      monthlyInstallment: 1320
+    },
+    available: true,
+    transmission: "automatic",
+    fuelType: "petrol",
+    drivetrain: "AWD",
+    seats: 5,
+    doors: 4,
+    mileage: 43000,
+    color: "Aruba Blue",
+    interiorColor: "Ebony",
+    engine: "3.0L Supercharged V6",
+    cylinders: 6,
+    horsepower: 375,
+    torque: 406,
+    topSpeed: 250,
+    acceleration: "0-100 km/h in 5.9s",
+    fuelConsumption: {
+      city: 12.8,
+      highway: 9,
+      combined: 10.9,
+      approxPer20Km: 2.4
+    },
+    fuelTankCapacity: 90,
+    city: "Dubai",
+    country: "UAE",
+    thumbnail: "/Fleet/default/default-1.webp",
+    images: [
+      "/Fleet/default/default-1.webp",
+      "/Fleet/default/default-2.webp",
+      "/Fleet/default/default-3.webp"
+    ],
+    ownershipHistory: {
+      owners: 2,
+      accidentFree: true,
+      serviceHistory: true
+    },
+    rating: 4.7,
+    reviewsCount: 13
+  },
+  {
+    id: 45,
+    slug: "lexus-lc-500-2023",
+    brand: "lexus",
+    model: "LC 500",
+    year: 2023,
+    listingType: "sale",
+    condition: "new",
+    category: "coupe",
+    class: "premium",
+    pricing: {
+      currency: "USD",
+      total: 115000,
+      negotiable: false,
+      financingAvailable: true,
+      monthlyInstallment: 1750
+    },
+    available: true,
+    transmission: "automatic",
+    fuelType: "petrol",
+    drivetrain: "RWD",
+    seats: 4,
+    doors: 2,
+    mileage: 1200,
+    color: "Ultra White",
+    interiorColor: "Black",
+    engine: "5.0L V8",
+    cylinders: 8,
+    horsepower: 471,
+    torque: 540,
+    topSpeed: 270,
+    acceleration: "0-100 km/h in 4.4s",
+    fuelConsumption: {
+      city: 14.8,
+      highway: 10.1,
+      combined: 12.8,
+      approxPer20Km: 2.9
+    },
+    fuelTankCapacity: 82,
+    city: "Dubai",
+    country: "UAE",
+    thumbnail: "/Fleet/default/default-1.webp",
+    images: [
+      "/Fleet/default/default-1.webp",
+      "/Fleet/default/default-2.webp",
+      "/Fleet/default/default-3.webp"
+    ],
+    rating: 4.8,
+    reviewsCount: 9
+  },
+  {
+    id: 46,
+    slug: "lamborghini-urus-2023",
+    brand: "lamborghini",
+    model: "Urus",
+    year: 2023,
+    listingType: "sale",
+    condition: "new",
+    category: "suv",
+    class: "performance",
+    pricing: {
+      currency: "USD",
+      total: 265000,
+      negotiable: false,
+      financingAvailable: true,
+      monthlyInstallment: 4000
+    },
+    available: true,
+    transmission: "automatic",
+    fuelType: "petrol",
+    drivetrain: "AWD",
+    seats: 5,
+    doors: 4,
+    mileage: 600,
+    color: "Verde Mantis",
+    interiorColor: "Black",
+    engine: "4.0L V8 Twin Turbo",
+    cylinders: 8,
+    horsepower: 650,
+    torque: 850,
+    topSpeed: 305,
+    acceleration: "0-100 km/h in 3.6s",
+    fuelConsumption: {
+      city: 19.5,
+      highway: 11.5,
+      combined: 15.8,
+      approxPer20Km: 3.5
+    },
+    fuelTankCapacity: 85,
+    city: "Dubai",
+    country: "UAE",
+    thumbnail: "/Fleet/default/default-1.webp",
+    images: [
+      "/Fleet/default/default-1.webp",
+      "/Fleet/default/default-2.webp",
+      "/Fleet/default/default-3.webp"
+    ],
+    rating: 4.9,
+    reviewsCount: 8
+  },
+  {
+    id: 47,
+    slug: "ferrari-portofino-2022",
+    brand: "ferrari",
+    model: "Portofino",
+    year: 2022,
+    listingType: "sale",
+    condition: "used",
+    category: "convertible",
+    class: "performance",
+    pricing: {
+      currency: "USD",
+      total: 240000,
+      oldPrice: 255000,
+      negotiable: true,
+      financingAvailable: true,
+      monthlyInstallment: 3600
+    },
+    available: true,
+    transmission: "automatic",
+    fuelType: "petrol",
+    drivetrain: "RWD",
+    seats: 4,
+    doors: 2,
+    mileage: 15000,
+    color: "Rosso Corsa",
+    interiorColor: "Black",
+    engine: "3.9L V8 Twin Turbo",
+    cylinders: 8,
+    horsepower: 612,
+    torque: 760,
+    topSpeed: 320,
+    acceleration: "0-100 km/h in 3.5s",
+    fuelConsumption: {
+      city: 14.6,
+      highway: 10.3,
+      combined: 12.7,
+      approxPer20Km: 2.8
+    },
+    fuelTankCapacity: 80,
+    city: "Dubai",
+    country: "UAE",
+    thumbnail: "/Fleet/default/default-1.webp",
+    images: [
+      "/Fleet/default/default-1.webp",
+      "/Fleet/default/default-2.webp",
+      "/Fleet/default/default-3.webp"
+    ],
+    ownershipHistory: {
+      owners: 1,
+      accidentFree: true,
+      serviceHistory: true
+    },
+    rating: 4.9,
+    reviewsCount: 6
+  },
+  {
+    id: 48,
+    slug: "rolls-royce-ghost-2021",
+    brand: "rolls-royce",
+    model: "Ghost",
+    year: 2021,
+    listingType: "sale",
+    condition: "used",
+    category: "sedan",
+    class: "ultra-luxury",
+    pricing: {
+      currency: "USD",
+      total: 330000,
+      oldPrice: 355000,
+      negotiable: true,
+      financingAvailable: true,
+      monthlyInstallment: 5100
+    },
+    available: true,
+    transmission: "automatic",
+    fuelType: "petrol",
+    drivetrain: "RWD",
+    seats: 5,
+    doors: 4,
+    mileage: 21000,
+    color: "Arctic White",
+    interiorColor: "Black",
+    engine: "6.6L V12 Twin Turbo",
+    cylinders: 12,
+    horsepower: 563,
+    torque: 850,
+    topSpeed: 250,
+    fuelConsumption: {
+      city: 18.8,
+      highway: 11.8,
+      combined: 15.9,
+      approxPer20Km: 3.5
+    },
+    fuelTankCapacity: 90,
+    city: "Dubai",
+    country: "UAE",
+    thumbnail: "/Fleet/default/default-1.webp",
+    images: [
+      "/Fleet/default/default-1.webp",
+      "/Fleet/default/default-2.webp",
+      "/Fleet/default/default-3.webp"
+    ],
+    ownershipHistory: {
+      owners: 2,
+      accidentFree: true,
+      serviceHistory: true
+    },
+    rating: 4.9,
+    reviewsCount: 7
+  },
+  {
+    id: 49,
+    slug: "bentley-continental-gt-2022",
+    brand: "bentley",
+    model: "Continental GT",
+    year: 2022,
+    listingType: "sale",
+    condition: "new",
+    category: "coupe",
+    class: "ultra-luxury",
+    pricing: {
+      currency: "USD",
+      total: 270000,
+      negotiable: false,
+      financingAvailable: true,
+      monthlyInstallment: 4100
+    },
+    available: true,
+    transmission: "automatic",
+    fuelType: "petrol",
+    drivetrain: "AWD",
+    seats: 4,
+    doors: 2,
+    mileage: 1200,
+    color: "Dark Sapphire",
+    interiorColor: "Beluga",
+    engine: "6.0L W12 Twin Turbo",
+    cylinders: 12,
+    horsepower: 626,
+    torque: 664,
+    topSpeed: 333,
+    acceleration: "0-100 km/h in 3.7s",
+    fuelConsumption: {
+      city: 18.5,
+      highway: 10.8,
+      combined: 14.2,
+      approxPer20Km: 3.1
+    },
+    fuelTankCapacity: 90,
+    city: "Dubai",
+    country: "UAE",
+    thumbnail: "/Fleet/default/default-1.webp",
+    images: [
+      "/Fleet/default/default-1.webp",
+      "/Fleet/default/default-2.webp",
+      "/Fleet/default/default-3.webp"
+    ],
+    rating: 4.9,
+    reviewsCount: 10
+  },
+  {
+    id: 51,
+    slug: "audi-e-tron-gt-2024",
+    brand: "audi",
+    model: "e-tron GT",
+    year: 2024,
+    listingType: "both",
+    condition: "new",
+    category: "electric",
+    class: "performance",
+    pricing: {
+      currency: "USD",
+      daily: 180,
+      weekly: 1100,
+      monthly: 3600,
+      total: 140000,
+      negotiable: false
+    },
+    available: true,
+    isFeatured: true,
+    transmission: "automatic",
+    fuelType: "electric",
+    drivetrain: "AWD",
+    seats: 4,
+    doors: 4,
+    mileage: 3000,
+    color: "Mythos Black",
+    interiorColor: "Grey",
+    horsepower: 522,
+    topSpeed: 250,
+    acceleration: "0-100 km/h in 4.1s",
+    electricRange: 488,
+    city: "Dubai",
+    country: "UAE",
+    deliveryAvailable: true,
+    pickupLocations: [
+      "Downtown",
+      "Airport",
+      "Jumeirah"
+    ],
+    thumbnail: "/Fleet/default/default-1.webp",
+    images: [
+      "/Fleet/default/default-1.webp",
+      "/Fleet/default/default-2.webp",
+      "/Fleet/default/default-3.webp"
+    ],
+    rating: 4.9,
+    reviewsCount: 11
+  },
+  {
+    id: 52,
+    slug: "tesla-model-x-2024",
+    brand: "tesla",
+    model: "Model X",
+    year: 2024,
+    listingType: "both",
+    condition: "new",
+    category: "electric",
+    class: "performance",
+    pricing: {
+      currency: "USD",
+      daily: 190,
+      weekly: 1180,
+      monthly: 3900,
+      total: 98000,
+      negotiable: false
+    },
+    available: true,
+    isNewArrival: true,
+    transmission: "automatic",
+    fuelType: "electric",
+    drivetrain: "AWD",
+    seats: 7,
+    doors: 5,
+    mileage: 2500,
+    color: "Midnight Silver",
+    interiorColor: "Black",
+    horsepower: 670,
+    topSpeed: 250,
+    acceleration: "0-100 km/h in 3.8s",
+    electricRange: 560,
+    city: "Dubai",
+    country: "UAE",
+    deliveryAvailable: true,
+    pickupLocations: [
+      "Dubai Marina",
+      "Airport",
+      "Downtown"
+    ],
+    thumbnail: "/Fleet/default/default-1.webp",
+    images: [
+      "/Fleet/default/default-1.webp",
+      "/Fleet/default/default-2.webp",
+      "/Fleet/default/default-3.webp"
+    ],
+    rating: 4.9,
+    reviewsCount: 16
+  },
+  {
+    id: 53,
+    slug: "porsche-taycan-turbo-s-2024",
+    brand: "porsche",
+    model: "Taycan Turbo S",
+    year: 2024,
+    listingType: "both",
+    condition: "new",
+    category: "electric",
+    class: "performance",
+    pricing: {
+      currency: "USD",
+      daily: 260,
+      weekly: 1600,
+      monthly: 5200,
+      total: 210000,
+      negotiable: false
+    },
+    available: true,
+    transmission: "automatic",
+    fuelType: "electric",
+    drivetrain: "AWD",
+    seats: 4,
+    doors: 4,
+    mileage: 2000,
+    color: "Dolomite Silver",
+    interiorColor: "Black",
+    horsepower: 750,
+    topSpeed: 260,
+    acceleration: "0-100 km/h in 2.8s",
+    electricRange: 455,
+    city: "Dubai",
+    country: "UAE",
+    deliveryAvailable: true,
+    pickupLocations: [
+      "Dubai Marina",
+      "Expo City",
+      "Airport"
+    ],
+    thumbnail: "/Fleet/default/default-1.webp",
+    images: [
+      "/Fleet/default/default-1.webp",
+      "/Fleet/default/default-2.webp",
+      "/Fleet/default/default-3.webp"
+    ],
+    rating: 4.9,
+    reviewsCount: 12
+  },
+  {
+    id: 54,
+    slug: "toyota-tundra-2024",
+    brand: "toyota",
+    model: "Tundra",
+    trim: "1794 Edition Hybrid",
+    year: 2024,
+    listingType: "both",
+    condition: "new",
+    category: "pickup",
+    class: "premium",
+    pricing: {
+      currency: "USD",
+      daily: 145,
+      weekly: 900,
+      monthly: 3000,
+      total: 83000,
+      negotiable: false
+    },
+    available: true,
+    transmission: "automatic",
+    fuelType: "hybrid",
+    drivetrain: "4WD",
+    seats: 5,
+    doors: 4,
+    mileage: 3000,
+    color: "Celestial Silver",
+    interiorColor: "Black",
+    engine: "3.5L Twin-Turbo V6 Hybrid",
+    cylinders: 6,
+    horsepower: 437,
+    torque: 790,
+    topSpeed: 180,
+    acceleration: "0-100 km/h in 6.7s",
+    fuelConsumption: {
+      city: 12.1,
+      highway: 9.3,
+      combined: 10.9,
+      approxPer20Km: 2.4
+    },
+    fuelTankCapacity: 87,
+    city: "Dubai",
+    country: "UAE",
+    deliveryAvailable: true,
+    pickupLocations: [
+      "Airport",
+      "Jebel Ali",
+      "Business Bay"
+    ],
+    thumbnail: "/Fleet/default/default-1.webp",
+    images: [
+      "/Fleet/default/default-1.webp",
+      "/Fleet/default/default-2.webp",
+      "/Fleet/default/default-3.webp"
+    ],
+    rating: 4.7,
+    reviewsCount: 17
+  }
+];
+
+export const requiredImages = [
+  "/Fleet/bmw-5-series-2023/bmw-5-series-2023-1.webp",
+  "/Fleet/bmw-5-series-2023/bmw-5-series-2023-2.webp",
+  "/Fleet/bmw-5-series-2023/bmw-5-series-2023-3.webp",
+  "/Fleet/bmw-7-series-2022/bmw-7-series-2022-1.webp",
+  "/Fleet/bmw-7-series-2022/bmw-7-series-2022-2.webp",
+  "/Fleet/bmw-7-series-2022/bmw-7-series-2022-3.webp",
+  "/Fleet/default/default-1.webp",
+  "/Fleet/default/default-2.webp",
+  "/Fleet/default/default-3.webp",
+];

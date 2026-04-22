@@ -1,0 +1,39 @@
+{
+  "services": {
+    "learn_more": "Learn More",
+    "section_title": "Premium Transportation",
+    "section_highlight": "Services",
+    "section_header": "Our Services",
+    "section_description": "Discover a wide range of premium services designed to meet all your transportation needs.",
+    "view_all": "View All Services",
+    "airport_transfer": "Airport Transfer",
+    "intercity_trips": "Intercity Trips",
+    "wedding_events": "Wedding Events",
+    "business_meetings": "Business Meetings",
+    "car_rental": "Car Rental",
+    "rentals": {
+      "title": "Car Rentals",
+      "description": "Choose from a wide range of vehicles for short-term or long-term rental."
+    },
+    "sales": {
+      "title": "Cars for Sale",
+      "description": "Browse premium vehicles for sale at competitive prices with verified condition."
+    },
+    "delivery": {
+      "title": "Home Delivery",
+      "description": "We deliver the car you choose directly to your location, hassle-free and on time."
+    },
+    "sellYourCar": {
+      "title": "Sell Your Car",
+      "description": "Sell your car quickly through our platform with transparent valuation."
+    },
+    "inspection": {
+      "title": "Vehicle Inspection & Valuation",
+      "description": "Get a comprehensive report on a car's condition before buying or selling."
+    },
+    "support": {
+      "title": "Consultation & Support",
+      "description": "Our team is ready to help you choose the right vehicle or answer your questions."
+    }
+  }
+}

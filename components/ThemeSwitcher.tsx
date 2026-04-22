@@ -1,47 +1,42 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Sun, Moon } from 'lucide-react';
+import { useTheme } from 'next-themes';
+import { Moon, Sun } from 'lucide-react';
+import { useUiLoading } from '@/components/providers/UiLoadingProvider';
 
 export default function ThemeSwitcher() {
-  const [theme, setTheme] = useState<'light' | 'dark'>();
+  const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [isSwitching, setIsSwitching] = useState(false);
+  const { startThemeLoading } = useUiLoading();
 
   useEffect(() => {
-    const saved = localStorage.getItem('theme');
-    if (saved === 'light' || saved === 'dark') {
-      setTheme(saved);
-    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      setTheme('dark');
-    } else {
-      setTheme('light');
-    }
     setMounted(true);
   }, []);
 
-  useEffect(() => {
-    if (!theme) return;
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    localStorage.setItem('theme', theme);
-  }, [theme]);
+  if (!mounted) return null;
 
-  if (!mounted || !theme) return null; // Prevent hydration mismatch
+  const isDark = resolvedTheme === 'dark';
 
   return (
     <button
-      onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-      className="ml-4 cursor-pointer p-2 rounded-lg border border-white/20 bg-background/60 text-foreground hover:bg-background/80 transition-colors flex items-center"
+      onClick={() => {
+        if (isSwitching) return;
+        setIsSwitching(true);
+        startThemeLoading(180);
+        setTheme(isDark ? 'light' : 'dark');
+        window.setTimeout(() => setIsSwitching(false), 220);
+      }}
+      className="ml-4 cursor-pointer p-2 rounded-lg border border-white/20 bg-background/60 text-foreground hover:bg-background/80 transition-colors flex items-center disabled:cursor-wait disabled:opacity-70"
       aria-label="Toggle dark mode"
+      disabled={isSwitching}
     >
-      {theme === 'light' ? (
-        <Moon className="h-5 w-5 transition-transform duration-300" />
-      ) : (
+      {isDark ? (
         <Sun className="h-5 w-5 transition-transform duration-300" />
+      ) : (
+        <Moon className="h-5 w-5 transition-transform duration-300" />
       )}
     </button>
   );
-} 
+}

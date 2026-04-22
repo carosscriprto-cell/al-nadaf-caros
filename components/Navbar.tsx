@@ -1,127 +1,187 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { Menu, X, Car, Phone } from 'lucide-react';
-import ThemeSwitcher from './ThemeSwitcher';
-import LanguageSwitcher from './LanguageSwitcher';
+import { usePathname } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
+import { Car, Menu, Phone, X } from 'lucide-react';
 
-const Navbar = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const locale = useLocale();
-  const t = useTranslations();
+import LanguageSwitcher from './LanguageSwitcher';
+import ThemeSwitcher from './ThemeSwitcher';
+import { siteConfig } from '@/config';
+import { cn } from '@/components/ui/utils';
 
-  const navItems = [
-    { name: t('nav.home'), href: '' },
-    { name: t('nav.about'), href: '/about' },
-    { name: t('nav.services'), href: '/services' },
-    { name: t('nav.rental'), href: '/rental' },
-    { name: t('nav.sales'), href: '/sales' },
-    { name: t('nav.contact'), href: '/contact' },
-  ];
+type NavItem = {
+  href: string;
+  label: string;
+};
+
+function isActiveRoute(
+  pathname: string,
+  locale: string,
+  href: string
+) {
+  const localizedHref = `/${locale}${href}`;
+
+  if (href === '') {
+    return pathname === `/${locale}` || pathname === `/${locale}/`;
+  }
 
   return (
-    <nav className="bg-background shadow-lg sticky top-0 z-50 border-b border-border" dir='ltr'>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="flex items-center space-x-2"
-          >
-            <Car className="h-8 w-8 text-accent" />
-            <Link href={`/${locale}/`} className="text-2xl font-bold text-foreground">
-              Caros | كاروس
-            </Link>
-          </motion.div>
+    pathname === localizedHref ||
+    pathname.startsWith(`${localizedHref}/`)
+  );
+}
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            {navItems.map((item, index) => (
-              <motion.div
-                key={item.name}
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-              >
+export default function Navbar() {
+  const locale = useLocale();
+  const pathname = usePathname();
+  const t = useTranslations();
+  const [isOpen, setIsOpen] = useState(false);
+
+  const navItems = useMemo<NavItem[]>(
+    () => [
+      { href: '', label: t('nav.home') },
+      { href: '/fleet', label: t('nav.fleet') },
+      { href: '/rental', label: t('nav.rental') },
+      { href: '/sales', label: t('nav.sales') },
+      { href: '/services', label: t('nav.services') },
+      { href: '/about', label: t('nav.about') },
+      { href: '/contact', label: t('nav.contact') },
+    ],
+    [t]
+  );
+
+  const brandName =
+    locale === 'ar'
+      ? siteConfig.brand.localizedName.ar
+      : siteConfig.brand.localizedName.en;
+
+  return (
+    <header className="sticky top-0 z-99 border-b border-border/60 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70">
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex h-18 items-center justify-between gap-4">
+          <Link
+            href={`/${locale}`}
+            className="group flex min-w-0 items-center gap-3 rounded-xl transition-transform duration-300 hover:scale-[1.01]"
+          >
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-border/70 bg-card/80 text-accent shadow-sm">
+              <Car className="h-5 w-5" />
+            </div>
+
+            <div className="min-w-0">
+              <div className="truncate text-base font-semibold tracking-tight text-foreground">
+                {brandName}
+              </div>
+              <div className="truncate text-xs uppercase tracking-[0.24em] text-muted-foreground">
+                {t('brand.name')}
+              </div>
+            </div>
+          </Link>
+
+          <nav className="hidden items-center gap-1 lg:flex">
+            {navItems.map((item) => {
+              const active = isActiveRoute(
+                pathname,
+                locale,
+                item.href
+              );
+
+              return (
                 <Link
+                  key={item.href || 'home'}
                   href={`/${locale}${item.href}`}
-                  className="text-foreground hover:text-accent px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                  className={cn(
+                    'rounded-xl px-4 py-2 text-sm font-medium transition-all duration-200',
+                    active
+                      ? 'bg-accent text-white shadow-lg shadow-accent/20'
+                      : 'text-muted-foreground hover:bg-muted/70 hover:text-foreground'
+                  )}
                 >
-                  {item.name}
+                  {item.label}
                 </Link>
-              </motion.div>
-            ))}
-          </div>
+              );
+            })}
+          </nav>
 
-          {/* CTA Button */}
-          <div className='flex gap-2 items-center'>
-            <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="hidden md:flex items-center space-x-4"
-          >
-              <Link
-                href={`/${locale}/booking`}
-                className="bg-accent hover:bg-accent/90 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-md hover:shadow-lg"
-              >
-                <Phone className="h-4 w-4" />
-                <span>{t('nav.book_now')}</span>
-              </Link>
-            </motion.div>
+          <div className="hidden items-center gap-3 lg:flex">
+            <div className="hidden xl:flex items-center gap-3 rounded-xl border border-border/60 bg-card/70 px-4 py-2 text-sm text-muted-foreground">
+              <Phone className="h-4 w-4 text-accent" />
+              <span>{siteConfig.contact.phone.display}</span>
+            </div>
 
-            {/* Theme Switcher */}
             <ThemeSwitcher />
             <LanguageSwitcher />
           </div>
 
-          {/* Mobile menu button */}
-          <div className="md:hidden">
+          <div className="flex items-center gap-2 lg:hidden">
+            <ThemeSwitcher />
             <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="text-foreground hover:text-accent focus:outline-none focus:text-accent"
+              type="button"
+              onClick={() => setIsOpen((value) => !value)}
+              className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-border/60 bg-card/70 text-foreground transition-colors duration-200 hover:border-accent/40 hover:text-accent"
+              aria-label={
+                isOpen ? t('nav.close_menu') : t('nav.open_menu')
+              }
+              aria-expanded={isOpen}
             >
-              {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              {isOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
             </button>
           </div>
         </div>
 
-        {/* Mobile Navigation */}
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden"
-          >
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-background border-t border-border">
-              {navItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={`/${locale}${item.href}`}
-                  className="text-foreground hover:text-accent block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
-                  onClick={() => setIsOpen(false)}
-                >
-                  {item.name}
-                </Link>
-              ))}
-              <Link
-                href={`/${locale}/booking`}
-                className="bg-accent hover:bg-accent/90 text-accent-foreground px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 flex items-center space-x-2 mt-4 shadow-md hover:shadow-lg"
-                onClick={() => setIsOpen(false)}
-              >
-                <Phone className="h-4 w-4" />
-                <span>{t('nav.book_now')}</span>
-              </Link>
-            </div>
-          </motion.div>
-        )}
-      </div>
-    </nav>
-  );
-};
+        <div
+          className={cn(
+            'grid overflow-hidden transition-all duration-300 lg:hidden',
+            isOpen ? 'grid-rows-[1fr] pb-4' : 'grid-rows-[0fr]'
+          )}
+        >
+          <div className="min-h-0">
+            <div className="rounded-[1.75rem] border border-border/60 bg-card/80 p-4 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur-xl">
+              <nav className="grid gap-2">
+                {navItems.map((item) => {
+                  const active = isActiveRoute(
+                    pathname,
+                    locale,
+                    item.href
+                  );
 
-export default Navbar; 
+                  return (
+                    <Link
+                      key={item.href || 'mobile-home'}
+                      href={`/${locale}${item.href}`}
+                      onClick={() => setIsOpen(false)}
+                      className={cn(
+                        'rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200',
+                        active
+                          ? 'bg-accent text-white shadow-lg shadow-accent/20'
+                          : 'text-foreground hover:bg-muted/70'
+                      )}
+                    >
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </nav>
+
+              <div className="mt-4 grid gap-3 border-t border-border/60 pt-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="rounded-xl border border-border/60 bg-background/80 px-4 py-3 text-sm text-muted-foreground">
+                    {siteConfig.contact.phone.display}
+                  </div>
+                  <LanguageSwitcher />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}

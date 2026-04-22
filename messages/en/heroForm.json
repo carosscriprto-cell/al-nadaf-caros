@@ -1,0 +1,32 @@
+{
+    "heroForm": {
+    "title": "Find your perfect car",
+    "subtitle": "Search, compare and book instantly",
+    "clear": "Clear",
+    "placeholder": "Search brand, model, year or category",
+    "submit": "Search",
+    "tabs": {
+      "all": "All",
+      "rent": "Rent",
+      "sale": "Sale"
+    },
+    "filters": {
+      "minPrice": "Min price",
+      "maxPrice": "Max price"
+    },
+    "badges": {
+      "both": "Both",
+      "rent": "Rent",
+      "sale": "Sale"
+    },
+    "results": {
+      "viewDetails": "View details",
+      "priceOnRequest": "Price on request",
+      "perDay": "per day",
+      "total": "total",
+      "emptyTitle": "No cars found",
+      "emptyDescription": "Try another keyword or adjust the price range.",
+      "suggestions":"Suggestions for you"
+    }
+  }
+}

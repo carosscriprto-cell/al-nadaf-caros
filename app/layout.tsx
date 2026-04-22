@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import 'leaflet/dist/leaflet.css';
+import { seoConfig } from '@/config';
 
 export const metadata: Metadata = {
-  title: "Caros - Premium Car Rental & Transport Services",
-  description: "Professional car rental, airport transfers, intercity trips, and transport services. Book your ride today!",
-  keywords: "car rental, transport services, airport transfer, wedding cars, business transport",
+  title: seoConfig.defaultTitle,
+  description: seoConfig.description,
+  keywords: seoConfig.keywords,
 };
 
 export default function RootLayout({

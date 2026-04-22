@@ -1,242 +1,210 @@
 'use client';
 
+import HeadSection from '@/components/HeadSection';
+import FinalCTA from '@/components/home/FinalCTA';
+import FAQSection from '@/components/home/FAQSection';
+import MapSection from '@/components/map/MapSection';
 import { motion } from 'framer-motion';
-import { Car, Shield, Users, Award, Clock } from 'lucide-react';
+import { useLocale, useTranslations } from 'next-intl';
+import PageHero from '@/components/PageHero';
+import { Star } from 'lucide-react';
 
 export default function AboutPage() {
-  const values = [
-    {
-      icon: Shield,
-      title: 'Safety First',
-      description: 'We prioritize the safety of our customers and drivers above everything else.',
-      color: 'text-green-600',
-      bgColor: 'bg-green-100',
-    },
-    {
-      icon: Users,
-      title: 'Customer Focus',
-      description: 'Your satisfaction is our top priority. We go the extra mile for every customer.',
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-100',
-    },
-    {
-      icon: Award,
-      title: 'Excellence',
-      description: 'We maintain the highest standards in vehicle quality and service delivery.',
-      color: 'text-accent',
-      bgColor: 'bg-accent/10',
-    },
-    {
-      icon: Clock,
-      title: 'Reliability',
-      description: 'You can count on us to be on time, every time, without exception.',
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-100',
-    },
-  ];
+  const locale = useLocale();
+  const t = useTranslations('about');
 
   const stats = [
-    { number: '10+', label: 'Years Experience' },
-    { number: '500+', label: 'Happy Customers' },
-    { number: '50+', label: 'Premium Vehicles' },
-    { number: '24/7', label: 'Service Available' },
+    { number: '10+', label: t('stats.years_experience') },
+    { number: '500+', label: t('stats.happy_clients') },
+    { number: '50+', label: t('stats.vehicles') },
+    { number: '24/7', label: t('stats.support') },
   ];
 
+  const testimonials = t.raw('testimonials.items') as Array<{
+    name: string;
+    role: string;
+    text: string;
+  }>;
+
   return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-accent to-accent/80 text-accent-foreground py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center"
-          >
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              About Caros
-            </h1>
-            <p className="text-xl text-accent-foreground/80 max-w-3xl mx-auto">
-              Your trusted partner in premium transportation services. W&apos;eve been serving customers with excellence for over a decade.
-            </p>
-          </motion.div>
-        </div>
-      </section>
+    <div className="min-h-screen bg-background overflow-hidden">
+      <PageHero
+        // badge={t('hero.badge')}
+        title={t('hero.title')}
+        highlight={t('hero.highlight')}
+        description={t('hero.description_primary')}
+        secondaryDescription={t('hero.description_secondary')}
+        primaryButton={{
+          label: t('actions.browse_fleet'),
+          href: `/${locale}/fleet`,
+        }}
+        secondaryButton={{
+          label: t('actions.contact_us'),
+          href: `/${locale}/contact`,
+        }}
+      >
+        {/* RIGHT SIDE (children) */}
+        <div className="relative overflow-hidden rounded-[2rem] border border-border/60 bg-card/80 p-8 backdrop-blur-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl">
+          
+          <div className="absolute -top-20 -right-20 h-64 w-64 bg-accent/10 blur-3xl rounded-full transition group-hover:scale-125" />
+          <div className="absolute -bottom-20 -left-20 h-64 w-64 bg-primary/10 blur-3xl rounded-full" />
 
-      {/* Company Overview */}
-      <section className="py-20 bg-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-            >
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
-                Our Story
+          <div className="relative z-10 space-y-6">
+            
+            <div>
+              <p className="text-sm text-muted-foreground">
+                {t('experience_card.label')}
+              </p>
+              <h2 className="text-5xl font-bold text-accent">
+                {stats[0].number}
               </h2>
-              <div className="space-y-4 text-muted-foreground">
-                <p>
-                  Founded in 2014, Caros began with a simple mission: to provide exceptional transportation services that exceed customer expectations. What started as a small fleet of vehicles has grown into one of the region&apos;s most trusted car rental and transport companies.
-                </p>
-                <p>
-                  Over the years, we&apos;ve expanded our services to include airport transfers, intercity trips, wedding events, and business transportation. Our commitment to quality, safety, and customer satisfaction has remained unwavering.
-                </p>
-                <p>
-                  Today, we&apos;re proud to serve hundreds of satisfied customers with our premium fleet of vehicles and professional drivers. Our dedication to excellence continues to drive us forward.
-                </p>
-              </div>
-            </motion.div>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-              className="relative"
-            >
-              <div className="bg-gradient-to-br from-accent to-accent/80 rounded-2xl p-8 h-80 flex items-center justify-center">
-                <Car className="h-32 w-32 text-accent-foreground" />
-              </div>
-            </motion.div>
+            <div className="grid grid-cols-2 gap-4">
+              {stats.slice(1).map((stat) => (
+                <div
+                  key={stat.label}
+                  className="rounded-2xl border border-border/60 bg-background/60 p-4 backdrop-blur-xl hover:scale-[1.04] hover:shadow-xl transition"
+                >
+                  <p className="text-lg font-semibold text-foreground">
+                    {stat.number}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {stat.label}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <div className="rounded-2xl border border-border/60 bg-background/60 p-4 backdrop-blur-xl">
+              <p className="text-sm font-medium text-foreground">
+                {t('experience_card.title')}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {t('experience_card.description')}
+              </p>
+            </div>
+
           </div>
         </div>
+      </PageHero>
+
+      <section className="py-20">
+        <div className="mx-auto max-w-4xl px-4 text-center">
+          <HeadSection
+            title={t('story.title')}
+            description={t('story.description')}
+            divider
+          />
+
+          <p className="mt-6 text-lg leading-8 text-muted-foreground">
+            {t('story.paragraph_one')}
+          </p>
+
+          <p className="mt-4 text-lg leading-8 text-muted-foreground">
+            {t('story.paragraph_two')}
+          </p>
+        </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-20 bg-muted/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-8"
-          >
-            {stats.map((stat, index) => (
+      <section className="py-20">
+        <div className="mx-auto max-w-7xl px-4">
+          <HeadSection
+            title={t('numbers.title')}
+            description={t('numbers.description')}
+            divider
+          />
+
+          <div className="grid grid-cols-2 gap-6 lg:grid-cols-4 mt-10">
+            {stats.map((stat, i) => (
               <motion.div
                 key={stat.label}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
+                transition={{ delay: i * 0.1 }}
                 viewport={{ once: true }}
-                className="text-center"
+                className="group relative overflow-hidden rounded-3xl border border-border/60 bg-card/80 p-6 text-center backdrop-blur-xl hover:-translate-y-2 hover:shadow-2xl transition"
               >
-                <div className="text-4xl md:text-5xl font-bold text-accent mb-2">
-                  {stat.number}
-                </div>
-                <div className="text-muted-foreground">{stat.label}</div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
+                <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition" />
 
-      {/* Values Section */}
-      <section className="py-20 bg-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Our Values
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              These core values guide everything we do and ensure we deliver the best possible service to our customers.
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {values.map((value, index) => (
-              <motion.div
-                key={value.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="text-center"
-              >
-                <div className={`${value.bgColor} ${value.color} w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-6`}>
-                  <value.icon className="h-8 w-8" />
+                <div className="relative z-10">
+                  <div className="text-3xl font-bold text-accent">
+                    {stat.number}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    {stat.label}
+                  </div>
                 </div>
-                <h3 className="text-xl font-semibold text-foreground mb-3">
-                  {value.title}
-                </h3>
-                <p className="text-muted-foreground">
-                  {value.description}
-                </p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Team Section */}
-      <section className="py-20 bg-muted/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Our Team
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Meet the dedicated professionals who make Caros the trusted choice for transportation services.
-            </p>
-          </motion.div>
+      <section className="py-20">
+        <div className="mx-auto max-w-6xl px-4">
+          <HeadSection
+            title={t('testimonials.title')}
+            description={t('testimonials.description')}
+            divider
+          />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              {
-                name: 'John Smith',
-                role: 'Founder & CEO',
-                description: 'With over 15 years in the transportation industry, John leads our company with vision and expertise.',
-              },
-              {
-                name: 'Sarah Johnson',
-                role: 'Operations Manager',
-                description: 'Sarah ensures every journey is smooth and every customer is satisfied with our services.',
-              },
-              {
-                name: 'Mike Davis',
-                role: 'Fleet Manager',
-                description: 'Mike maintains our premium fleet to the highest standards of safety and comfort.',
-              },
-            ].map((member, index) => (
+          <div className="grid gap-6 md:grid-cols-3 mt-10">
+            {testimonials.map((testimonial, index) => (
               <motion.div
-                key={member.name}
+                key={`${testimonial.name}-${index}`}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
+                transition={{ delay: index * 0.1 }}
                 viewport={{ once: true }}
-                className="bg-card rounded-xl p-6 shadow-lg text-center border border-border"
+                className="group relative overflow-hidden rounded-3xl border border-border/60 bg-card/80 p-6 backdrop-blur-xl hover:-translate-y-2 hover:shadow-2xl transition"
               >
-                <div className="w-24 h-24 bg-gradient-to-br from-accent to-accent/80 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Users className="h-12 w-12 text-accent-foreground" />
+                <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition" />
+
+                <div className="relative z-10">
+                  <div className="flex gap-1 mb-3 text-accent">
+                    {[...Array(5)].map((_, starIndex) => (
+                      <Star
+                        key={starIndex}
+                        className="h-4 w-4 fill-accent"
+                      />
+                    ))}
+                  </div>
+
+                  <p className="text-sm text-muted-foreground leading-7 mb-4">
+                    {testimonial.text}
+                  </p>
+
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">
+                      {testimonial.name}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {testimonial.role}
+                    </p>
+                  </div>
                 </div>
-                <h3 className="text-xl font-semibold text-foreground mb-2">
-                  {member.name}
-                </h3>
-                <p className="text-accent font-medium mb-3">
-                  {member.role}
-                </p>
-                <p className="text-muted-foreground">
-                  {member.description}
-                </p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
+
+      <FAQSection group="about" />
+
+      <section className="py-20">
+        <div className="mx-auto max-w-7xl px-4">
+          <HeadSection
+            title={t('locations.title')}
+            description={t('locations.description')}
+            divider
+          />
+
+          <MapSection mode="about" />
+        </div>
+      </section>
+
+      <FinalCTA />
     </div>
   );
-} 
+}

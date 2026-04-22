@@ -1,0 +1,108 @@
+{
+  "hero": {
+    "welcome": "Welcome to Caros",
+    "description": "Experience luxury and reliability with our premium fleet. From airport transfers to special events, we have your journey covered.",
+    "premium_fleet": "Premium Fleet",
+    "safe_secure": "Safe & Secure",
+    "service_247": "24/7 Service",
+    "explore_rentals": "Explore Rentals",
+    "explore_sales": "Explore Sales"
+  },
+  "brand-section":{
+    "brand-title":"Discover Leading Brands",
+    "brand-subtitle":"Find the finest automotive experiences with our carefully curated selection of premium brands."
+  },
+  "featured-section":{
+    "featured-title":"Featured Vehicles",
+    "featured-subtitle":"Explore our handpicked selection of premium vehicles, showcasing the best in luxury and performance for your next journey."
+  },
+  "promo": {
+    "headline": "Get 70% Off Your First Booking!",
+    "description": "New customers get an exclusive discount on their first rental. Limited time offer.",
+    "cta": "Claim Your Discount",
+    "terms": "*Terms and conditions apply. Valid for first-time customers only."
+  },
+  "fleet": {
+    "our_fleet": "Our Premium Fleet",
+    "choose": "Choose from our carefully curated selection of luxury and premium vehicles for any occasion.",
+    "view_all": "View All Vehicles"
+  },
+  "why_choose_us": {
+    "title": "Why Choose Caros?",
+    "description": "Premium service, dependable support, and a fleet designed to elevate every trip.",
+    "safe": "Safe & Secure",
+    "safe_desc": "All our vehicles are regularly maintained and insured for your peace of mind.",
+    "service": "24/7 Service",
+    "service_desc": "Round-the-clock availability for airport transfers and urgent bookings.",
+    "quality": "Premium Quality",
+    "quality_desc": "Only the finest vehicles with top-tier amenities and support.",
+    "selection": "Wide Fleet Selection",
+    "selection_desc": "From economy to luxury, we have the right vehicle for every occasion.",
+    "drivers": "Professional Drivers",
+    "drivers_desc": "Experienced, licensed, and courteous drivers for a seamless journey.",
+    "awards": "Award Winning",
+    "awards_desc": "Recognized for excellence in customer service and vehicle quality."
+  },
+  "rent_vs_buy": {
+    "rent-title": "Drive the Moment",
+    "rent-description": "Feel the freedom. No strings attached, just pure experience.",
+      
+    "buy-title": "Own the Journey",
+    "buy-description": "More than a car — it’s your future, your statement, your story."
+  },
+  "how_it_works": {
+    "title": "How It Works",
+    "description": "Experience the ease of booking with Caros in a few simple steps.",
+    "steps": {
+      "choose": {
+        "title": "Choose Your Car",
+        "description": "Pick from a curated fleet of premium vehicles tailored to your lifestyle."
+      },
+      "book": {
+        "title": "Book in Seconds",
+        "description": "Reserve instantly with a fast, seamless booking experience."
+      },
+      "delivery": {
+        "title": "Pickup or Delivery",
+        "description": "Get your car delivered or pick it up whenever it suits you."
+      },
+      "drive": {
+        "title": "Drive with Confidence",
+        "description": "Secure payments, zero hassle, and full support anytime."
+      }
+    },
+    "cta_description": "Find your perfect car and start driving today",
+    "cta": "Start Your Journey"
+  },
+  "testimonials": {
+    "title": "What Our Customers Say",
+    "description": "Real reviews from our valued customers who experienced the Caros difference",
+    "items": [
+      {
+        "id": 1,
+        "name": "Ahmed Al-Rashid",
+        "role": "Business Executive",
+        "content": "Exceptional service and premium vehicles. The car was immaculate and the booking process was seamless. Highly recommended for anyone seeking luxury transportation.",
+        "rating": 5
+      },
+      {
+        "id": 2,
+        "name": "Sarah Johnson",
+        "role": "Tourist",
+        "content": "Amazing experience renting from Caros. The staff was incredibly helpful and the vehicle exceeded my expectations. Will definitely use again for my next visit.",
+        "rating": 5
+      },
+      {
+        "id": 3,
+        "name": "Mohammed Al-Fayed",
+        "role": "Entrepreneur",
+        "content": "Professional service from start to finish. The vehicle selection is outstanding and the maintenance is top-notch. A truly premium experience.",
+        "rating": 5
+      }
+    ]
+  },
+  "final_cta": {
+    "title": "Your Next Drive Starts Now",
+    "description": "Whether you rent or own — step into a car that matches your ambition."
+  }
+}

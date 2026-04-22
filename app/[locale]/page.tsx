@@ -1,17 +1,25 @@
 import HeroSection from '@/components/HeroSection';
-import ServicesPreview from '@/components/ServicesPreview';
-import FleetSlider from '@/components/FleetSlider';
+import FeaturedCarsSection from '@/components/home/FeaturedCarsSection';
 import WhyChooseUs from '@/components/WhyChooseUs';
-import PromoBanner from '@/components/PromoBanner';
+import BrandShowcase from '@/components/home/BrandShowcase';
+import RentVsBuyBanner from '@/components/home/RentVsBuyBanner';
+import TestimonialsSection from '@/components/home/TestimonialsSection';
+import HowItWorks from '@/components/home/HowItWorks';
+import FAQSection from '@/components/home/FAQSection';
+import FinalCTA from '@/components/home/FinalCTA';
 
 export default function Home() {
   return (
     <div>
       <HeroSection />
-      <ServicesPreview />
-      <FleetSlider />
+      <BrandShowcase />
+      <FeaturedCarsSection />
       <WhyChooseUs />
-      <PromoBanner />
+      <RentVsBuyBanner />
+      <TestimonialsSection />
+      <HowItWorks />
+      <FAQSection />
+      <FinalCTA />
     </div>
   );
 }

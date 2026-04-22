@@ -1,0 +1,73 @@
+{
+  "booking": {
+    "title": "احجز رحلتك",
+    "description": "احجز خدمة النقل المميزة الخاصة بك. املأ النموذج وسنؤكد الحجز قريبًا.",
+    "select_service_type": "اختر نوع الخدمة",
+    "select_vehicle": "اختر السيارة",
+    "date_and_time": "التاريخ والوقت",
+    "personal_information": "المعلومات الشخصية",
+    "special_requests": "طلبات خاصة",
+    "pickup_date": "تاريخ الاستلام",
+    "pickup_time": "وقت الاستلام",
+    "return_date": "تاريخ الإرجاع",
+    "return_time": "وقت الإرجاع",
+    "pickup_location": "موقع الاستلام",
+    "dropoff_location": "موقع التسليم",
+    "passengers": "عدد الركاب",
+    "first_name": "الاسم الأول",
+    "last_name": "اسم العائلة",
+    "email": "البريد الإلكتروني",
+    "phone": "رقم الهاتف",
+    "pickup_address_placeholder": "أدخل عنوان الاستلام",
+    "dropoff_address_placeholder": "أدخل عنوان التسليم",
+    "first_name_placeholder": "أدخل اسمك الأول",
+    "last_name_placeholder": "أدخل اسم العائلة",
+    "email_placeholder": "أدخل بريدك الإلكتروني",
+    "phone_placeholder": "أدخل رقم هاتفك",
+    "special_requests_placeholder": "أي متطلبات أو ملاحظات خاصة...",
+    "submit": "إرسال الحجز",
+    "submitting": "جارٍ الإرسال...",
+    "success": "تم إرسال الحجز بنجاح! سنتواصل معك قريبًا.",
+    "validation": {
+      "service_type_required": "يرجى اختيار نوع الخدمة",
+      "vehicle_required": "يرجى اختيار السيارة",
+      "pickup_date_required": "يرجى اختيار تاريخ الاستلام",
+      "pickup_time_required": "يرجى اختيار وقت الاستلام",
+      "pickup_location_required": "يرجى إدخال موقع الاستلام",
+      "dropoff_location_required": "يرجى إدخال موقع التسليم",
+      "first_name_required": "الاسم الأول مطلوب",
+      "last_name_required": "اسم العائلة مطلوب",
+      "email_invalid": "يرجى إدخال بريد إلكتروني صالح",
+      "phone_required": "رقم الهاتف مطلوب"
+    },
+    "service_options": {
+      "airport-transfer": {
+        "name": "خدمة المطار",
+        "description": "استقبال وتوصيل موثوق من وإلى المطار"
+      },
+      "intercity-trip": {
+        "name": "رحلة بين المدن",
+        "description": "تنقلات لمسافات طويلة بين المدن"
+      },
+      "wedding-event": {
+        "name": "مناسبة أو زفاف",
+        "description": "تنقل فاخر للمناسبات الخاصة"
+      },
+      "business-meeting": {
+        "name": "اجتماع أعمال",
+        "description": "نقل احترافي لعملاء الأعمال"
+      },
+      "car-rental": {
+        "name": "تأجير سيارة",
+        "description": "تأجير سيارة بقيادة ذاتية"
+      }
+    },
+    "vehicle_card": {
+      "per_day": "في اليوم"
+    },
+    "passenger_labels": {
+      "one": "راكب",
+      "other": "ركاب"
+    }
+  }
+}

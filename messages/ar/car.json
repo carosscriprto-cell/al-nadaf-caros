@@ -1,0 +1,204 @@
+{
+  "car": {
+    "card": {
+      "featured": "مميز",
+      "rent_or_buy": "للإيجار أو الشراء",
+      "new_arrival": "وصل حديثًا",
+      "view_details": "عرض التفاصيل",
+      "seats": "المقاعد",
+      "gearbox": "ناقل الحركة",
+      "fuel": "الوقود",
+      "range": "المدى",
+      "daily_rate": "السعر اليومي",
+      "purchase_price": "سعر الشراء",
+      "price_on_request": "السعر عند الطلب",
+      "was": "السعر السابق",
+      "also_available": "متوفر أيضًا",
+      "to_buy": "للشراء",
+      "explore_specs": "استكشف المواصفات",
+      "available_for_rent": "متاح للإيجار",
+      "available_for_sale": "متاح للبيع",
+      "available_for_both": "متاح للإيجار والشراء",
+      "cta_rent": "احجز السيارة مباشرة عبر واتساب",
+      "cta_buy": "تواصل مباشرة عبر الواتساب للشراء",
+      "cta_both": "تواصل مباشرة عبر الواتساب للتفاصيل"
+    },
+    "actions": {
+      "book_now": "احجز الآن",
+      "buy_now": "اشترِ الآن",
+      "contact_whatsapp": "تواصل عبر واتساب",
+      "book_vehicle": "احجز هذه السيارة",
+      "request_information": "اطلب معلومات",
+      "rent_or_buy_vehicle": "استأجر أو اشترِ هذه السيارة",
+      "browse_vehicles": "تصفح السيارات",
+      "contact_now": "تواصل الآن"
+    },
+    "detail": {
+      "not_found_title": "السيارة غير موجودة",
+      "not_found_description": "السيارة التي تبحث عنها غير موجودة.",
+      "back_to_vehicles": "العودة إلى السيارات",
+      "learn_more_about": "اعرف المزيد عن {vehicle}",
+      "available_now": "متاح الآن",
+      "unavailable": "غير متاح",
+      "rental_price": "سعر الإيجار",
+      "sale_price": "سعر البيع",
+      "weekly": "أسبوعي",
+      "monthly": "شهري",
+      "hourly": "بالساعة",
+      "vehicle_specifications": "مواصفات السيارة",
+      "description": "الوصف",
+      "features": "المزايا",
+      "comfort_features": "مزايا الراحة",
+      "safety_features": "ميزات السلامة",
+      "entertainment_features": "مزايا الترفيه",
+      "rental_details": "تفاصيل الإيجار",
+      "purchase_details": "تفاصيل الشراء",
+      "quick_overview": "نظرة سريعة",
+      "quick_highlights": "أبرز النقاط",
+      "ideal_for": "مناسبة لـ",
+      "pros": "الإيجابيات",
+      "cons": "ملاحظات",
+      "included_services": "الخدمات المشمولة",
+      "similar_vehicles": "سيارات مشابهة",
+      "pickup_locations": "مواقع الاستلام",
+      "rental_requirements": "متطلبات الإيجار",
+      "booking_purchase_summary": "ملخص الحجز / الشراء",
+      "cta": {
+        "primary": "{intent, select, rent {احجز هذه السيارة} sale {اطلب تفاصيل الشراء} both {استأجر أو اشترِ هذه السيارة} other {تواصل معنا}}",
+        "secondary": "تحدث عبر واتساب",
+        "helper": "{intent, select, rent {نرد عادةً خلال دقائق لتأكيد التوفر والتوصيل وخطوات الحجز التالية.} sale {نرد عادةً خلال دقائق مع تفاصيل السعر والتمويل وخطوات الشراء التالية.} both {نرد عادةً خلال دقائق لمساعدتك في اختيار أفضل خيار للإيجار أو الشراء.} other {نرد عادةً خلال دقائق ونوضح لك الخطوات التالية.}}"
+      },
+      "trust": {
+        "rating_reviews": "تقييم {rating} • {count} تقييم",
+        "delivery_available": "التوصيل متاح",
+        "accident_free": "خالٍ من الحوادث",
+        "service_history": "سجل الصيانة متوفر"
+      },
+      "flags": {
+        "featured": "مميز",
+        "popular": "شائع",
+        "new_arrival": "وصل حديثًا",
+        "best_seller": "الأكثر طلبًا"
+      },
+      "formats": {
+        "acceleration": "من 0 إلى 100 كم/س خلال {seconds} ثانية",
+        "seats": "{count} مقاعد",
+        "horsepower": "{value} حصان",
+        "speed": "{value} كم/س",
+        "distance": "{value} كم",
+        "fuel_consumption": "{value} لتر / 100 كم",
+        "days": "{count} يوم",
+        "torque": "{value} نيوتن متر",
+        "cylinders": "{value} أسطوانات",
+        "fuel_tank_capacity": "{value} لتر",
+        "fuel_range_20l": "{value} كم لكل 20 لتر"
+      },
+      "labels": {
+        "year": "السنة",
+        "transmission": "ناقل الحركة",
+        "fuel_type": "نوع الوقود",
+        "seats": "المقاعد",
+        "doors": "الأبواب",
+        "engine": "المحرك",
+        "horsepower": "القوة الحصانية",
+        "torque": "عزم الدوران",
+        "cylinders": "عدد الأسطوانات",
+        "top_speed": "السرعة القصوى",
+        "acceleration": "التسارع",
+        "drivetrain": "نظام الدفع",
+        "location": "الموقع",
+        "address": "العنوان",
+        "mileage": "المسافة المقطوعة",
+        "security_deposit": "التأمين",
+        "minimum_rental_days": "الحد الأدنى لأيام الإيجار",
+        "delivery_available": "التوصيل متاح",
+        "availability": "التوفر",
+        "price_negotiable": "السعر قابل للتفاوض",
+        "financing_available": "التمويل متاح",
+        "monthly_installment": "القسط الشهري",
+        "previous_owners": "عدد الملاك السابقين",
+        "accident_free": "خالٍ من الحوادث",
+        "service_history": "سجل الصيانة",
+        "warranty": "الضمان",
+        "condition": "الحالة",
+        "category": "الفئة",
+        "class": "التصنيف",
+        "color": "اللون",
+        "interior": "الداخلية",
+        "fuel_consumption": "استهلاك الوقود",
+        "fuel_consumption_city": "استهلاك المدينة",
+        "fuel_consumption_highway": "استهلاك الطريق السريع",
+        "fuel_tank_capacity": "سعة خزان الوقود",
+        "distance_per_20l": "المسافة لكل 20 لتر",
+        "electric_range": "المدى الكهربائي",
+        "savings": "توفير {value}"
+      },
+      "enums": {
+        "category": {
+          "sedan": "سيدان",
+          "suv": "دفع رباعي",
+          "coupe": "كوبيه",
+          "hatchback": "هاتشباك",
+          "convertible": "كشف",
+          "pickup": "بيك أب",
+          "electric": "كهربائية",
+          "sports": "رياضية"
+        },
+        "class": {
+          "economy": "اقتصادية",
+          "standard": "قياسية",
+          "premium": "مميزة",
+          "luxury": "فاخرة",
+          "executive": "تنفيذية",
+          "performance": "عالية الأداء",
+          "ultra-luxury": "فائقة الفخامة"
+        },
+        "condition": {
+          "new": "جديدة",
+          "used": "مستعملة",
+          "certified": "معتمدة"
+        },
+        "fuelType": {
+          "petrol": "بنزين",
+          "diesel": "ديزل",
+          "hybrid": "هايبرد",
+          "electric": "كهربائية"
+        },
+        "transmission": {
+          "automatic": "أوتوماتيك",
+          "manual": "يدوي"
+        },
+        "drivetrain": {
+          "FWD": "دفع أمامي",
+          "RWD": "دفع خلفي",
+          "AWD": "دفع كلي",
+          "4WD": "دفع رباعي"
+        }
+      },
+      "values": {
+        "yes": "نعم",
+        "no": "لا",
+        "available": "متوفر",
+        "reviews": "تقييمات",
+        "day": "يوم"
+      }
+    },
+    "messages": {
+      "interest": "مرحبًا! أنا مهتم بسيارة {vehicle}.",
+      "sale_interest": "مرحبًا! أنا مهتم بسيارة {vehicle}. ما أفضل سعر؟",
+      "rental_interest": "مرحبًا! أود حجز سيارة {vehicle}.",
+      "generic_interest": "مرحبًا! أنا مهتم بخدماتكم.",
+      "sell_car": "مرحبًا! أنا مهتم ببيع سيارتي عبر منصتكم."
+    },
+    "vip_delivery": "توصيل VIP متاح",
+    "car_listing": {
+      "showing-cars": "{count} سيارة متاحة للعرض",
+      "tabs-filter":{
+        "any": "كل الأسعار",
+        "low-high": "الأسعار: من الأقل إلى الأعلى",
+        "high-low": "الأسعار: من الأعلى إلى الأقل",
+        "newest": "أحدث الإعلانات"
+      }
+    }
+  }
+}

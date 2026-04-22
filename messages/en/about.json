@@ -1,0 +1,69 @@
+{
+  "about": {
+    "hero": {
+      "badge": "About Us",
+      "title": "Premium Mobility,",
+      "highlight": "Reimagined",
+      "description_primary": "We deliver more than transportation. We create a premium, reliable, and effortless experience.",
+      "description_secondary": "Trusted by individuals and businesses who value quality, consistency, and comfort."
+    },
+    "actions": {
+      "browse_fleet": "Browse Fleet",
+      "contact_us": "Contact Us"
+    },
+    "stats": {
+      "years_experience": "Years Experience",
+      "happy_clients": "Happy Clients",
+      "vehicles": "Vehicles",
+      "support": "Support"
+    },
+    "experience_card": {
+      "label": "Experience",
+      "title": "Trusted by modern businesses",
+      "description": "Delivering premium mobility solutions with consistency and trust."
+    },
+    "story": {
+      "title": "Our Story",
+      "description": "A journey built on quality and trust",
+      "paragraph_one": "We started with a simple idea. Transportation should feel effortless, reliable, and premium.",
+      "paragraph_two": "Today, we focus on delivering a consistent experience across every ride, every client, every time."
+    },
+    "numbers": {
+      "title": "Proven by Numbers",
+      "description": "Real impact, real trust"
+    },
+    "testimonials": {
+      "title": "What Our Clients Say",
+      "description": "Real experiences from real customers",
+      "items": [
+        {
+          "name": "Michael Chen",
+          "role": "Business Owner",
+          "text": "Absolutely seamless experience. The quality and reliability exceeded expectations."
+        },
+        {
+          "name": "Sarah Williams",
+          "role": "Event Manager",
+          "text": "Professional service and premium vehicles. Our clients loved it."
+        },
+        {
+          "name": "David Kim",
+          "role": "Entrepreneur",
+          "text": "Reliable, fast, and incredibly smooth booking process."
+        }
+      ]
+    },
+    "faq": {
+      "badge": "FAQ",
+      "title": "Questions Before You Book",
+      "description": "Helpful answers about our booking process, support, and vehicle experience."
+    },
+    "locations": {
+      "title": "Where We Operate",
+      "description": "Expanding across major cities"
+    },
+    "map_section": {
+      "description": "Available across major cities in {country}"
+    }
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "faq": {
+    "home": {
+      "badge": "FAQ",
+      "title": "Frequently Asked Questions",
+      "description": "Find answers to common questions about our services"
+    },
+    "about": {
+      "badge": "FAQ",
+      "title": "Questions Before You Book",
+      "description": "Helpful answers about our booking process, support, and vehicle experience."
+    },
+    "contact": {
+      "badge": "FAQ",
+      "title": "Frequently Asked Questions",
+      "description": "Find answers to the most common questions about our services."
+    },
+    "page": {
+      "badge": "FAQ",
+      "title": "Help Center",
+      "description": "Browse all common questions in one place."
+    },
+    "global": {
+      "badge": "FAQ",
+      "title": "Help Center",
+      "description": "Browse all common questions in one place."
+    },
+    "cta": {
+      "description": "Still have questions? We're here to help!"
+    },
+    "items": {
+      "documents": {
+        "question": "What documents do I need to rent a car?",
+        "answer": "You need a valid driver's license, passport or national ID, and a credit card for the security deposit. International drivers may need an International Driving Permit."
+      },
+      "minimum_age": {
+        "question": "Is there a minimum age requirement for renting?",
+        "answer": "Yes, drivers must be at least 21 years old. Young drivers between 21 and 24 may incur an additional daily fee."
+      },
+      "rental_included": {
+        "question": "What is included in the rental price?",
+        "answer": "Our rental prices include basic insurance coverage, unlimited mileage, 24/7 roadside assistance, and GPS navigation. Premium insurance options are available for additional coverage."
+      },
+      "modify_cancel": {
+        "question": "Can I modify or cancel my reservation?",
+        "answer": "Yes, you can modify or cancel your reservation up to 24 hours before pickup for a full refund. Changes within 24 hours may incur a fee."
+      },
+      "delivery_pickup": {
+        "question": "Do you offer delivery and pickup services?",
+        "answer": "Yes, we offer convenient delivery and pickup services within our service area. Additional fees may apply based on location."
+      },
+      "late_return": {
+        "question": "What happens if I return the car late?",
+        "answer": "Late returns will incur additional daily charges. Please contact us immediately if you anticipate being late to avoid extra fees."
+      },
+      "booking_advance": {
+        "question": "How far in advance should I book?",
+        "answer": "We recommend booking at least 24 hours in advance for standard services and 48 to 72 hours for special events or peak travel periods."
+      },
+      "payment_methods": {
+        "question": "What payment methods do you accept?",
+        "answer": "We accept major credit cards, debit cards, and cash payments. Corporate billing can also be arranged for recurring clients."
+      },
+      "airport_pickup": {
+        "question": "Do you provide airport pickup services?",
+        "answer": "Yes, we provide airport transfers with live flight monitoring to ensure timely pickup even if your flight is delayed."
+      },
+      "booking_cancellation": {
+        "question": "What if I need to cancel my booking?",
+        "answer": "Cancellations made at least 24 hours before the scheduled service are free of charge. Late cancellations may include a fee."
+      }
+    }
+  }
+}
