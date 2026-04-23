@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -17,6 +18,7 @@ import {
   getCarTitleFallback,
   type CarContentEntry,
 } from '@/data/cars-content';
+import { getBlurDataURL } from '@/lib/image';
 import { useLocale, useTranslations } from 'next-intl';
 
 type Props = {
@@ -37,7 +39,9 @@ export default function CarCard({
 }: Props) {
   const locale = useLocale();
   const t = useTranslations('car');
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
   const title = content?.title || getCarTitleFallback(car);
+  const cardImage = car.thumbnail || car.images[0];
   // const shortDescription = content?.shortDescription || '';
 
   const isRent =
@@ -74,13 +78,22 @@ export default function CarCard({
         className="relative block h-60 overflow-hidden rounded-2xl"
         target='_blank'
       >
+        {!isImageLoaded && (
+          <div className="absolute inset-0 animate-pulse bg-muted" />
+        )}
         <Image
-          src={car.thumbnail || car.images[0]}
+          src={cardImage}
           alt={title}
           fill
           priority={imagePriority}
           sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-          className="object-cover transition-transform duration-700 group-hover:scale-105"
+          quality={74}
+          placeholder="blur"
+          blurDataURL={getBlurDataURL('#1f2937', '#0f172a')}
+          onLoad={() => setIsImageLoaded(true)}
+          className={`object-cover transition-all duration-700 group-hover:scale-105 ${
+            isImageLoaded ? 'opacity-100' : 'opacity-0'
+          }`}
         />
 
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
@@ -282,6 +295,7 @@ export default function CarCard({
                 alt="WhatsApp" 
                 width={24} 
                 height={24} 
+                loading="lazy"
               />  
             </WhatsAppButton>
           </div>

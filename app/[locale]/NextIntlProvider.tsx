@@ -11,7 +11,11 @@ export default async function NextIntlProvider({ children, locale }: { children:
     notFound();
   }
   return (
-    <NextIntlClientProvider locale={locale} messages={messages}>
+    <NextIntlClientProvider
+      key={locale}
+      locale={locale}
+      messages={messages}
+    >
       {children}
     </NextIntlClientProvider>
   );

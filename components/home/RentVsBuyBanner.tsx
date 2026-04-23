@@ -8,6 +8,7 @@ import { ArrowRight, Zap, Gauge, Users, Fuel } from 'lucide-react';
 import { cars } from '@/data/cars';
 import { getCarTitleFallback } from '@/data/cars-content';
 import { useCarContentMap } from '@/data/cars-content/useCarContent';
+import { getBlurDataURL } from '@/lib/image';
 
 export default function RentBuyExperienceSection() {
   const locale = useLocale();
@@ -79,6 +80,10 @@ export default function RentBuyExperienceSection() {
               src="/hero/rent.png"
               alt="Rent"
               fill
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              quality={72}
+              placeholder="blur"
+              blurDataURL={getBlurDataURL('#0f172a', '#1f2937')}
               className="object-cover transition duration-500 group-hover:scale-110"
             />
             <div className="absolute inset-0 bg-gradient-to-br from-black/40 to-black/10" />
@@ -105,6 +110,10 @@ export default function RentBuyExperienceSection() {
               src="/hero/buy.png"
               alt="Buy"
               fill
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              quality={72}
+              placeholder="blur"
+              blurDataURL={getBlurDataURL('#111827', '#1f2937')}
               className="object-cover transition duration-500 group-hover:scale-110"
             />
             <div className="absolute inset-0 bg-gradient-to-br from-black/40 to-black/10" />
@@ -141,6 +150,10 @@ export default function RentBuyExperienceSection() {
               src={featuredCar.thumbnail || featuredCar.images[0]}
               alt={featuredTitle}
               fill
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              quality={74}
+              placeholder="blur"
+              blurDataURL={getBlurDataURL('#111827', '#0f172a')}
               className="object-cover"
             />
           </motion.div>

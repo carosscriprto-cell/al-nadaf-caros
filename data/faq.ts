@@ -10,7 +10,16 @@ export type FaqItemId =
   | 'airport_pickup'
   | 'booking_cancellation';
 
-export type FaqGroup = 'home' | 'about' | 'contact' | 'global';
+export type FaqGroup =
+  | 'home'
+  | 'about'
+  | 'contact'
+  | 'global'
+  | 'page';
+
+function uniqueFaq(items: FaqItemId[]) {
+  return Array.from(new Set(items));
+}
 
 export const globalFaq: FaqItemId[] = [
   'booking_advance',
@@ -28,17 +37,18 @@ export const homeFaq: FaqItemId[] = [
   'late_return',
 ];
 
-export const aboutFaq: FaqItemId[] = [
+export const aboutFaq: FaqItemId[] = uniqueFaq([
   'documents',
   'delivery_pickup',
   ...globalFaq,
-];
+]);
 
-export const contactFaq: FaqItemId[] = globalFaq;
+export const contactFaq: FaqItemId[] = uniqueFaq(globalFaq);
 
 export const faqGroups: Record<FaqGroup, FaqItemId[]> = {
   home: homeFaq,
   about: aboutFaq,
   contact: contactFaq,
   global: globalFaq,
+  page: globalFaq,
 };

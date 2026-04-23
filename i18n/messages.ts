@@ -7,6 +7,7 @@ const messageFiles = [
   'car',
   'about',
   'faq',
+  'legal',
   'filters',
   'buttons',
   'heroForm'

@@ -9,6 +9,7 @@ import {
   useEffect,
   useCallback,
   useRef,
+  useTransition,
 } from 'react';
 import { cars } from '@/data/cars';
 import CarCard from '@/components/CarCard';
@@ -56,6 +57,7 @@ export default function CarsListingPage({ type, showTypeFilter }: Props) {
 
   const [page, setPage] = useState(1);
   const [isGridLoading, setIsGridLoading] = useState(true);
+  const [, startTransition] = useTransition();
   const loadingTimeoutRef = useRef<number | null>(null);
 
   const urlType = (getFilterValue('type') ||
@@ -230,7 +232,7 @@ export default function CarsListingPage({ type, showTypeFilter }: Props) {
     }, UI_LOADING_DELAY);
   }, []);
 
-  const updateURL = (newParams: Record<string, string>) => {
+  const updateURL = useCallback((newParams: Record<string, string>) => {
     triggerLoading();
 
     const params = new URLSearchParams(
@@ -242,8 +244,15 @@ export default function CarsListingPage({ type, showTypeFilter }: Props) {
       else params.set(key, value);
     });
 
-    router.replace(`${pathname}?${params.toString()}`);
-  };
+    const nextQuery = params.toString();
+    const nextHref = nextQuery
+      ? `${pathname}?${nextQuery}`
+      : pathname;
+
+    startTransition(() => {
+      router.replace(nextHref, { scroll: false });
+    });
+  }, [pathname, router, searchParams, startTransition, triggerLoading]);
 
   useEffect(() => {
     triggerLoading();

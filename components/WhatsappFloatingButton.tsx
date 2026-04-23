@@ -40,7 +40,7 @@ export default function WhatsAppFloatingButton({
         alt="WhatsApp"
         width={28}
         height={28}
-        priority
+        loading="lazy"
       />
     </a>
   );

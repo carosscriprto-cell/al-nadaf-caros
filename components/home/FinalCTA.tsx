@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
+import { getBlurDataURL } from '@/lib/image';
 
 const FinalCTA = () => {
   const locale = useLocale();
@@ -17,9 +18,13 @@ const FinalCTA = () => {
       {/* 🔥 Background Image (Subtle) */}
       <div className="absolute inset-0">
         <Image
-          src="/hero/fleet.png"
+          src="/hero/buy.png"
           alt="fleet"
           fill
+          sizes="100vw"
+          quality={68}
+          placeholder="blur"
+          blurDataURL={getBlurDataURL('#111827', '#1f2937')}
           className="object-cover opacity-20 scale-105"
         />
         
@@ -75,7 +80,7 @@ const FinalCTA = () => {
           >
             {/* Primary */}
             <Link
-              href={`/${locale}/rental`}
+              href={`/${locale}/fleet`}
               className="inline-flex items-center justify-center gap-3 rounded-xl bg-accent px-8 py-4 font-semibold text-white shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl"
             >
               {tb('start_your_journey')}

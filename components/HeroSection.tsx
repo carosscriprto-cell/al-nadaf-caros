@@ -8,6 +8,7 @@ import { useLocale, useTranslations } from 'next-intl';
 
 import { cars } from '@/data/cars';
 import HomeVehicleSearchForm from './HomeVehicleSearchForm';
+import { getBlurDataURL } from '@/lib/image';
 
 const HeroSection = () => {
   const t = useTranslations();
@@ -18,11 +19,15 @@ const HeroSection = () => {
       {/* Background */}
       <div className="absolute inset-0 overflow-hidden rounded-4xl pointer-events-none">
         <Image
-          src="/hero-bg.png"
-          alt="hero"
+          src="/hero-bg.png" 
+          alt="Luxury cars background"
           fill
           priority
+          fetchPriority="high"
+          quality={60}
           sizes="100vw"
+          placeholder="blur"
+          blurDataURL={getBlurDataURL('#111827', '#1f2937')}
           className="object-cover object-bottom rounded-4xl"
         />
         <div className="absolute inset-0 rounded-4xl bg-black/70" />
@@ -124,3 +129,4 @@ const HeroSection = () => {
 };
 
 export default HeroSection;
+

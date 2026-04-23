@@ -32,7 +32,7 @@ const createCustomIcon = (logo: string) =>
           border:2px solid white;
           box-shadow:0 10px 20px rgba(0,0,0,0.25);
         ">
-          <img src="${logo}" style="width:100%;height:100%;object-fit:cover;" />
+          <img src="${logo}" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;" />
         </div>
         <div style="
           width:10px;

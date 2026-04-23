@@ -1,3 +1,5 @@
+'use client'
+
 import Link from 'next/link';
 import {
   Accordion,
@@ -11,14 +13,15 @@ import {
   Facebook,
   Instagram,
   Linkedin,
+  LucideIcon,
   Mail,
   MapPin,
   Phone,
   Twitter,
 } from 'lucide-react';
-import { getLocale, getTranslations } from 'next-intl/server';
 
 import { featureFlags, siteConfig } from '@/config';
+import { useLocale, useTranslations } from 'next-intl';
 
 const socialIcons = {
   facebook: Facebook,
@@ -27,9 +30,13 @@ const socialIcons = {
   linkedin: Linkedin,
 } as const;
 
-export default async function Footer() {
-  const t = await getTranslations();
-  const locale = await getLocale();
+export default function Footer() {
+  const t = useTranslations();
+  const locale = useLocale();
+  const localizedAddress =
+    siteConfig.contact.address.localized[
+      locale as keyof typeof siteConfig.contact.address.localized
+    ] ?? siteConfig.contact.address.localized.en;
 
   const brandName =
     locale === 'ar'
@@ -64,6 +71,48 @@ export default async function Footer() {
   const socialLinks = Object.entries(siteConfig.social).filter(
     ([, href]) => Boolean(href)
   ) as Array<[keyof typeof socialIcons, string]>;
+
+  const contactItems = [
+    featureFlags.enablePhoneContact
+      ? {
+          key: 'phone',
+          icon: Phone,
+          href: `tel:${siteConfig.contact.phone.raw}`,
+          title: t('footer.contact.phone'),
+          lines: [siteConfig.contact.phone.display],
+        }
+      : null,
+    featureFlags.enableEmailContact
+      ? {
+          key: 'email',
+          icon: Mail,
+          href: `mailto:${siteConfig.contact.email.primary}`,
+          title: t('footer.contact.email'),
+          lines: [siteConfig.contact.email.primary],
+        }
+      : null,
+    {
+      key: 'address',
+      icon: MapPin,
+      title: t('footer.contact.address'),
+      lines: [localizedAddress.line1, localizedAddress.line2],
+    },
+    {
+      key: 'hours',
+      icon: Clock3,
+      title: t('footer.contact.hours.title'),
+      lines: [
+        t('footer.contact.hours.weekdays'),
+        t('footer.contact.hours.weekends'),
+      ],
+    },
+  ].filter(Boolean) as Array<{
+    key: string;
+    icon: LucideIcon;
+    href?: string;
+    title: string;
+    lines: string[];
+  }>;
 
   return (
     <footer className="relative border-t border-border/60 bg-card/40">
@@ -159,38 +208,43 @@ export default async function Footer() {
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="space-y-4 text-sm text-muted-foreground">
-                    {featureFlags.enablePhoneContact && (
-                      <a
-                        href={`tel:${siteConfig.contact.phone.raw}`}
-                        className="flex items-start gap-3 transition-colors duration-200 hover:text-accent"
-                      >
-                        <Phone className="mt-0.5 h-4 w-4 text-accent" />
-                        <span>{siteConfig.contact.phone.display}</span>
-                      </a>
-                    )}
+                    {contactItems.map((item) => {
+                      const Icon = item.icon;
+                      const content = (
+                        <>
+                          <Icon className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                          <div className="space-y-1">
+                            <p className="font-medium text-foreground">
+                              {item.title}
+                            </p>
+                            {item.lines.map((line) => (
+                              <p key={line}>{line}</p>
+                            ))}
+                          </div>
+                        </>
+                      );
 
-                    {featureFlags.enableEmailContact && (
-                      <a
-                        href={`mailto:${siteConfig.contact.email.primary}`}
-                        className="flex items-start gap-3 transition-colors duration-200 hover:text-accent"
-                      >
-                        <Mail className="mt-0.5 h-4 w-4 text-accent" />
-                        <span>{siteConfig.contact.email.primary}</span>
-                      </a>
-                    )}
+                      if (item.href) {
+                        return (
+                          <a
+                            key={item.key}
+                            href={item.href}
+                            className="flex items-start gap-3 transition-colors duration-200 hover:text-accent"
+                          >
+                            {content}
+                          </a>
+                        );
+                      }
 
-                    <div className="flex items-start gap-3">
-                      <MapPin className="mt-0.5 h-4 w-4 text-accent" />
-                      <span>{siteConfig.contact.address.full}</span>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <Clock3 className="mt-0.5 h-4 w-4 text-accent" />
-                      <div className="space-y-1">
-                        <p>{siteConfig.contact.businessHours.weekdays}</p>
-                        <p>{siteConfig.contact.businessHours.weekends}</p>
-                      </div>
-                    </div>
+                      return (
+                        <div
+                          key={item.key}
+                          className="flex items-start gap-3"
+                        >
+                          {content}
+                        </div>
+                      );
+                    })}
                   </div>
                 </AccordionContent>
               </AccordionItem>
@@ -239,38 +293,43 @@ export default async function Footer() {
             </h3>
 
             <div className="space-y-4 text-sm text-muted-foreground">
-              {featureFlags.enablePhoneContact && (
-                <a
-                  href={`tel:${siteConfig.contact.phone.raw}`}
-                  className="flex items-start gap-3 transition-colors duration-200 hover:text-accent"
-                >
-                  <Phone className="mt-0.5 h-4 w-4 text-accent" />
-                  <span>{siteConfig.contact.phone.display}</span>
-                </a>
-              )}
+              {contactItems.map((item) => {
+                const Icon = item.icon;
+                const content = (
+                  <>
+                    <Icon className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                    <div className="space-y-1">
+                      <p className="font-medium text-foreground">
+                        {item.title}
+                      </p>
+                      {item.lines.map((line) => (
+                        <p key={line}>{line}</p>
+                      ))}
+                    </div>
+                  </>
+                );
 
-              {featureFlags.enableEmailContact && (
-                <a
-                  href={`mailto:${siteConfig.contact.email.primary}`}
-                  className="flex items-start gap-3 transition-colors duration-200 hover:text-accent"
-                >
-                  <Mail className="mt-0.5 h-4 w-4 text-accent" />
-                  <span>{siteConfig.contact.email.primary}</span>
-                </a>
-              )}
+                if (item.href) {
+                  return (
+                    <a
+                      key={item.key}
+                      href={item.href}
+                      className="flex items-start gap-3 transition-colors duration-200 hover:text-accent"
+                    >
+                      {content}
+                    </a>
+                  );
+                }
 
-              <div className="flex items-start gap-3">
-                <MapPin className="mt-0.5 h-4 w-4 text-accent" />
-                <span>{siteConfig.contact.address.full}</span>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <Clock3 className="mt-0.5 h-4 w-4 text-accent" />
-                <div className="space-y-1">
-                  <p>{siteConfig.contact.businessHours.weekdays}</p>
-                  <p>{siteConfig.contact.businessHours.weekends}</p>
-                </div>
-              </div>
+                return (
+                  <div
+                    key={item.key}
+                    className="flex items-start gap-3"
+                  >
+                    {content}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>

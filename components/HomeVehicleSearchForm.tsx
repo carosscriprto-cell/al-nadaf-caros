@@ -14,6 +14,7 @@ import { getCarTitleFallback } from '@/data/cars-content';
 import { useCarContentMap } from '@/data/cars-content/useCarContent';
 import { prepareCarsForSearch } from '@/lib/search/buildIndex';
 import { createSearch } from '@/lib/search/createSearch';
+import { getBlurDataURL } from '@/lib/image';
 import { normalize } from '@/lib/search/normalize';
 import { searchVehicles } from '@/lib/search/searchVehicles';
 import type { SearchableCar } from '@/lib/search/types';
@@ -380,11 +381,12 @@ const displayCars = useMemo(() => {
                   <Image
                     src={car.thumbnail}
                     alt={car.model}
-                    fill 
+                    fill
                     sizes="120px"
+                    quality={68}
                     className="object-cover object-center transition-transform duration-300 group-hover:scale-105"
                     placeholder="blur"
-                    blurDataURL="/placeholder.png"
+                    blurDataURL={getBlurDataURL('#111827', '#1f2937')}
                   />
                 </div>
   

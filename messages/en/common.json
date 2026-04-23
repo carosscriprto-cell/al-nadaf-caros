@@ -40,6 +40,16 @@
       "twitter": "X",
       "instagram": "Instagram",
       "linkedin": "LinkedIn"
+    },
+    "contact": {
+      "phone": "Phone",
+      "email": "Email",
+      "address": "Address",
+      "hours": {
+        "title": "Business Hours",
+        "weekdays": "Monday - Friday: 8:00 AM - 8:00 PM",
+        "weekends": "Saturday - Sunday: 9:00 AM - 6:00 PM"
+      }
     }
   },
   "misc": {

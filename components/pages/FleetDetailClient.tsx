@@ -1,6 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -33,6 +39,7 @@ import {
   getCarTitleFallback,
   type CarContentEntry,
 } from '@/data/cars-content';
+import { getBlurDataURL } from '@/lib/image';
 import ScrollToTopButton from '../ScrollToTopButton';
 
 type SimilarCar = {
@@ -59,7 +66,18 @@ export default function FleetDetailClient({
   similarCars,
 }: FleetDetailClientProps) {
   const t = useTranslations('car');
-  const [activeImage, setActiveImage] = useState(0);
+  const galleryImages = useMemo(
+    () => (car.images.length ? car.images : [car.thumbnail]),
+    [car.images, car.thumbnail]
+  );
+  const [selectedImage, setSelectedImage] = useState(0);
+  const [displayedImage, setDisplayedImage] = useState(0);
+  const [isMainImageLoading, setIsMainImageLoading] =
+    useState(false);
+  const [loadedImages, setLoadedImages] = useState<Set<string>>(
+    () => new Set(galleryImages.slice(0, 1))
+  );
+  const imageRequestRef = useRef(0);
   const [thumbnailsEmblaRef, thumbnailsEmblaApi] = useEmblaCarousel({
     align: 'start',
     dragFree: false,
@@ -227,6 +245,95 @@ export default function FleetDetailClient({
 
   const rentalLink = `/${locale}/rental`;
   const salesLink = `/${locale}/sales`;
+  const displayedImageSrc =
+    galleryImages[displayedImage] || car.thumbnail;
+
+  const markImageLoaded = useCallback((src: string) => {
+    setLoadedImages((prev) => {
+      if (prev.has(src)) {
+        return prev;
+      }
+
+      const next = new Set(prev);
+      next.add(src);
+      return next;
+    });
+  }, []);
+
+  const preloadImage = useCallback(
+    (src: string) =>
+      new Promise<void>((resolve) => {
+        if (typeof window === 'undefined' || loadedImages.has(src)) {
+          resolve();
+          return;
+        }
+
+        const image = new window.Image();
+        image.src = src;
+
+        const finalize = () => {
+          markImageLoaded(src);
+          resolve();
+        };
+
+        if (image.decode) {
+          image.decode().then(finalize).catch(finalize);
+          return;
+        }
+
+        image.onload = finalize;
+        image.onerror = finalize;
+      }),
+    [loadedImages, markImageLoaded]
+  );
+
+  const handleImageChange = useCallback(
+    async (index: number) => {
+      if (index === displayedImage) {
+        setSelectedImage(index);
+        return;
+      }
+
+      const nextSrc = galleryImages[index] || car.thumbnail;
+      const requestId = imageRequestRef.current + 1;
+      imageRequestRef.current = requestId;
+      setSelectedImage(index);
+      setIsMainImageLoading(true);
+
+      await preloadImage(nextSrc);
+
+      if (imageRequestRef.current !== requestId) {
+        return;
+      }
+
+      setDisplayedImage(index);
+      setIsMainImageLoading(false);
+    },
+    [car.thumbnail, displayedImage, galleryImages, preloadImage]
+  );
+
+  useEffect(() => {
+    setSelectedImage(0);
+    setDisplayedImage(0);
+    setIsMainImageLoading(false);
+    imageRequestRef.current = 0;
+    setLoadedImages(new Set(galleryImages.slice(0, 1)));
+  }, [car.slug, galleryImages]);
+
+  useEffect(() => {
+    void preloadImage(displayedImageSrc);
+  }, [displayedImageSrc, preloadImage]);
+
+  useEffect(() => {
+    const upcomingImages = [
+      galleryImages[selectedImage + 1],
+      galleryImages[selectedImage - 1],
+    ].filter(Boolean) as string[];
+
+    upcomingImages.forEach((src) => {
+      void preloadImage(src);
+    });
+  }, [galleryImages, preloadImage, selectedImage]);
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -297,26 +404,46 @@ export default function FleetDetailClient({
             <div className="space-y-4">
               <div className="relative overflow-hidden rounded-[2rem] border border-border/60 bg-card/80 p-4 shadow-2xl backdrop-blur-xl">
                 <div className="relative aspect-[16/10] overflow-hidden rounded-3xl bg-muted">
+                  <div
+                    className={`absolute inset-0 z-10 transition-opacity duration-300 ${
+                      isMainImageLoading
+                        ? 'opacity-100'
+                        : 'pointer-events-none opacity-0'
+                    }`}
+                  >
+                    <div className="absolute inset-0 animate-pulse bg-gradient-to-br from-background/80 via-background/50 to-background/80" />
+                  </div>
                   <Image
-                    src={car.images[activeImage] || car.thumbnail}
+                    key={displayedImageSrc}
+                    src={displayedImageSrc}
                     alt={title}
                     fill
-                    priority={activeImage === 0}
+                    priority
                     sizes="(max-width: 1024px) 100vw, 66vw"
-                    className="object-cover transition duration-500"
+                    quality={80}
+                    placeholder="blur"
+                    blurDataURL={getBlurDataURL('#111827', '#1f2937')}
+                    onLoad={() => {
+                      markImageLoaded(displayedImageSrc);
+                      setIsMainImageLoading(false);
+                    }}
+                    className={`object-cover transition duration-500 ${
+                      isMainImageLoading ? 'scale-[1.015]' : 'scale-100'
+                    }`}
                   />
                 </div>
 
-                {car.images.length > 1 &&
-                  (car.images.length <= 4 ? (
+                {galleryImages.length > 1 &&
+                  (galleryImages.length <= 4 ? (
                     <div className="mt-4 grid grid-cols-4 gap-3">
-                      {car.images.map(
+                      {galleryImages.map(
                         (image: string, index: number) => (
                           <button
                             key={image}
-                            onClick={() => setActiveImage(index)}
+                            onClick={() => void handleImageChange(index)}
+                            aria-pressed={selectedImage === index}
                             className={`relative aspect-[4/3] overflow-hidden rounded-2xl border transition ${
-                              activeImage === index
+                              selectedImage === index
                                 ? 'border-accent ring-2 ring-accent/30'
                                 : 'border-border/60'
                             }`}
@@ -326,6 +453,12 @@ export default function FleetDetailClient({
                               alt={`${title}-${index + 1}`}
                               fill
                               sizes="160px"
+                              quality={64}
+                              placeholder="blur"
+                              blurDataURL={getBlurDataURL(
+                                '#1f2937',
+                                '#111827'
+                              )}
                               className="object-cover"
                             />
                           </button>
@@ -341,16 +474,17 @@ export default function FleetDetailClient({
                         className="overflow-hidden cursor-grab"
                       >
                         <div className="-ml-3 flex">
-                          {car.images.map(
+                          {galleryImages.map(
                             (image: string, index: number) => (
                               <div
                                 key={image}
                                 className="min-w-0 flex-[0_0_33.333%] pl-3 md:flex-[0_0_25%]"
                               >
                                 <button
-                                  onClick={() => setActiveImage(index)}
+                                  onClick={() => void handleImageChange(index)}
+                                  aria-pressed={selectedImage === index}
                                   className={`relative aspect-[4/3] w-full overflow-hidden rounded-2xl border transition ${
-                                    activeImage === index
+                                    selectedImage === index
                                       ? 'border-accent ring-2 ring-accent/30'
                                       : 'border-border/60'
                                   }`}
@@ -360,6 +494,12 @@ export default function FleetDetailClient({
                                     alt={`${title}-${index + 1}`}
                                     fill
                                     sizes="(max-width: 768px) 33vw, 25vw"
+                                    quality={64}
+                                    placeholder="blur"
+                                    blurDataURL={getBlurDataURL(
+                                      '#1f2937',
+                                      '#111827'
+                                    )}
                                     className="object-cover"
                                   />
                                 </button>
@@ -535,6 +675,7 @@ export default function FleetDetailClient({
                             alt="WhatsApp" 
                             width={24} 
                             height={24} 
+                            loading="lazy"
                           />  
                     </WhatsAppButton>
                   )}
@@ -1074,6 +1215,9 @@ export default function FleetDetailClient({
                       alt={itemTitle}
                       fill
                       sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                      quality={72}
+                      placeholder="blur"
+                      blurDataURL={getBlurDataURL('#111827', '#1f2937')}
                       className="object-cover"
                     />
                   </div>

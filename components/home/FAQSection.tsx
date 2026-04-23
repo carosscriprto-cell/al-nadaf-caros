@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 
 import { faqGroups, type FaqGroup } from '@/data/faq';
+import { siteConfig } from '@/config';
 
 type Props = {
   group?: FaqGroup;
@@ -29,10 +30,6 @@ const FAQSection = ({
     <section className="py-24">
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto mb-16 max-w-3xl text-center">
-          <div className="mb-4 inline-flex rounded-full border border-accent/20 bg-accent/10 px-4 py-2 text-sm font-medium text-accent">
-            {tFaq(`${group}.badge`)}
-          </div>
-
           <h2 className="mb-4 text-4xl font-bold text-foreground md:text-5xl">
             {tFaq(`${group}.title`)}
           </h2>
@@ -74,10 +71,12 @@ const FAQSection = ({
               {tFaq('cta.description')}
             </p>
             <Link
-              href="tel:+971-XXX-XXXX"
+              href={`tel:${siteConfig.contact.phone.raw}`}
               className="inline-flex items-center justify-center gap-3 rounded-xl bg-accent px-8 py-4 font-semibold text-white shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl"
             >
-              <span>{tButtons('call_now')}: +971-XXX-XXXX</span>
+              <span>
+                {tButtons('call_now')}: {siteConfig.contact.phone.display}
+              </span>
               <PhoneCall className="h-5 w-5" />
             </Link>
           </motion.div>

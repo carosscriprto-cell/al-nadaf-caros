@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 
 import { siteConfig } from '@/config';
+import { getBlurDataURL } from '@/lib/image';
 
 import {
   getLandingContent,
@@ -158,6 +159,9 @@ function HeroSection({
                   fill
                   priority
                   sizes="(max-width: 1024px) 100vw, 50vw"
+                  quality={72}
+                  placeholder="blur"
+                  blurDataURL={getBlurDataURL('#0f172a', '#111827')}
                   className="object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-tr from-black/70 via-black/25 to-transparent" />
@@ -310,6 +314,9 @@ function VisualPreviewSection({
                     alt={item.title}
                     fill
                     sizes="(max-width: 1024px) 100vw, 25vw"
+                    quality={70}
+                    placeholder="blur"
+                    blurDataURL={getBlurDataURL('#111827', '#1f2937')}
                     className="object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />

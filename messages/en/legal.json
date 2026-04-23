@@ -1,0 +1,58 @@
+{
+  "legalPages": {
+    "privacy": {
+      "title": "Privacy Policy",
+      "description": "How Caros collects, uses, and protects your information across bookings, inquiries, and support.",
+      "updated": "Last updated: April 23, 2026",
+      "sections": {
+        "collection": {
+          "title": "Information We Collect",
+          "body": "We collect the details you submit when requesting a booking, sending an inquiry, contacting support, or communicating through WhatsApp. This may include your name, phone number, email address, booking preferences, and any message you choose to send."
+        },
+        "usage": {
+          "title": "How We Use Information",
+          "body": "We use your information to respond to inquiries, manage reservations, coordinate delivery or pickup, provide support, improve the customer experience, and maintain service reliability and security."
+        },
+        "sharing": {
+          "title": "When We Share Information",
+          "body": "We only share information with service providers or operational partners when it is necessary to deliver the service you requested, process communication, meet legal obligations, or protect our business and customers."
+        },
+        "retention": {
+          "title": "Data Retention",
+          "body": "We retain customer and inquiry records only for as long as needed to fulfill the service, support ongoing business operations, resolve disputes, or satisfy legal and accounting obligations."
+        },
+        "rights": {
+          "title": "Your Choices",
+          "body": "You may request access to your information, ask us to correct inaccurate details, or request deletion when legally permitted. Privacy-related requests can be sent to our support team."
+        }
+      }
+    },
+    "terms": {
+      "title": "Terms of Service",
+      "description": "The basic terms that apply when using Caros websites, submitting inquiries, or requesting bookings and transport services.",
+      "updated": "Last updated: April 23, 2026",
+      "sections": {
+        "services": {
+          "title": "Service Scope",
+          "body": "Caros provides fleet browsing, booking inquiries, vehicle rental and sales support, and transport-related communication. Availability, pricing, and final approval remain subject to confirmation."
+        },
+        "bookings": {
+          "title": "Bookings and Requests",
+          "body": "Submitting a form or inquiry does not guarantee reservation acceptance. Bookings are confirmed only after availability, eligibility, pricing, and any required documents are reviewed."
+        },
+        "pricing": {
+          "title": "Pricing and Availability",
+          "body": "Vehicle listings, promotional pricing, and availability may change without notice. We work to keep inventory accurate, but temporary mismatches or delays can occur while updates are being processed."
+        },
+        "usage": {
+          "title": "Acceptable Use",
+          "body": "You agree not to misuse the website, interfere with its operation, submit false booking information, or use the service in a way that violates applicable law or the rights of others."
+        },
+        "liability": {
+          "title": "Liability",
+          "body": "Caros is not liable for indirect, incidental, or consequential losses arising from website use, booking delays, or third-party service interruptions, except where liability cannot be limited by law."
+        }
+      }
+    }
+  }
+}

@@ -8,6 +8,7 @@ import {
   useMemo,
   useRef,
   useState,
+  useTransition,
 } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Car } from '@/data/cars';
@@ -24,7 +25,11 @@ import {
   Search,
 } from 'lucide-react';
 import * as Select from '@radix-ui/react-select';
-import { motion, AnimatePresence } from 'framer-motion';
+import {
+  motion,
+  AnimatePresence,
+  useDragControls,
+} from 'framer-motion';
 
 type ListingPageType = 'rent' | 'sale' | 'all';
 
@@ -153,8 +158,11 @@ export function FilterSelect({
         {/* Dropdown */}
         <Select.Portal>
           <Select.Content
-            className="z-50 overflow-hidden rounded-xl border border-border/60 bg-card shadow-lg backdrop-blur-xl min-w-[var(--radix-select-trigger-width)]"
+            className="z-[120] min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-xl border border-border/60 bg-card shadow-lg backdrop-blur-xl"
             position="popper"
+            side="bottom"
+            sideOffset={8}
+            collisionPadding={16}
           >
             <Select.Viewport className="p-1">
               {/* Default option */}
@@ -200,7 +208,9 @@ export default function CarsFilters({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const locale = useLocale(); 
+  const dragControls = useDragControls();
 
   const searchParamsString = searchParams.toString();
 
@@ -319,12 +329,14 @@ export default function CarsFilters({
       const nextQuery = nextParams.toString();
       if (nextQuery === searchParamsString) return;
 
-      router.replace(
-        nextQuery ? `${pathname}?${nextQuery}` : pathname,
-        { scroll: false }
-      );
+      startTransition(() => {
+        router.replace(
+          nextQuery ? `${pathname}?${nextQuery}` : pathname,
+          { scroll: false }
+        );
+      });
     },
-    [pathname, router, searchParamsString]
+    [pathname, router, searchParamsString, startTransition]
   );
 
   const updateParams = useCallback(
@@ -390,9 +402,26 @@ export default function CarsFilters({
     setSearch('');
     lastCommittedSearchRef.current = '';
     setPriceRange([0, maxPrice]);
-    router.replace(pathname, { scroll: false });
-    setMobileOpen(false);
-  }, [maxPrice, pathname, router]);
+    startTransition(() => {
+      router.replace(pathname, { scroll: false });
+    });
+  }, [maxPrice, pathname, router, startTransition]);
+
+  useEffect(() => {
+    if (!mobileOpen) {
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+      return;
+    }
+
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+    };
+  }, [mobileOpen]);
 
   const activeCount = useMemo(
     () =>
@@ -736,7 +765,7 @@ export default function CarsFilters({
       <button
         onClick={() => setMobileOpen(true)}
         className="fixed bottom-5 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-white shadow-xl shadow-accent/30 transition hover:scale-105 disabled:cursor-wait disabled:opacity-80 lg:hidden"
-        disabled={isLoading}
+        disabled={isLoading || isPending}
       >
         <SlidersHorizontal size={15} />
         {tFilters('title')}
@@ -796,14 +825,32 @@ export default function CarsFilters({
                 stiffness: 260,
                 damping: 25
               }}
+              drag="y"
+              dragControls={dragControls}
+              dragListener={false}
+              dragConstraints={{ top: 0, bottom: 0 }}
+              dragElastic={{ top: 0, bottom: 0.18 }}
+              onDragEnd={(_, info) => {
+                if (info.offset.y > 120 || info.velocity.y > 700) {
+                  setMobileOpen(false);
+                }
+              }}
               className="fixed bottom-0 left-0 right-0 z-80 max-h-[80vh] overflow-y-auto rounded-t-3xl border-t border-border/60 bg-background p-6 lg:hidden"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-border" />
+              <button
+                type="button"
+                aria-label={tFilters('title')}
+                className="mx-auto mb-4 flex w-full cursor-grab justify-center py-2 active:cursor-grabbing"
+                onPointerDown={(event) => dragControls.start(event)}
+              >
+                <span className="block h-1 w-10 rounded-full bg-border" />
+              </button>
 
               <div className="mb-5 flex items-center justify-between">
                 <h2 className="text-lg font-bold">{tFilters('title')}</h2>
                 <button
+                  type="button"
                   onClick={() => setMobileOpen(false)}
                   className="rounded-xl border border-border/60 p-2 transition hover:bg-muted bg-red-200 cursor-pointer"
                 >
@@ -815,12 +862,14 @@ export default function CarsFilters({
 
               <div className="sticky bottom-0 mt-6 flex gap-3 bg-background pt-4">
                 <button
+                  type="button"
                   onClick={clear}
                   className="w-full rounded-2xl border border-border/60 py-3 text-sm transition hover:bg-muted"
                 >
                   {tFilters('reset')}
                 </button>
                 <button
+                  type="button"
                   onClick={() => setMobileOpen(false)}
                   className="w-full rounded-2xl bg-accent py-3 text-sm font-semibold text-white shadow-lg shadow-accent/20 transition hover:scale-[1.02]"
                 >

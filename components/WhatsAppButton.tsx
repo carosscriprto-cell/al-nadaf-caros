@@ -66,6 +66,7 @@ export default function WhatsAppButton({
             alt="WhatsApp" 
             width={16} 
             height={16} 
+            loading="lazy"
           />          
           <span>{t('buttons.whatsapp')}</span>
         </>

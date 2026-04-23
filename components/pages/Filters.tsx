@@ -1,4 +1,6 @@
-import { useMemo, useState } from 'react';
+'use client';
+
+import { useEffect, useMemo, useState } from 'react';
 import * as Select from '@radix-ui/react-select';
 import * as Tabs from '@radix-ui/react-tabs';
 import * as Dialog from '@radix-ui/react-dialog';
@@ -24,6 +26,7 @@ export default function AdvancedCarsFilters() {
   const [transmission, setTransmission] = useState('all');
   const [seats, setSeats] = useState('all');
   const [sortBy, setSortBy] = useState('featured');
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const [price, setPrice] = useState(
     listingType === 'rent' ? 500 : 80000
@@ -66,6 +69,22 @@ export default function AdvancedCarsFilters() {
     setSortBy('featured');
     setPrice(listingType === 'rent' ? 500 : 80000);
   };
+
+  useEffect(() => {
+    if (!drawerOpen) {
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+      return;
+    }
+
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+    };
+  }, [drawerOpen]);
 
   const FiltersContent = () => (
     <>
@@ -252,7 +271,7 @@ export default function AdvancedCarsFilters() {
           </div>
 
           <div className="p-5 lg:hidden">
-            <Dialog.Root>
+            <Dialog.Root open={drawerOpen} onOpenChange={setDrawerOpen}>
               <Dialog.Trigger asChild>
                 <button className="flex w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 font-medium text-white backdrop-blur-xl transition hover:border-primary/40 hover:bg-primary/10">
                   <SlidersHorizontal className="h-5 w-5" />
@@ -282,7 +301,10 @@ export default function AdvancedCarsFilters() {
                   <FiltersContent />
 
                   <Dialog.Close asChild>
-                    <button className="mt-8 flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-4 text-sm font-semibold text-white transition hover:scale-[1.01] hover:opacity-90">
+                    <button
+                      type="button"
+                      className="mt-8 flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-4 text-sm font-semibold text-white transition hover:scale-[1.01] hover:opacity-90"
+                    >
                       <Check className="h-5 w-5" />
                       Apply Filters
                     </button>
@@ -345,7 +367,8 @@ function FilterSelect({
           <Select.Content
             position="popper"
             sideOffset={10}
-            className="z-50 min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-2xl border border-white/10 bg-background/95 p-2 shadow-[0_20px_80px_rgba(0,0,0,0.55)] backdrop-blur-2xl"
+            collisionPadding={16}
+            className="z-[120] min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-2xl border border-white/10 bg-background/95 p-2 shadow-[0_20px_80px_rgba(0,0,0,0.55)] backdrop-blur-2xl"
           >
             <Select.Viewport className="space-y-1">
               <Select.Item

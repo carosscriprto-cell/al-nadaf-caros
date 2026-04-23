@@ -175,7 +175,7 @@ export default function Navbar() {
                   <div className="rounded-xl border border-border/60 bg-background/80 px-4 py-3 text-sm text-muted-foreground">
                     {siteConfig.contact.phone.display}
                   </div>
-                  <LanguageSwitcher />
+                  <LanguageSwitcher direction="up" />
                 </div>
               </div>
             </div>
