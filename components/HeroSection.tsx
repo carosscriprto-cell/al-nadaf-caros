@@ -1,132 +1,137 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, Car, Shield, Clock } from 'lucide-react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 
-import { cars } from '@/data/cars';
-import HomeVehicleSearchForm from './HomeVehicleSearchForm';
 import { getBlurDataURL } from '@/lib/image';
 
-const HeroSection = () => {
+import HeroSearchBar from './hero/HeroSearchBar';
+import HeroPopularSearches from './hero/HeroPopularSearches';
+
+export default function HeroSection() {
   const t = useTranslations();
-  const locale = useLocale();
 
   return (
-    <section className="relative flex min-h-[85vh] items-center justify-center overflow-hidden rounded-4xl text-white">
+    <section className="relative rounded-[32px]">
       {/* Background */}
-      <div className="absolute inset-0 overflow-hidden rounded-4xl pointer-events-none">
+      <div className="absolute inset-0 overflow-hidden rounded-[32px]">
         <Image
-          src="/hero-bg.png" 
-          alt="Luxury cars background"
+          src="/hero-bg.png"
+          alt="Luxury Vehicles"
           fill
           priority
-          fetchPriority="high"
-          quality={60}
+          quality={80}
           sizes="100vw"
           placeholder="blur"
-          blurDataURL={getBlurDataURL('#111827', '#1f2937')}
-          className="object-cover object-bottom rounded-4xl"
+          blurDataURL={getBlurDataURL('#0f172a', '#111827')}
+          className="object-cover object-center"
         />
-        <div className="absolute inset-0 rounded-4xl bg-black/70" />
+
+        <div className="absolute inset-0 bg-black/55" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-black/20" />
       </div>
 
-      {/* Content */}
-      <div className="relative mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8 2xl:py-12">
-        <div className="grid grid-cols-1 items-center gap-16 lg:grid-cols-2">
-          {/* Left Side */}
+      <div className="relative z-10">
+        <div
+          className="
+            mx-auto
+            flex
+            min-h-[80vh]
+            max-w-7xl
+            flex-col
+            justify-center
+            px-4
+            sm:px-6
+            lg:min-h-[85vh]
+            lg:px-8
+          "
+        >
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
-            className="space-y-8 lg:pt-8"
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="mx-auto w-full max-w-5xl text-center"
           >
-            <div className="space-y-4">
-              <motion.h1
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2, duration: 0.8 }}
-                className="max-w-2xl text-4xl font-bold leading-tight md:text-5xl lg:text-6xl"
-              >
-                <span className="text-accent">{t('hero.welcome')}</span>
-              </motion.h1>
-
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4, duration: 0.8 }}
-                className="max-w-lg text-xl text-blue-100"
-              >
-                {t('hero.description')}
-              </motion.p>
-            </div>
-
-            {/* Features */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6, duration: 0.8 }}
-              className="grid grid-cols-1 gap-6 sm:grid-cols-3"
+            {/* Badge */}
+            <span
+              className="
+                inline-flex
+                rounded-full
+                border
+                border-white/10
+                bg-white/10
+                px-4
+                py-2
+                text-xs
+                font-medium
+                uppercase
+                tracking-[0.18em]
+                text-white/80
+                backdrop-blur-xl
+              "
             >
-              <div className="flex items-center gap-3">
-                <Car className="h-6 w-6 text-accent" />
-                <span className="text-sm">{t('hero.premium_fleet')}</span>
-              </div>
+              {t('hero.badge')}
+            </span>
 
-              <div className="flex items-center gap-3">
-                <Shield className="h-6 w-6 text-accent" />
-                <span className="text-sm">{t('hero.safe_secure')}</span>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <Clock className="h-6 w-6 text-accent" />
-                <span className="text-sm">{t('hero.service_247')}</span>
-              </div>
-            </motion.div>
-
-            {/* CTA Buttons */}
-           <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8, duration: 0.8 }}
-              className="flex flex-col gap-4 sm:flex-row sm:gap-6"
+            {/* Title */}
+            <h1
+              className="
+                mt-6
+                text-4xl
+                font-semibold
+                leading-[1.05]
+                tracking-tight
+                text-white
+                sm:text-5xl
+                md:text-6xl
+                lg:text-7xl
+              "
             >
-              <Link
-                href={`/${locale}/rental`}
-                className="flex items-center justify-center gap-3 rounded-xl bg-accent px-8 py-4 font-semibold text-white shadow-lg transition-transform duration-200 hover:scale-105 hover:bg-accent/90 hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2"
-              >
-                <span>{t('hero.explore_rentals')}</span>
-                <ArrowRight className="h-5 w-5" />
-              </Link>
+              {t('hero.title_line_1')}
+              <br />
+              <span className="text-white/90">
+                {t('hero.title_line_2')}
+              </span>
+            </h1>
 
-              <Link
-                href={`/${locale}/sales`}
-                className="inline-flex items-center justify-center gap-3 rounded-xl border border-border bg-white/10 px-8 py-4 font-semibold text-white backdrop-blur-md transition-all duration-300 hover:bg-background hover:text-accent hover:scale-105"
-              >
-                {t('hero.explore_sales')}
-                <ArrowRight className="h-5 w-5 opacity-70 group-hover:opacity-100 transition-opacity duration-200" />
-              </Link>
-            </motion.div>
+            {/* Description */}
+            <p
+              className="
+                mx-auto
+                mt-6
+                max-w-2xl
+                text-base
+                leading-relaxed
+                text-white/70
+                md:text-lg
+              "
+            >
+              {t('hero.description')}
+            </p>
           </motion.div>
 
-          {/* Right Side - Vehicle Search Form */}
+          {/* Search */}
           <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.4, duration: 0.8 }}
-            className="relative lg:sticky lg:top-8"
+            initial={{ opacity: 0, y: 25 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15, duration: 0.6 }}
+            className="mx-auto mt-12 w-full max-w-6xl"
           >
-            <div className="mx-auto">
-              <HomeVehicleSearchForm cars={cars} />
-            </div>
+            <HeroSearchBar />
+          </motion.div>
+
+          {/* Popular Searches */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.25 }}
+            className="mt-4"
+          >
+            <HeroPopularSearches />
           </motion.div>
         </div>
       </div>
     </section>
   );
-};
-
-export default HeroSection;
-
+}

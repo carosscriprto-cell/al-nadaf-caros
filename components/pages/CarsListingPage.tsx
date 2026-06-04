@@ -1,6 +1,6 @@
 'use client';
 
-import CarsFilters, { FilterSelect } from '@/components/CarsFilters';
+import CarsFilters from '@/components/CarsFilters';
 import ActiveFilters from '@/components/ActiveFilters';
 
 import {
@@ -24,7 +24,6 @@ import {
 import { useLocale, useTranslations } from 'next-intl';
 
 
-// مهم 👇
 import { carContentAr } from '@/data/cars-content/ar';
 import { carContentEn } from '@/data/cars-content/en';
 import { prepareCarsForSearch } from '@/lib/search/buildIndex';
@@ -32,6 +31,7 @@ import { createSearch } from '@/lib/search/createSearch';
 import { normalize } from '@/lib/search/normalize';
 import { searchVehicles } from '@/lib/search/searchVehicles';
 import ScrollToTopButton from '../ScrollToTopButton';
+import { FilterSelect } from '../hero/FilterSelecte';
 
 type Props = {
   type: 'rent' | 'sale' | 'all';

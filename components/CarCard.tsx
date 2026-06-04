@@ -13,13 +13,24 @@ import {
 } from 'lucide-react';
 
 import WhatsAppButton from '@/components/WhatsAppButton';
-import { Car } from '@/data/cars';
+
+// Architecture doc § 3.1 — Car type from centralised types file
+import type { Car } from '@/types/vehicles';
+
+// Architecture doc § 3.2 — getListingCapabilities replaces inline isRent/isSale/isBoth
+import { getListingCapabilities } from '@/lib/vehicles/listingType';
+
+// Architecture doc § 12.2 — discriminated union pricing; formatMoney co-located
+import { getCarPrice, formatMoney } from '@/lib/vehicles/pricing';
+
 import {
   getCarTitleFallback,
   type CarContentEntry,
 } from '@/data/cars-content';
 import { getBlurDataURL } from '@/lib/image';
 import { useLocale, useTranslations } from 'next-intl';
+
+// ─── Props ────────────────────────────────────────────────────────────────────
 
 type Props = {
   car: Car;
@@ -28,9 +39,7 @@ type Props = {
   imagePriority?: boolean;
 };
 
-function formatMoney(value: number) {
-  return `$${value.toLocaleString()}`;
-}
+// ─── Component ────────────────────────────────────────────────────────────────
 
 export default function CarCard({
   car,
@@ -40,47 +49,55 @@ export default function CarCard({
   const locale = useLocale();
   const t = useTranslations('car');
   const [isImageLoaded, setIsImageLoaded] = useState(false);
+
   const title = content?.title || getCarTitleFallback(car);
   const cardImage = car.thumbnail || car.images[0];
-  // const shortDescription = content?.shortDescription || '';
 
-  const isRent =
-    car.listingType === 'rent' || car.listingType === 'both';
-  const isSale =
-    car.listingType === 'sale' || car.listingType === 'both';
-  const isBoth = car.listingType === 'both';
+  // Architecture doc § 3.2 — single source of truth for 'both' guard.
+  // Replaces the three separate inline computations:
+  //   const isRent = car.listingType === 'rent' || car.listingType === 'both';
+  //   const isSale = car.listingType === 'sale' || car.listingType === 'both';
+  //   const isBoth = car.listingType === 'both';
+  const { canRent: isRent, canBuy: isSale, isBoth } = getListingCapabilities(car);
 
-  const rentalPrice = car.pricing.daily
-    ? formatMoney(car.pricing.daily)
-    : null;
-  const salePrice = car.pricing.total
-    ? formatMoney(car.pricing.total)
-    : null;
-  const categoryLabel = t(
-    `detail.enums.category.${car.category}`
-  );
+  // Architecture doc § 12.2 — discriminated union pricing.
+  // Replaces the inline null-checked rentalPrice / salePrice derivations.
+  const rentPrice = getCarPrice(car, 'rent');
+  const salePrice = getCarPrice(car, 'sale');
+
+  const rentalPriceDisplay =
+    rentPrice.type === 'rent' ? formatMoney(rentPrice.daily) : null;
+  const salePriceDisplay =
+    salePrice.type === 'sale' ? formatMoney(salePrice.total) : null;
+  const oldPriceDisplay =
+    salePrice.type === 'sale' && salePrice.oldPrice
+      ? formatMoney(salePrice.oldPrice)
+      : null;
+
+  // i18n labels — unchanged, all keys preserved
+  const categoryLabel = t(`detail.enums.category.${car.category}`);
   const classLabel = t(`detail.enums.class.${car.class}`);
-  const transmissionLabel = t(
-    `detail.enums.transmission.${car.transmission}`
-  );
-  const fuelTypeLabel = t(
-    `detail.enums.fuelType.${car.fuelType}`
-  );
+  const transmissionLabel = t(`detail.enums.transmission.${car.transmission}`);
+  const fuelTypeLabel = t(`detail.enums.fuelType.${car.fuelType}`);
+
+  // ─── Render ───────────────────────────────────────────────────────────────
 
   return (
     <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-background transition-all duration-400 hover:-translate-y-1 hover:shadow-xl">
 
-      {/* subtle gradient overlay */}
+      {/* Subtle gradient overlay on hover */}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-accent/30 via-transparent to-accent/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
+      {/* Image + overlay badges */}
       <Link
         href={`/${locale}/fleet/${car.slug}`}
         className="relative block h-60 overflow-hidden rounded-2xl"
-        target='_blank'
+        target="_blank"
       >
         {!isImageLoaded && (
           <div className="absolute inset-0 animate-pulse bg-muted" />
         )}
+
         <Image
           src={cardImage}
           alt={title}
@@ -99,6 +116,7 @@ export default function CarCard({
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-br from-black/10 via-transparent to-black/30" />
 
+        {/* Top badges */}
         <div className="absolute left-4 right-4 top-3 flex items-start justify-between gap-3">
           <div className="flex flex-wrap gap-2">
             {car.isFeatured && (
@@ -126,12 +144,12 @@ export default function CarCard({
           </div>
         </div>
 
+        {/* Title overlay */}
         <div className="absolute bottom-0 left-0 right-0 px-5 text-white">
           <div className="mb-2">
             <h3 className="text-[22px] font-semibold tracking-tight text-white/90">
               {title}
             </h3>
-
             <p className="mb-1 text-[11px] font-medium uppercase tracking-[0.18em] text-white/60">
               {categoryLabel} / {classLabel}
             </p>
@@ -139,7 +157,10 @@ export default function CarCard({
         </div>
       </Link>
 
+      {/* Card body */}
       <div className="relative flex flex-1 flex-col px-5 py-4">
+
+        {/* Specs row */}
         <div className="mb-3 grid grid-cols-3 gap-2">
           <div className="rounded-2xl border border-white/8 bg-muted/40 p-1.5 text-center">
             <Users className="mx-auto mb-1 h-4 w-4 text-accent" />
@@ -168,9 +189,7 @@ export default function CarCard({
               <Fuel className="mx-auto mb-1 h-4 w-4 text-accent" />
             )}
             <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-              {car.fuelType === 'electric'
-                ? t('card.range')
-                : t('card.fuel')}
+              {car.fuelType === 'electric' ? t('card.range') : t('card.fuel')}
             </p>
             <p className="mt-1 text-[13px] font-semibold text-foreground">
               {car.fuelType === 'electric'
@@ -180,12 +199,9 @@ export default function CarCard({
           </div>
         </div>
 
-        {/* <p className="mb-4 flex h-[40px] items-center line-clamp-2 text-[13px] leading-5 text-muted-foreground/80 xl:text-[15px]">
-          {shortDescription}
-        </p> */}
-
-        <div className="mb-3 flex flex-nowrap gap-2 justify-center">
-          {(content?.features || []).slice(0, 3).map((feature) => (
+        {/* Feature chips */}
+        <div className="mb-3 flex flex-nowrap justify-center gap-2">
+          {(content?.features ?? []).slice(0, 3).map((feature) => (
             <span
               key={feature}
               className="truncate rounded-full border border-accent/10 bg-accent/5 px-3 py-1 text-[10px] font-medium text-accent 2xl:text-[12px]"
@@ -195,6 +211,7 @@ export default function CarCard({
           ))}
         </div>
 
+        {/* Pricing block */}
         <div className="mb-3 rounded-3xl border border-white/8 bg-gradient-to-r from-accent/10 to-accent/5 px-4 py-3 backdrop-blur-2xl">
           <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
             {isBoth
@@ -206,16 +223,15 @@ export default function CarCard({
 
           <div className="mt-2">
             {isBoth ? (
+              // Both: show daily rent + sale price side by side
               <div className="flex items-end justify-between gap-4">
                 <div className="flex items-end gap-1 whitespace-nowrap">
-                  <div className="flex items-end gap-1">
-                    <span className="text-center text-[28px] font-semibold text-foreground">
-                      {rentalPrice || '-'}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      /{t('detail.values.day')}
-                    </span>
-                  </div>
+                  <span className="text-center text-[28px] font-semibold text-foreground">
+                    {rentalPriceDisplay || '-'}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    /{t('detail.values.day')}
+                  </span>
                 </div>
 
                 <div className="h-8 w-px bg-border" />
@@ -223,33 +239,35 @@ export default function CarCard({
                 <div className="flex w-full flex-col items-start">
                   <div className="flex w-full items-end gap-1">
                     <span className="text-[28px] font-semibold tracking-tight text-foreground">
-                      {salePrice || '-'}
+                      {salePriceDisplay || '-'}
                     </span>
-                    {car.pricing.oldPrice && (
+                    {oldPriceDisplay && (
                       <span className="text-sm text-muted-foreground line-through">
-                        {formatMoney(car.pricing.oldPrice)}
+                        {oldPriceDisplay}
                       </span>
                     )}
                   </div>
                 </div>
               </div>
             ) : isRent ? (
+              // Rent only
               <div className="flex items-end gap-1">
                 <span className="text-[28px] font-semibold tracking-tight text-foreground">
-                  {rentalPrice || '-'}
+                  {rentalPriceDisplay || '-'}
                 </span>
                 <span className="text-sm text-muted-foreground">
                   /{t('detail.values.day')}
                 </span>
               </div>
             ) : isSale ? (
+              // Sale only
               <div className="flex items-end gap-1">
                 <span className="text-[28px] font-semibold tracking-tight text-foreground">
-                  {salePrice || '-'}
+                  {salePriceDisplay || '-'}
                 </span>
-                {car.pricing.oldPrice && (
+                {oldPriceDisplay && (
                   <span className="text-sm text-muted-foreground line-through">
-                    {formatMoney(car.pricing.oldPrice)}
+                    {oldPriceDisplay}
                   </span>
                 )}
               </div>
@@ -261,10 +279,10 @@ export default function CarCard({
           </div>
         </div>
 
+        {/* CTAs */}
         <div className="mt-auto flex flex-col gap-3">
-           {/* CTA TEXT */}
           <div className="text-center">
-            <p className="text-sm font-medium text-foreground mt-1">
+            <p className="mt-1 text-sm font-medium text-foreground">
               {isRent
                 ? t('card.cta_rent')
                 : isSale
@@ -273,14 +291,12 @@ export default function CarCard({
             </p>
           </div>
 
-          {/* BUTTONS */}
           <div className="flex gap-2" dir="ltr">
-            {/* WhatsApp (Primary) */}
             <WhatsAppButton
               car={car}
               content={content}
               className="flex-1 flex items-center justify-center w-full gap-2 rounded-2xl 
-              bg-[#25D366] py-3 text-[14px] font-semibold text-white  truncate
+              bg-[#25D366] py-3 text-[14px] font-semibold text-white truncate
               shadow-lg shadow-[#25D366]/20 
               transition-all duration-300 
               hover:scale-[1.02] hover:shadow-xl hover:shadow-[#25D366]/30"
@@ -290,17 +306,16 @@ export default function CarCard({
                 : isSale
                 ? t('actions.buy_now')
                 : t('actions.contact_now')}
-              <Image 
-                src="/WhatsApp.png" 
-                alt="WhatsApp" 
-                width={24} 
-                height={24} 
+              <Image
+                src="/WhatsApp.png"
+                alt="WhatsApp"
+                width={24}
+                height={24}
                 loading="lazy"
-              />  
+              />
             </WhatsAppButton>
           </div>
 
-          {/* Secondary link */}
           <Link
             href={`/${locale}/fleet/${car.slug}`}
             className="flex items-center justify-center gap-2 rounded-2xl 

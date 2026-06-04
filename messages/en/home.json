@@ -1,12 +1,32 @@
 {
-  "hero": {
-    "welcome": "Welcome to Caros",
-    "description": "Experience luxury and reliability with our premium fleet. From airport transfers to special events, we have your journey covered.",
-    "premium_fleet": "Premium Fleet",
-    "safe_secure": "Safe & Secure",
-    "service_247": "24/7 Service",
-    "explore_rentals": "Explore Rentals",
-    "explore_sales": "Explore Sales"
+   "hero": {
+    "badge": "Premium Automotive Collection",
+
+    "title_line_1": "Find Your",
+    "title_line_2": "Next Vehicle",
+
+    "description": "Explore premium vehicles available for sale and rental.",
+
+    "search_placeholder": "Search by brand or model...",
+    "search_button": "Search",
+
+    "search": "Search",
+
+    "brand": "Any Brand",
+    "model": "Any Model",
+    "fuel": "Any Fuel Type",
+    "type": "Listing Type",
+
+    "buy": "Buy",
+    "rent": "Rent",
+
+    "popular_brands": "Popular Brands",
+
+    "stats": {
+      "vehicles": "Vehicles",
+      "brands": "Brands",
+      "support": "Support"
+    }
   },
   "brand-section":{
     "brand-title":"Discover Leading Brands",
