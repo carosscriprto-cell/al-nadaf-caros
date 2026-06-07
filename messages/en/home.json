@@ -1,16 +1,38 @@
 {
-   "hero": {
-    "badge": "Premium Automotive Collection",
+  "hero": {
+      "badge": "Ajouz Motors",
 
-    "title_line_1": "Find Your",
-    "title_line_2": "Next Vehicle",
+  "title_line_1": "A Curated Collection",
+  "title_line_2": "Of Exceptional Vehicles",
 
-    "description": "Explore premium vehicles available for sale and rental.",
+  "description": "Explore premium new and pre-owned vehicles carefully selected for quality, performance, and prestige.",
+    
 
-    "search_placeholder": "Search by brand or model...",
+    "section_label": "Vehicle showroom",
+
+    "search_placeholder": "Brand, model, category…",
     "search_button": "Search",
-
     "search": "Search",
+    "search_label": "Search vehicles",
+    "search_open_label": "Open vehicle search",
+    "search_vehicles": "Find Your Vehicle",
+    "close_search": "Close search",
+    "clear_search": "Clear search",
+    "show_results": "Show Results",
+    "browse_all": "Browse All Vehicles",
+    "reset_filters": "Clear all filters",
+
+    "recommended_vehicles": "Matching vehicles",
+    "curated_vehicles": "Curated for you",
+    "curated_sub": "Our finest selection",
+    "curated_badge": "Featured",
+    "available_vehicles": "available",
+    "matches": "matches",
+    "no_exact_match": "No vehicles found",
+    "no_exact_match_description": "Try a different term or browse our full inventory.",
+    "browse_inventory": "Browse All Vehicles",
+    "view_inventory": "View All Vehicles",
+    "view_all": "Browse All",
 
     "brand": "Any Brand",
     "model": "Any Model",
@@ -20,7 +42,18 @@
     "buy": "Buy",
     "rent": "Rent",
 
+    "popular_searches": "Popular searches",
+    "trending": "Trending",
     "popular_brands": "Popular Brands",
+
+    "trust": {
+      "curated_label": "Curated Inventory",
+      "curated_sub": "Every vehicle hand-selected",
+      "certified_label": "Certified Vehicles",
+      "certified_sub": "Inspected & verified",
+      "delivery_label": "Delivery Available",
+      "delivery_sub": "To your location"
+    },
 
     "stats": {
       "vehicles": "Vehicles",
@@ -28,13 +61,13 @@
       "support": "Support"
     }
   },
-  "brand-section":{
-    "brand-title":"Discover Leading Brands",
-    "brand-subtitle":"Find the finest automotive experiences with our carefully curated selection of premium brands."
+  "brand-section": {
+    "brand-title": "Discover Leading Brands",
+    "brand-subtitle": "Find the finest automotive experiences with our carefully curated selection of premium brands."
   },
-  "featured-section":{
-    "featured-title":"Featured Vehicles",
-    "featured-subtitle":"Explore our handpicked selection of premium vehicles, showcasing the best in luxury and performance for your next journey."
+  "featured-section": {
+    "featured-title": "Featured Vehicles",
+    "featured-subtitle": "Explore our handpicked selection of premium vehicles, showcasing the best in luxury and performance for your next journey."
   },
   "promo": {
     "headline": "Get 70% Off Your First Booking!",
@@ -66,9 +99,8 @@
   "rent_vs_buy": {
     "rent-title": "Drive the Moment",
     "rent-description": "Feel the freedom. No strings attached, just pure experience.",
-      
     "buy-title": "Own the Journey",
-    "buy-description": "More than a car — it’s your future, your statement, your story."
+    "buy-description": "More than a car — it's your future, your statement, your story."
   },
   "how_it_works": {
     "title": "How It Works",
