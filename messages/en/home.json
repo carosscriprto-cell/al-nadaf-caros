@@ -1,11 +1,11 @@
 {
   "hero": {
-      "badge": "Ajouz Motors",
+    "badge": "Premium Automotive Collection",
 
-  "title_line_1": "A Curated Collection",
-  "title_line_2": "Of Exceptional Vehicles",
+    "title_line_1": "A Curated Collection",
+    "title_line_2": "Of Exceptional Vehicles",
 
-  "description": "Explore premium new and pre-owned vehicles carefully selected for quality, performance, and prestige.",
+    "description": "Explore premium new and pre-owned vehicles carefully selected for quality, performance, and prestige.",
     
 
     "section_label": "Vehicle showroom",
@@ -59,20 +59,6 @@
       "vehicles": "Vehicles",
       "brands": "Brands",
       "support": "Support"
-    },
-
-    "section_label": "Vehicle showroom",
-    "search_label": "Search vehicles",
-    "popular_searches": "Popular searches",
-    "trending": "Trending",
-
-    "trust": {
-      "curated_label": "Curated Inventory",
-      "curated_sub": "Every vehicle hand-selected",
-      "certified_label": "Certified Vehicles",
-      "certified_sub": "Inspected & verified",
-      "delivery_label": "Delivery Available",
-      "delivery_sub": "To your location"
     }
   },
   "brand-section": {
