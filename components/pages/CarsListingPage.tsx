@@ -1,3 +1,9 @@
+// components/pages/CarsListingPage.tsx
+// ─────────────────────────────────────────────────────────────
+// Client Component — يستقبل البيانات كـ props من Server Component
+// لا يجلب بيانات بنفسه
+// ─────────────────────────────────────────────────────────────
+
 'use client';
 
 import CarsFilters from '@/components/CarsFilters';
@@ -11,10 +17,8 @@ import {
   useRef,
   useTransition,
 } from 'react';
-import { cars } from '@/data/cars';
 import CarCard from '@/components/CarCard';
 import CarCardSkeleton from '@/components/skeletons/CarCardSkeleton';
-import { useCarContentMap } from '@/data/cars-content/useCarContent';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   useRouter,
@@ -23,82 +27,94 @@ import {
 } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 
-
-import { carContentAr } from '@/data/cars-content/ar';
-import { carContentEn } from '@/data/cars-content/en';
 import { prepareCarsForSearch } from '@/lib/search/buildIndex';
 import { createSearch } from '@/lib/search/createSearch';
 import { normalize } from '@/lib/search/normalize';
 import { searchVehicles } from '@/lib/search/searchVehicles';
 import ScrollToTopButton from '../ScrollToTopButton';
 import { FilterSelect } from '../hero/FilterSelecte';
+import type { Car, CarContentMap } from '@/types/vehicles';
+
+// ─── Props ────────────────────────────────────────────────────
 
 type Props = {
-  type: 'rent' | 'sale' | 'all';
+  // البيانات تأتي من Server Component — لا جلب هنا
+  cars:       Car[];
+  contentMap: CarContentMap;
+  contentAr:  CarContentMap;
+  contentEn:  CarContentMap;
+  // إعدادات الصفحة
+  type:           'rent' | 'sale' | 'all';
   showTypeFilter?: boolean;
 };
 
-const ITEMS_PER_PAGE = 9;
+const ITEMS_PER_PAGE   = 9;
 const UI_LOADING_DELAY = 380;
 
-export default function CarsListingPage({ type, showTypeFilter }: Props) {
-  const locale = useLocale();
+export default function CarsListingPage({
+  cars,
+  contentMap,
+  contentAr,
+  contentEn,
+  type,
+  showTypeFilter,
+}: Props) {
+  const locale       = useLocale();
   const searchParams = useSearchParams();
-  const pathname = usePathname();
-  const router = useRouter();
-  const contentMap = useCarContentMap(locale);
-  const t = useTranslations('car')
-  const tf = useTranslations('filters')
+  const pathname     = usePathname();
+  const router       = useRouter();
+  const t            = useTranslations('car');
+  const tf           = useTranslations('filters');
 
   const getFilterValue = useCallback(
     (key: string) => searchParams.get(key) ?? '',
     [searchParams]
   );
 
-  const [page, setPage] = useState(1);
-  const [isGridLoading, setIsGridLoading] = useState(true);
-  const [, startTransition] = useTransition();
-  const loadingTimeoutRef = useRef<number | null>(null);
+  const [page,          setPage]          = useState(1);
+  const [isGridLoading, setIsGridLoading] = useState(false);
+  const [, startTransition]               = useTransition();
+  const loadingTimeoutRef                 = useRef<number | null>(null);
 
-  const urlType = (getFilterValue('type') ||
-    type) as 'all' | 'rent' | 'sale';
+  const urlType = (getFilterValue('type') || type) as 'all' | 'rent' | 'sale';
 
   const filters = useMemo(
     () => ({
-      search: normalize(getFilterValue('search')),
-      brand: getFilterValue('brand').split(',').filter(Boolean),
-      category: getFilterValue('category').split(',').filter(Boolean),
-      transmission: getFilterValue('transmission')
-        .split(',')
-        .filter(Boolean),
-      class: getFilterValue('class'),
-      fuelType: getFilterValue('fuelType'),
-      seats: getFilterValue('seats'),
-      minPrice: getFilterValue('minPrice'),
-      maxPrice: getFilterValue('maxPrice'),
-      condition: getFilterValue('condition'),
-      delivery: getFilterValue('delivery'),
-      sort: getFilterValue('sort') || 'all',
+      search:       normalize(getFilterValue('search')),
+      brand:        getFilterValue('brand').split(',').filter(Boolean),
+      category:     getFilterValue('category').split(',').filter(Boolean),
+      transmission: getFilterValue('transmission').split(',').filter(Boolean),
+      class:        getFilterValue('class'),
+      fuelType:     getFilterValue('fuelType'),
+      seats:        getFilterValue('seats'),
+      minPrice:     getFilterValue('minPrice'),
+      maxPrice:     getFilterValue('maxPrice'),
+      condition:    getFilterValue('condition'),
+      delivery:     getFilterValue('delivery'),
+      sort:         getFilterValue('sort') || 'all',
     }),
     [getFilterValue]
   );
 
-  const preparedCars = useMemo(() => {
-    return prepareCarsForSearch(
-      cars,
-      carContentAr,
-      carContentEn
-    );
-  }, []);
+  // ─── Search index ─────────────────────────────────────────────
+  // يستخدم كلا اللغتين للـ search — يُبنى مرة واحدة
 
-  const vehicleSearch = useMemo(() => {
-    return createSearch(preparedCars);
-  }, [preparedCars]);
+  const preparedCars = useMemo(
+    () => prepareCarsForSearch(cars, contentAr, contentEn),
+    [cars, contentAr, contentEn]
+  );
+
+  const vehicleSearch = useMemo(
+    () => createSearch(preparedCars),
+    [preparedCars]
+  );
+
+  // ─── Filtering + sorting ──────────────────────────────────────
 
   const filteredCars = useMemo(() => {
     const searchedCars = searchVehicles({
-      cars: preparedCars,
-      query: filters.search,
+      cars:   preparedCars,
+      query:  filters.search,
       search: vehicleSearch,
     });
 
@@ -108,18 +124,14 @@ export default function CarsListingPage({ type, showTypeFilter }: Props) {
           urlType === 'all'
             ? true
             : urlType === 'rent'
-            ? car.listingType === 'rent' ||
-              car.listingType === 'both'
-            : car.listingType === 'sale' ||
-              car.listingType === 'both';
+            ? car.listingType === 'rent' || car.listingType === 'both'
+            : car.listingType === 'sale' || car.listingType === 'both';
 
         const matchesBrand =
-          !filters.brand.length ||
-          filters.brand.includes(car.brand);
+          !filters.brand.length || filters.brand.includes(car.brand);
 
         const matchesCategory =
-          !filters.category.length ||
-          filters.category.includes(car.category);
+          !filters.category.length || filters.category.includes(car.category);
 
         const matchesTransmission =
           !filters.transmission.length ||
@@ -129,20 +141,16 @@ export default function CarsListingPage({ type, showTypeFilter }: Props) {
           !filters.class || filters.class === car.class;
 
         const matchesFuelType =
-          !filters.fuelType ||
-          filters.fuelType === car.fuelType;
+          !filters.fuelType || filters.fuelType === car.fuelType;
 
         const matchesSeats =
-          !filters.seats ||
-          car.seats >= Number(filters.seats);
+          !filters.seats || car.seats >= Number(filters.seats);
 
         const matchesCondition =
-          !filters.condition ||
-          filters.condition === car.condition;
+          !filters.condition || filters.condition === car.condition;
 
         const matchesDelivery =
-          !filters.delivery ||
-          car.deliveryAvailable === true;
+          !filters.delivery || car.deliveryAvailable === true;
 
         const carPrice =
           urlType === 'rent'
@@ -155,24 +163,22 @@ export default function CarsListingPage({ type, showTypeFilter }: Props) {
               );
 
         const matchesMinPrice =
-          !filters.minPrice ||
-          carPrice >= Number(filters.minPrice);
+          !filters.minPrice || carPrice >= Number(filters.minPrice);
 
         const matchesMaxPrice =
-          !filters.maxPrice ||
-          carPrice <= Number(filters.maxPrice);
+          !filters.maxPrice || carPrice <= Number(filters.maxPrice);
 
         return (
-          matchesType &&
-          matchesBrand &&
-          matchesCategory &&
+          matchesType        &&
+          matchesBrand       &&
+          matchesCategory    &&
           matchesTransmission &&
-          matchesClass &&
-          matchesFuelType &&
-          matchesSeats &&
-          matchesCondition &&
-          matchesDelivery &&
-          matchesMinPrice &&
+          matchesClass       &&
+          matchesFuelType    &&
+          matchesSeats       &&
+          matchesCondition   &&
+          matchesDelivery    &&
+          matchesMinPrice    &&
           matchesMaxPrice
         );
       })
@@ -183,23 +189,20 @@ export default function CarsListingPage({ type, showTypeFilter }: Props) {
             (b.pricing.daily ?? b.pricing.total ?? 0)
           );
         }
-
         if (filters.sort === 'price-high') {
           return (
             (b.pricing.daily ?? b.pricing.total ?? 0) -
             (a.pricing.daily ?? a.pricing.total ?? 0)
           );
         }
-
         if (filters.sort === 'newest') {
           return b.year - a.year;
         }
-
         return Number(b.isFeatured) - Number(a.isFeatured);
       });
   }, [preparedCars, filters, urlType, vehicleSearch]);
 
-  
+  // ─── Pagination ───────────────────────────────────────────────
 
   const searchParamsKey = searchParams.toString();
 
@@ -207,52 +210,42 @@ export default function CarsListingPage({ type, showTypeFilter }: Props) {
     setPage(1);
   }, [searchParamsKey]);
 
-  const totalPages = Math.ceil(
-    filteredCars.length / ITEMS_PER_PAGE
-  );
+  const totalPages = Math.ceil(filteredCars.length / ITEMS_PER_PAGE);
 
   const paginatedCars = useMemo(() => {
     const start = (page - 1) * ITEMS_PER_PAGE;
-    return filteredCars.slice(
-      start,
-      start + ITEMS_PER_PAGE
-    );
+    return filteredCars.slice(start, start + ITEMS_PER_PAGE);
   }, [filteredCars, page]);
+
+  // ─── Loading state ────────────────────────────────────────────
 
   const triggerLoading = useCallback(() => {
     if (loadingTimeoutRef.current !== null) {
       window.clearTimeout(loadingTimeoutRef.current);
     }
-
     setIsGridLoading(true);
-
     loadingTimeoutRef.current = window.setTimeout(() => {
       setIsGridLoading(false);
       loadingTimeoutRef.current = null;
     }, UI_LOADING_DELAY);
   }, []);
 
-  const updateURL = useCallback((newParams: Record<string, string>) => {
-    triggerLoading();
-
-    const params = new URLSearchParams(
-      searchParams.toString()
-    );
-
-    Object.entries(newParams).forEach(([key, value]) => {
-      if (!value) params.delete(key);
-      else params.set(key, value);
-    });
-
-    const nextQuery = params.toString();
-    const nextHref = nextQuery
-      ? `${pathname}?${nextQuery}`
-      : pathname;
-
-    startTransition(() => {
-      router.replace(nextHref, { scroll: false });
-    });
-  }, [pathname, router, searchParams, startTransition, triggerLoading]);
+  const updateURL = useCallback(
+    (newParams: Record<string, string>) => {
+      triggerLoading();
+      const params = new URLSearchParams(searchParams.toString());
+      Object.entries(newParams).forEach(([key, value]) => {
+        if (!value) params.delete(key);
+        else params.set(key, value);
+      });
+      const nextQuery = params.toString();
+      const nextHref  = nextQuery ? `${pathname}?${nextQuery}` : pathname;
+      startTransition(() => {
+        router.replace(nextHref, { scroll: false });
+      });
+    },
+    [pathname, router, searchParams, startTransition, triggerLoading]
+  );
 
   useEffect(() => {
     triggerLoading();
@@ -266,65 +259,65 @@ export default function CarsListingPage({ type, showTypeFilter }: Props) {
     };
   }, []);
 
+  // ─── Render ───────────────────────────────────────────────────
+
   return (
-    <div className="min-h-screen bg-background" dir='ltr'>
+    <div className="min-h-screen bg-background" dir="ltr">
       <div className="mx-auto max-w-full px-4 py-10 sm:px-6 lg:px-8">
         <div className="flex gap-8">
-          <CarsFilters
-            cars={cars}
-            type={urlType}
-          />
+          <CarsFilters cars={cars} type={urlType} />
 
-          <div className="flex-1 ">
-            <div className='flex flex-col-reverse'>
-              <ActiveFilters  />
+          <div className="flex-1">
+            <div className="flex flex-col-reverse">
+              <ActiveFilters />
 
-              <div className="mb-6 flex flex-wrap md:flex-row gap-3 items-center justify-between" dir={locale == 'ar' ? 'rtl' : 'ltr' }>
-                    <span className='font-bold text-lg'>
-                      {t('car_listing.showing-cars', {
-                      count: filteredCars.length,
-                    })}
-                    </span>
+              <div
+                className="mb-6 flex flex-wrap md:flex-row gap-3 items-center justify-between"
+                dir={locale === 'ar' ? 'rtl' : 'ltr'}
+              >
+                <span className="font-bold text-lg">
+                  {t('car_listing.showing-cars', {
+                    count: filteredCars.length,
+                  })}
+                </span>
 
-                    <div className="flex items-center justify-end gap-4">
-                      <div className='min-w-30 shrink-0'>
-                        {showTypeFilter && (
-                          <FilterSelect
-                            label=""
-                            value={urlType}
-                            onChange={(value) => updateURL({ type: value })}
-                            options={[
-                              { value: "all", label: tf('all-type') },
-                              { value: "rent", label: tf('for_rent') },
-                              { value: "sale", label: tf('for_sale') },
-                            ]}
-                          />
-                        )}
-                      </div>
-                      <div className='min-w-30 shrink-0'>
-                        <FilterSelect
-                          label=""
-                          value={filters.sort}
-                          onChange={(value) => updateURL({ sort: value })}
-                          options={[
-                            { value: "all", label: t('car_listing.tabs-filter.any') },
-                            { value: "price-low", label: t('car_listing.tabs-filter.low-high') },
-                            { value: "price-high", label: t('car_listing.tabs-filter.high-low') },
-                            { value: "newest", label: t('car_listing.tabs-filter.newest') },
-                          ]}
-                        />
-                      </div>
-                    </div>
+                <div className="flex items-center justify-end gap-4">
+                  <div className="min-w-30 shrink-0">
+                    {showTypeFilter && (
+                      <FilterSelect
+                        label=""
+                        value={urlType}
+                        onChange={(value) => updateURL({ type: value })}
+                        options={[
+                          { value: 'all',  label: tf('all-type') },
+                          { value: 'rent', label: tf('for_rent') },
+                          { value: 'sale', label: tf('for_sale') },
+                        ]}
+                      />
+                    )}
+                  </div>
+                  <div className="min-w-30 shrink-0">
+                    <FilterSelect
+                      label=""
+                      value={filters.sort}
+                      onChange={(value) => updateURL({ sort: value })}
+                      options={[
+                        { value: 'all',        label: t('car_listing.tabs-filter.any') },
+                        { value: 'price-low',  label: t('car_listing.tabs-filter.low-high') },
+                        { value: 'price-high', label: t('car_listing.tabs-filter.high-low') },
+                        { value: 'newest',     label: t('car_listing.tabs-filter.newest') },
+                      ]}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 
-            {isGridLoading  ? (
+            {isGridLoading ? (
               <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                {Array.from({ length: ITEMS_PER_PAGE }).map(
-                  (_, index) => (
-                    <CarCardSkeleton key={index} />
-                  )
-                )}
+                {Array.from({ length: ITEMS_PER_PAGE }).map((_, index) => (
+                  <CarCardSkeleton key={index} />
+                ))}
               </div>
             ) : paginatedCars.length === 0 ? (
               <div className="border rounded-2xl p-10 text-center">
@@ -348,10 +341,7 @@ export default function CarsListingPage({ type, showTypeFilter }: Props) {
                   <div className="mt-10 flex justify-center gap-2">
                     <button
                       disabled={page === 1}
-                      onClick={() => {
-                        triggerLoading();
-                        setPage(page - 1);
-                      }}
+                      onClick={() => { triggerLoading(); setPage(page - 1); }}
                       className="border px-3 py-2 rounded-lg"
                     >
                       <ChevronLeft size={16} />
@@ -360,14 +350,9 @@ export default function CarsListingPage({ type, showTypeFilter }: Props) {
                     {Array.from({ length: totalPages }).map((_, i) => (
                       <button
                         key={i}
-                        onClick={() => {
-                          triggerLoading();
-                          setPage(i + 1);
-                        }}
+                        onClick={() => { triggerLoading(); setPage(i + 1); }}
                         className={`px-3 py-2 rounded-lg ${
-                          page === i + 1
-                            ? 'bg-accent text-white'
-                            : 'border'
+                          page === i + 1 ? 'bg-accent text-white' : 'border'
                         }`}
                       >
                         {i + 1}
@@ -376,10 +361,7 @@ export default function CarsListingPage({ type, showTypeFilter }: Props) {
 
                     <button
                       disabled={page === totalPages}
-                      onClick={() => {
-                        triggerLoading();
-                        setPage(page + 1);
-                      }}
+                      onClick={() => { triggerLoading(); setPage(page + 1); }}
                       className="border px-3 py-2 rounded-lg"
                     >
                       <ChevronRight size={16} />

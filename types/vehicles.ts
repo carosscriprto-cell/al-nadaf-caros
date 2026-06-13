@@ -4,8 +4,22 @@ export type CarCondition = 'new' | 'used' | 'certified';
 export type FuelType = 'petrol' | 'diesel' | 'hybrid' | 'electric';
 export type Transmission = 'automatic' | 'manual';
 export type Drivetrain = 'FWD' | 'RWD' | 'AWD' | '4WD';
-export type Currency = 'USD' | 'EUR' | 'AED';
-export type CarCategory = 'sedan' | 'suv' | 'coupe' | 'hatchback' | 'convertible' | 'pickup' | 'electric' | 'sports';
+export type Currency = 'USD';
+export type CarCategory =
+  | 'sedan'
+  | 'suv'
+  | 'coupe'
+  | 'hatchback'
+  | 'convertible'
+  | 'pickup'
+  | 'wagon'
+  | 'crossover'
+  | 'van'
+  | 'minivan'
+  | 'mpv'
+  | 'sports'
+  | 'supercar'
+  
 export type CarClass = 'economy' | 'standard' | 'premium' | 'luxury' | 'executive' | 'performance' | 'ultra-luxury';
 export type SearchIntent = 'default' | 'cheap' | 'luxury';
 export type ContentLocale = 'ar' | 'en';
@@ -144,12 +158,12 @@ export type PriceRange = [number, number];
 export type VehicleFilterState = {
   search: string;
   brand: string[];
-  category: string[];
-  transmission: string[];
-  fuelType: string;
-  class: string;
-  condition: string;
-  seats: string;
+  category: CarCategory[];
+  transmission: Transmission[];
+  fuelType: FuelType | '';
+  class: CarClass | '';
+  condition: CarCondition | '';
+  seats: number | '';
   minPrice: number | null;
   maxPrice: number | null;
   delivery: boolean;
@@ -173,6 +187,6 @@ export type HeroFilterState = {
   query: string;
   brand: string;
   model: string;
-  fuelType: string;
-  listingType: string;
+  fuelType: FuelType | '';
+  listingType: PageListingType | ''; // '' means no filter selected
 };

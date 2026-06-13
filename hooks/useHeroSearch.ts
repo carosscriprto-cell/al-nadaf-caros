@@ -143,6 +143,14 @@ export function useHeroSearch(pageType: PageListingType = 'all') {
     setIsOpen(false);
   };
 
+  /** Clears only the search query, keeping other filters intact. */
+  const clearSearch = () => {
+    setFilters((prev) => ({ ...prev, query: '' }));
+  };
+
+  const hasQuery = filters.query.trim().length > 0;
+  const hasResults = results.length > 0;
+
   return {
     filters,
     setFilter,
@@ -156,6 +164,10 @@ export function useHeroSearch(pageType: PageListingType = 'all') {
     closeDropdown,
 
     resetFilters,
+    clearSearch,
+
+    hasQuery,
+    hasResults,
 
     brandOptions: allOptions.brandOptions,
     modelOptions,

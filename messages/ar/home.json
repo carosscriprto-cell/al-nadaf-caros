@@ -26,6 +26,20 @@
     "vehicles": "سيارة",
     "brands": "علامة تجارية",
     "support": "الدعم الفني"
+  },
+
+  "section_label": "معرض السيارات",
+  "search_label": "ابحث عن المركبات",
+  "popular_searches": "عمليات البحث الشائعة",
+  "trending": "الأكثر رواجاً",
+
+  "trust": {
+    "curated_label": "مخزون منتقى",
+    "curated_sub": "كل سيارة مختارة بعناية",
+    "certified_label": "مركبات معتمدة",
+    "certified_sub": "مفحوصة وموثّقة",
+    "delivery_label": "خدمة التوصيل متوفرة",
+    "delivery_sub": "إلى موقعك"
   }
 },
   "brand-section": {

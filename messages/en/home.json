@@ -26,6 +26,20 @@
       "vehicles": "Vehicles",
       "brands": "Brands",
       "support": "Support"
+    },
+
+    "section_label": "Vehicle showroom",
+    "search_label": "Search vehicles",
+    "popular_searches": "Popular searches",
+    "trending": "Trending",
+
+    "trust": {
+      "curated_label": "Curated Inventory",
+      "curated_sub": "Every vehicle hand-selected",
+      "certified_label": "Certified Vehicles",
+      "certified_sub": "Inspected & verified",
+      "delivery_label": "Delivery Available",
+      "delivery_sub": "To your location"
     }
   },
   "brand-section":{
