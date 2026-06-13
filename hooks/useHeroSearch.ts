@@ -1,29 +1,34 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback } from 'react';
+
 import { cars } from '@/data/cars';
+
 import { prepareCarsForSearch } from '@/lib/search/buildIndex';
 import { searchVehicles } from '@/lib/search/searchVehicles';
+
 import { deriveVehicleOptions } from '@/lib/vehicles/options';
+
 import {
   matchesListingType,
   type PageListingType,
 } from '@/lib/vehicles/listingType';
 
 import useDebouncedValue from '@/hooks/useDebouncedValue';
+
+// Canonical type — fuelType is FuelType | '', not string
+import type { HeroFilterState } from '@/types/vehicles';
+
 import { useSearchIndex } from './useSearchIndex';
+
+// ─── Module-level search index ────────────────────────────────────────────
 
 const searchableCars = prepareCarsForSearch(cars, {}, {});
 
 const HERO_RESULT_LIMIT = 6;
+const MIN_QUERY_LENGTH = 2;
 
-export type HeroFilterState = {
-  query: string;
-  brand: string;
-  model: string;
-  fuelType: string;
-  listingType: string;
-};
+// ─── Hook ─────────────────────────────────────────────────────────────────
 
 export function useHeroSearch(pageType: PageListingType = 'all') {
   const [filters, setFilters] = useState<HeroFilterState>({
@@ -34,10 +39,6 @@ export function useHeroSearch(pageType: PageListingType = 'all') {
     listingType: pageType === 'all' ? '' : pageType,
   });
 
-  /**
-   * Dropdown visibility is now independent
-   * from filter state.
-   */
   const [isOpen, setIsOpen] = useState(false);
 
   const debouncedQuery = useDebouncedValue(filters.query, 250);
@@ -46,100 +47,93 @@ export function useHeroSearch(pageType: PageListingType = 'all') {
 
   const allOptions = useMemo(
     () => deriveVehicleOptions(cars, pageType),
-    [pageType]
+    [pageType],
   );
 
   const modelOptions = useMemo(() => {
-    if (!filters.brand) {
-      return allOptions.modelOptions;
-    }
+    if (!filters.brand) return allOptions.modelOptions;
 
     return allOptions.modelOptions.filter((opt) =>
-      cars.some(
-        (c) =>
-          c.brand === filters.brand &&
-          c.model === opt.value
-      )
+      cars.some((car) => car.brand === filters.brand && car.model === opt.value),
     );
   }, [filters.brand, allOptions.modelOptions]);
 
+  const hasQuery = filters.query.trim().length > 0;
+
+  const hasFilters =
+    !!filters.brand ||
+    !!filters.model ||
+    !!filters.fuelType ||
+    !!filters.listingType;
+
+  const shouldShowResults =
+    debouncedQuery.trim().length >= MIN_QUERY_LENGTH || hasFilters;
+
   const results = useMemo(() => {
+    if (!shouldShowResults) return [];
+
     const preScopedCars = searchableCars.filter((car) => {
-      if (filters.brand && car.brand !== filters.brand) {
-        return false;
-      }
-
-      if (filters.model && car.model !== filters.model) {
-        return false;
-      }
-
-      if (
-        filters.fuelType &&
-        car.fuelType !== filters.fuelType
-      ) {
-        return false;
-      }
+      if (filters.brand && car.brand !== filters.brand) return false;
+      if (filters.model && car.model !== filters.model) return false;
+      if (filters.fuelType && car.fuelType !== filters.fuelType) return false;
 
       if (filters.listingType) {
-        const type =
-          filters.listingType as PageListingType;
-
-        if (!matchesListingType(car, type)) {
-          return false;
-        }
+        const type = filters.listingType as PageListingType;
+        if (!matchesListingType(car, type)) return false;
       }
 
       return true;
     });
+
+    if (debouncedQuery.trim().length < MIN_QUERY_LENGTH) {
+      return preScopedCars.slice(0, HERO_RESULT_LIMIT);
+    }
 
     return searchVehicles({
       cars: preScopedCars,
       query: debouncedQuery,
       search: searchIndex,
     }).slice(0, HERO_RESULT_LIMIT);
-  }, [debouncedQuery, filters, searchIndex]);
+  }, [debouncedQuery, filters, searchIndex, shouldShowResults]);
 
-  const setFilter = <
-    K extends keyof HeroFilterState
-  >(
-    key: K,
-    value: HeroFilterState[K]
-  ) => {
-    setFilters((prev) => ({
-      ...prev,
-      [key]: value,
-      ...(key === 'brand'
-        ? { model: '' }
-        : {}),
-    }));
+  const hasResults = results.length > 0;
 
-    /**
-     * Any interaction with filters
-     * opens the dropdown.
-     */
+  const setFilter = useCallback(
+    <K extends keyof HeroFilterState>(key: K, value: HeroFilterState[K]) => {
+      setFilters((prev) => ({
+        ...prev,
+        [key]: value,
+        ...(key === 'brand' ? { model: '' } : {}),
+      }));
+      setIsOpen(true);
+    },
+    [],
+  );
+
+  const openDropdown = useCallback(() => {
+    const hasSearch = filters.query.trim().length >= MIN_QUERY_LENGTH;
+    const hasActiveFilters =
+      !!filters.brand || !!filters.model || !!filters.fuelType || !!filters.listingType;
+
+    if (!hasSearch && !hasActiveFilters) return;
     setIsOpen(true);
-  };
+  }, [filters]);
 
-  const closeDropdown = () => {
-    setIsOpen(false);
-  };
+  const closeDropdown = useCallback(() => setIsOpen(false), []);
 
-  const openDropdown = () => {
-    setIsOpen(true);
-  };
+  const clearSearch = useCallback(() => {
+    setFilters((prev) => ({ ...prev, query: '' }));
+    if (!hasFilters) setIsOpen(false);
+  }, [hasFilters]);
 
-  const resetFilters = () => {
+  const resetFilters = useCallback(() => {
     setFilters({
       query: '',
       brand: '',
       model: '',
       fuelType: '',
-      listingType:
-        pageType === 'all'
-          ? ''
-          : pageType,
+      listingType: pageType === 'all' ? '' : pageType,
     });
-
     setIsOpen(false);
   };
 
@@ -154,15 +148,16 @@ export function useHeroSearch(pageType: PageListingType = 'all') {
   return {
     filters,
     setFilter,
-
     results,
-
     isOpen,
     setIsOpen,
-
+    hasQuery,
+    hasFilters,
+    hasResults,
+    shouldShowResults,
     openDropdown,
     closeDropdown,
-
+    clearSearch,
     resetFilters,
     clearSearch,
 
@@ -171,7 +166,6 @@ export function useHeroSearch(pageType: PageListingType = 'all') {
 
     brandOptions: allOptions.brandOptions,
     modelOptions,
-    fuelTypeOptions:
-      allOptions.fuelTypeOptions,
+    fuelTypeOptions: allOptions.fuelTypeOptions,
   };
 }

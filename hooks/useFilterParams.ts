@@ -16,10 +16,11 @@ export function useFilterParams() {
 
   const get = useCallback((key: string) => params.get(key) ?? '', [params]);
 
-  const getMulti = useCallback(
-    (key: string) => get(key).split(',').filter(Boolean),
-    [get]
-  );
+ const getMulti = useCallback(
+  <T extends string>(key: string): T[] =>
+    get(key).split(',').filter(Boolean) as T[],
+  [get]
+);
 
   // Batch multiple param updates into one router.replace call
   const update = useCallback(

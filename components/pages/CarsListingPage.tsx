@@ -48,8 +48,10 @@ type Props = {
   showTypeFilter?: boolean;
 };
 
-const ITEMS_PER_PAGE   = 9;
-const UI_LOADING_DELAY = 380;
+const ITEMS_PER_PAGE = 9;
+// 150 ms gives the skeleton enough visibility to signal activity without
+// feeling sluggish. The original 380 ms was perceptibly laggy.
+const UI_LOADING_DELAY = 150;
 
 export default function CarsListingPage({
   cars,
@@ -76,7 +78,15 @@ export default function CarsListingPage({
   const [, startTransition]               = useTransition();
   const loadingTimeoutRef                 = useRef<number | null>(null);
 
-  const urlType = (getFilterValue('type') || type) as 'all' | 'rent' | 'sale';
+  // Derive the active listing type: URL param wins, falls back to the page-
+  // level prop. Guard against unexpected URL values by only allowing the
+  // three valid values; anything else falls back to the page prop.
+  const urlTypeRaw = getFilterValue('type');
+  const urlType = (
+    urlTypeRaw === 'rent' || urlTypeRaw === 'sale' || urlTypeRaw === 'all'
+      ? urlTypeRaw
+      : type
+  ) as 'all' | 'rent' | 'sale';
 
   const filters = useMemo(
     () => ({
@@ -183,22 +193,40 @@ export default function CarsListingPage({
         );
       })
       .sort((a, b) => {
-        if (filters.sort === 'price-low') {
-          return (
-            (a.pricing.daily ?? a.pricing.total ?? 0) -
-            (b.pricing.daily ?? b.pricing.total ?? 0)
-          );
-        }
-        if (filters.sort === 'price-high') {
-          return (
-            (b.pricing.daily ?? b.pricing.total ?? 0) -
-            (a.pricing.daily ?? a.pricing.total ?? 0)
-          );
+        if (filters.sort === 'price-low' || filters.sort === 'price-high') {
+          // Use the same price resolution as the price-range filter above so
+          // the sort order matches what the user sees on each card.
+          const getContextPrice = (car: typeof a) => {
+            if (urlType === 'rent') return car.pricing.daily ?? Infinity;
+            if (urlType === 'sale') return car.pricing.total ?? Infinity;
+            // 'all' — use the lower of the two available prices
+            return Math.min(
+              car.pricing.daily ?? Infinity,
+              car.pricing.total ?? Infinity,
+            );
+          };
+
+          const priceA = getContextPrice(a);
+          const priceB = getContextPrice(b);
+
+          return filters.sort === 'price-low'
+            ? priceA - priceB
+            : priceB - priceA;
         }
         if (filters.sort === 'newest') {
           return b.year - a.year;
         }
-        return Number(b.isFeatured) - Number(a.isFeatured);
+
+        // Default: featured first, then best-seller, then popular
+        const rankA =
+          (a.isFeatured ? 4 : 0) +
+          (a.isBestSeller ? 2 : 0) +
+          (a.isPopular ? 1 : 0);
+        const rankB =
+          (b.isFeatured ? 4 : 0) +
+          (b.isBestSeller ? 2 : 0) +
+          (b.isPopular ? 1 : 0);
+        return rankB - rankA;
       });
   }, [preparedCars, filters, urlType, vehicleSearch]);
 
