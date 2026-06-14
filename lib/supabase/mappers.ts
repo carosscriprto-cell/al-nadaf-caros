@@ -4,11 +4,47 @@
 // هذا الملف هو الجسر بين database.types.ts و types/vehicles.ts
 // ─────────────────────────────────────────────────────────────
 
-import type { Tables } from './database.types';
-import type { Car, CarContentEntry, CarContentMap } from '@/types/vehicles';
+import { Constants } from './database.types';
+import type { Tables, Enums } from './database.types';
+import type { Car, CarCategory, CarContentEntry, CarContentMap } from '@/types/vehicles';
 
 type DbCar = Tables<'cars'>;
 type DbContent = Tables<'car_content'>;
+
+// ─── Enum guards ──────────────────────────────────────────────
+// Validate DB enum values against the generated Constants (single source of
+// truth). Never throws — logs unexpected values so data drift stays visible,
+// and always returns a value that is within the DB enum.
+
+function guardEnum<T extends string>(
+  value: T,
+  allowed: readonly T[],
+  field: string,
+  carId: string,
+): T {
+  if (!allowed.includes(value)) {
+    console.warn(
+      `[mapDbCarToCar] car ${carId}: unexpected ${field} "${value}" (not in DB enum). Returning as-is.`,
+    );
+  }
+  return value;
+}
+
+// car_category needs its own guard: 'electric' is a valid DB value but is
+// excluded from the domain CarCategory concept (P3 remap pending), so we log it
+// and pass the real value through with an intentional, documented cast.
+function guardCategory(value: Enums<'car_category'>, carId: string): CarCategory {
+  if (!Constants.public.Enums.car_category.includes(value)) {
+    console.warn(
+      `[mapDbCarToCar] car ${carId}: unknown category "${value}" (not in DB enum).`,
+    );
+  } else if (value === 'electric') {
+    console.warn(
+      `[mapDbCarToCar] car ${carId}: category 'electric' is flagged for P3 remap (use fuel_type instead).`,
+    );
+  }
+  return value as CarCategory;
+}
 
 // ─── Car mapper ───────────────────────────────────────────────
 
@@ -21,18 +57,20 @@ export function mapDbCarToCar(row: DbCar): Car {
     trim:          row.trim ?? undefined,
     year:          row.year,
     isHero:        row.is_hero ?? false,
-    listingType:   row.listing_type,
-    condition:     row.condition,
-    category:      row.category,
-    class:         row.class,
+    listingType:   guardEnum(row.listing_type, Constants.public.Enums.listing_type, 'listing_type', row.id),
+    condition:     guardEnum(row.condition, Constants.public.Enums.car_condition, 'condition', row.id),
+    category:      guardCategory(row.category, row.id),
+    class:         guardEnum(row.class, Constants.public.Enums.car_class, 'class', row.id),
     available:     row.available,
     isFeatured:    row.is_featured ?? false,
     isPopular:     row.is_popular ?? false,
     isNewArrival:  row.is_new_arrival ?? false,
     isBestSeller:  row.is_best_seller ?? false,
-    transmission:  row.transmission,
-    fuelType:      row.fuel_type,
-    drivetrain:    row.drivetrain ?? undefined,
+    transmission:  guardEnum(row.transmission, Constants.public.Enums.transmission, 'transmission', row.id),
+    fuelType:      guardEnum(row.fuel_type, Constants.public.Enums.fuel_type, 'fuel_type', row.id),
+    drivetrain:    row.drivetrain
+                     ? guardEnum(row.drivetrain, Constants.public.Enums.drivetrain, 'drivetrain', row.id)
+                     : undefined,
     seats:         row.seats,
     doors:         row.doors,
     mileage:       row.mileage,
@@ -59,7 +97,7 @@ export function mapDbCarToCar(row: DbCar): Car {
 
     // Pricing — يجمع كل حقول التسعير في object واحد
     pricing: {
-      currency:            row.currency,
+      currency:            guardEnum(row.currency, Constants.public.Enums.currency, 'currency', row.id),
       hourly:              row.price_hourly ?? undefined,
       daily:               row.price_daily ?? undefined,
       weekly:              row.price_weekly ?? undefined,

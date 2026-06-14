@@ -1,28 +1,27 @@
-export type ListingType = 'rent' | 'sale' | 'both';
+import type { Enums } from '@/lib/supabase/database.types';
+
+// ─── Catalog enums — derived from the DB (single source of truth) ──────────
+// Do NOT hand-edit these unions. They are sourced from the generated Supabase
+// types so they can never drift from the DB enums. After any enum migration,
+// regenerate with `supabase gen types typescript` and these update automatically.
+
+export type ListingType = Enums<'listing_type'>;      // rent | sale | both
+export type CarCondition = Enums<'car_condition'>;     // new | used | certified
+export type FuelType = Enums<'fuel_type'>;             // petrol | diesel | hybrid | electric | plug-in-hybrid
+export type Transmission = Enums<'transmission'>;      // automatic | manual | cvt | dual-clutch | semi-automatic
+export type Drivetrain = Enums<'drivetrain'>;          // FWD | RWD | AWD | 4WD
+export type Currency = Enums<'currency'>;              // USD | EUR | AED
+export type CarClass = Enums<'car_class'>;
+export type ContentLocale = Enums<'content_locale'>;   // ar | en
+
+// 'electric' exists in the DB car_category enum but is intentionally NOT a
+// domain category concept (it overlaps fuel_type). Live rows using it are
+// remapped in a P3 data-fix; until then the mapper guard logs + passes them.
+export type CarCategory = Exclude<Enums<'car_category'>, 'electric'>;
+
+// ─── UI-only types (no DB counterpart) ─────────────────────────────────────
 export type PageListingType = 'rent' | 'sale' | 'all'; // used by pages/filters
-export type CarCondition = 'new' | 'used' | 'certified';
-export type FuelType = 'petrol' | 'diesel' | 'hybrid' | 'electric';
-export type Transmission = 'automatic' | 'manual';
-export type Drivetrain = 'FWD' | 'RWD' | 'AWD' | '4WD';
-export type Currency = 'USD';
-export type CarCategory =
-  | 'sedan'
-  | 'suv'
-  | 'coupe'
-  | 'hatchback'
-  | 'convertible'
-  | 'pickup'
-  | 'wagon'
-  | 'crossover'
-  | 'van'
-  | 'minivan'
-  | 'mpv'
-  | 'sports'
-  | 'supercar'
-  
-export type CarClass = 'economy' | 'standard' | 'premium' | 'luxury' | 'executive' | 'performance' | 'ultra-luxury';
 export type SearchIntent = 'default' | 'cheap' | 'luxury';
-export type ContentLocale = 'ar' | 'en';
 
 // ─── Domain: Car ──────────────────────────────────────────────────────────
 
