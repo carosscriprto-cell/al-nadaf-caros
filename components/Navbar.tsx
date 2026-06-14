@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { Car, Menu, Phone, X } from 'lucide-react';
@@ -33,7 +34,14 @@ function isActiveRoute(
   );
 }
 
-export default function Navbar() {
+type NavbarProps = {
+  // Tenant branding (P4) — resolved server-side and passed down. Falls back to
+  // the static siteConfig when absent so the component still renders standalone.
+  brandName?: string;
+  logoUrl?: string | null;
+};
+
+export default function Navbar({ brandName, logoUrl }: NavbarProps) {
   const locale = useLocale();
   const pathname = usePathname();
   const t = useTranslations();
@@ -52,10 +60,11 @@ export default function Navbar() {
     [t]
   );
 
-  const brandName =
-    locale === 'ar'
+  const displayBrand =
+    brandName ??
+    (locale === 'ar'
       ? siteConfig.brand.localizedName.ar
-      : siteConfig.brand.localizedName.en;
+      : siteConfig.brand.localizedName.en);
 
   return (
     <header className="sticky top-0 z-99 border-b border-border/60 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70">
@@ -67,13 +76,23 @@ export default function Navbar() {
             href={`/${locale}`}
             className="group flex min-w-0 items-center gap-3 rounded-xl transition-transform duration-300 hover:scale-[1.01]"
           >
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-border/70 bg-card/80 text-accent shadow-sm">
-              <Car className="h-5 w-5" />
+            <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-xl border border-border/70 bg-card/80 text-accent shadow-sm">
+              {logoUrl ? (
+                <Image
+                  src={logoUrl}
+                  alt={displayBrand}
+                  width={44}
+                  height={44}
+                  className="h-full w-full object-contain"
+                />
+              ) : (
+                <Car className="h-5 w-5" />
+              )}
             </div>
 
             <div className="min-w-0">
               <div className="truncate text-base font-semibold tracking-tight text-foreground">
-                {brandName}
+                {displayBrand}
               </div>
               <div className="truncate text-xs uppercase tracking-[0.24em] text-muted-foreground">
                 {t('brand.name')}

@@ -101,17 +101,38 @@ async function main(): Promise<void> {
     const carBId = carB.id;
     console.log(`Setup: tenant B=${tenantBId}  car B=${carBId}\n`);
 
-    // ── No tenant-A creds: run the partial (anon-unauthenticated) check only ──
+    // ── P4 public-read model (anon role) — runs regardless of tenant-A creds ──
+    // A fresh, never-authenticated anon client. The "public read" policies are
+    // scoped TO anon, so this exercises exactly the storefront's access.
+    {
+      console.log('Anon public-read model (P4):');
+      const anonPublic = createClient<Database>(URL!, ANON!, clientOptions);
+
+      // anon CAN read active-tenant AVAILABLE public cars (storefront catalog)
+      const { data: pubCars } = await anonPublic
+        .from('cars').select('id, available').eq('available', true).limit(100);
+      assert((pubCars?.length ?? 0) > 0, 'anon reads active-tenant available public cars (>0)');
+      assert((pubCars ?? []).every((c) => c.available === true), 'anon public cars are all available=true');
+
+      // anon CANNOT read leads (PII) — seed one for B via service, expect anon sees 0
+      await service.from('leads').insert({ tenant_id: tenantBId, name: TAG, phone: '000000' });
+      const { data: anonLeads } = await anonPublic.from('leads').select('id');
+      assert((anonLeads?.length ?? 0) === 0, 'anon CANNOT read leads (PII protected, no anon policy)');
+
+      // anon CANNOT write a car (INSERT WITH CHECK = my_tenant_id() is null → rejected)
+      const { error: anonInsErr } = await anonPublic.from('cars').insert({
+        tenant_id: tenantBId, brand: TAG, model: 'ANON-INJECT', year: 2000,
+        slug: `zzz-anon-${Date.now().toString(36)}`, category: 'sedan', class: 'economy',
+        condition: 'used', city: 'X', country: 'Y', doors: 4, seats: 5,
+        fuel_type: 'petrol', transmission: 'automatic', listing_type: 'sale',
+      }).select('id');
+      assert(anonInsErr !== null, 'anon CANNOT INSERT a car (write blocked by RLS)');
+      console.log('');
+    }
+
+    // ── No tenant-A creds: cross-tenant (authenticated) proof needs a login ───
     if (!A_EMAIL || !A_PASSWORD) {
       console.warn('⚠️  TEST_TENANT_A_EMAIL / TEST_TENANT_A_PASSWORD not set — partial run.');
-      console.warn('   Asserting unauthenticated anon sees nothing (my_tenant_id() is null).\n');
-
-      const { data: anonSelB } = await anon.from('cars').select('id').eq('id', carBId);
-      assert((anonSelB?.length ?? 0) === 0, 'unauthenticated anon cannot read tenant B car');
-
-      const { data: anonAny } = await anon.from('cars').select('id').limit(1);
-      assert((anonAny?.length ?? 0) === 0, 'unauthenticated anon sees zero cars (RLS, null tenant)');
-
       console.warn('\n⚠️  INCOMPLETE: supply tenant-A creds to prove cross-tenant isolation.');
       failed++; // never report a green "pass" for an incomplete run
       return;
@@ -174,6 +195,7 @@ async function main(): Promise<void> {
     // ── Teardown: ALWAYS remove disposable tenant B + ALL its cars ───────────
     await anon.auth.signOut().catch(() => {});
     if (tenantBId) {
+      await service.from('leads').delete().eq('tenant_id', tenantBId);
       const { error: carDelErr } = await service.from('cars').delete().eq('tenant_id', tenantBId);
       console.log(carDelErr ? `⚠️  teardown cars failed: ${carDelErr.message}` : `Teardown: removed tenant B cars`);
       const { error: tenDelErr } = await service.from('tenants').delete().eq('id', tenantBId);

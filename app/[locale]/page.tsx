@@ -1,3 +1,4 @@
+import { setRequestLocale } from 'next-intl/server';
 import { getAllCarsForSearch } from '@/lib/supabase/queries.server';
 import HeroSection from '@/components/hero/HeroSection';
 import FeaturedCarsSection from '@/components/home/FeaturedCarsSection';
@@ -19,6 +20,7 @@ export default async function Home({
   // setRequestLocale — so it would default to 'ar' and serve Arabic content.
   const { locale: rawLocale } = await params;
   const locale = rawLocale === 'ar' ? 'ar' : 'en';
+  setRequestLocale(locale); // make server getLocale()/getTranslations correct in this subtree
 
   // Single source: Supabase. Fetch once on the server, drill into the client
   // hero/brand/banner components (which previously imported static data/cars.ts).

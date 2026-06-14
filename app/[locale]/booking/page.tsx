@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getAllCarsForSearch } from '@/lib/supabase/queries.server';
 import { siteConfig } from '@/config';
 import { BookingClientPage } from './BookingClientPage';
@@ -23,6 +23,7 @@ export default async function BookingPage({
   // Route param is authoritative; server getLocale() defaults to 'ar' here.
   const { locale: rawLocale } = await params;
   const locale = rawLocale === 'ar' ? 'ar' : 'en';
+  setRequestLocale(locale);
   const { cars, contentMap, contentAr, contentEn } =
     await getAllCarsForSearch(locale);
 

@@ -5,7 +5,7 @@
 // ─────────────────────────────────────────────────────────────
 
 import { cache } from 'react';
-import { createServerClient } from './client';
+import { createPublicServerClient } from './client';
 import { getTenantId } from './getTenant';
 import { mapDbCarToCar, buildContentMap } from './mappers';
 import type { Car, CarContentMap } from '@/types/vehicles';
@@ -19,8 +19,8 @@ export const getCarsWithContent = cache(
     cars: Car[];
     contentMap: CarContentMap;
   }> => {
-    const supabase  = createServerClient();
-    const tenantId  = getTenantId();
+    const supabase  = createPublicServerClient();
+    const tenantId  = await getTenantId();
 
     // جلب السيارات والمحتوى في طلب واحد
     const { data: carsData, error: carsError } = await supabase
@@ -57,8 +57,8 @@ export const getCarBySlug = cache(
     car:        Car | null;
     contentMap: CarContentMap;
   }> => {
-    const supabase = createServerClient();
-    const tenantId = getTenantId();
+    const supabase = createPublicServerClient();
+    const tenantId = await getTenantId();
 
     const { data, error } = await supabase
       .from('cars')
@@ -68,6 +68,7 @@ export const getCarBySlug = cache(
       `)
       .eq('tenant_id', tenantId)
       .eq('slug', slug)
+      .eq('available', true) // public storefront sees available cars only
       .single();
 
     if (error || !data) return { car: null, contentMap: {} };
@@ -91,8 +92,8 @@ export const getFeaturedCars = cache(
     cars:       Car[];
     contentMap: CarContentMap;
   }> => {
-    const supabase = createServerClient();
-    const tenantId = getTenantId();
+    const supabase = createPublicServerClient();
+    const tenantId = await getTenantId();
 
     const { data, error } = await supabase
       .from('cars')
@@ -125,8 +126,8 @@ export const getSimilarCars = cache(
     cars:       Car[];
     contentMap: CarContentMap;
   }> => {
-    const supabase = createServerClient();
-    const tenantId = getTenantId();
+    const supabase = createPublicServerClient();
+    const tenantId = await getTenantId();
 
     const { data, error } = await supabase
       .from('cars')
@@ -179,13 +180,14 @@ export const getAllCarsForSearch = cache(
     contentAr:  CarContentMap;
     contentEn:  CarContentMap;
   }> => {
-    const supabase = createServerClient();
-    const tenantId = getTenantId();
+    const supabase = createPublicServerClient();
+    const tenantId = await getTenantId();
 
     const { data, error } = await supabase
       .from('cars')
       .select(`*, car_content(*)`)
       .eq('tenant_id', tenantId)
+      .eq('available', true) // public storefront sees available cars only
       .order('is_featured', { ascending: false });
 
     if (error || !data) {

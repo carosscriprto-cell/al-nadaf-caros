@@ -1,33 +1,38 @@
 // lib/supabase/getTenant.ts
 // ─────────────────────────────────────────────────────────────
-// Tenant resolution — المرحلة الحالية: env variable (Option A)
-// قابل للتوسع لاحقاً لـ domain/subdomain (Option B)
+// Tenant resolution — P4: runtime, from the request host.
+// The middleware resolves host → tenant_id and forwards it as the
+// `x-tenant-id` request header (see lib/tenant/resolveTenant.ts +
+// middleware.ts). Here we just read that header.
 // ─────────────────────────────────────────────────────────────
 
 import { cache } from 'react';
-import { createServerClient } from './client';
+import { headers } from 'next/headers';
+import { notFound } from 'next/navigation';
+import { createPublicServerClient } from './client';
 
-// ─── الـ tenant الحالي من env ─────────────────────────────────
-// أضف في .env.local:
-// NEXT_PUBLIC_TENANT_ID=your-tenant-uuid
+// ─── Current tenant id (from the resolved request header) ─────
+// Async because next/headers is async in this Next version. Wrapped in
+// cache() so repeated calls within one request share a single read.
 
-export function getTenantId(): string {
-  const id = process.env.NEXT_PUBLIC_TENANT_ID;
+export const getTenantId = cache(async (): Promise<string> => {
+  const h = await headers();
+  const id = h.get('x-tenant-id');
   if (!id) {
-    throw new Error(
-      'NEXT_PUBLIC_TENANT_ID is not set in .env.local'
-    );
+    // Host did not resolve to an active tenant — render a 404 instead of
+    // crashing. (Middleware deletes any spoofed inbound x-tenant-id.)
+    notFound();
   }
   return id;
-}
+});
 
 // ─── Cached tenant data ───────────────────────────────────────
-// cache() من React يضمن استدعاء واحد فقط لكل request
-// مهم جداً لأن getTenantConfig() تُستدعى من layout + components
+// cache() ensures a single fetch per request even though getTenantConfig()
+// is called from the layout + multiple components.
 
 export const getTenantConfig = cache(async () => {
-  const tenantId = getTenantId();
-  const supabase = createServerClient();
+  const tenantId = await getTenantId();
+  const supabase = createPublicServerClient();
 
   const { data, error } = await supabase
     .from('tenants')
@@ -37,30 +42,8 @@ export const getTenantConfig = cache(async () => {
     .single();
 
   if (error || !data) {
-    throw new Error(`Tenant not found: ${tenantId}`);
+    notFound();
   }
 
   return data;
 });
-
-// ─── المستقبل — Option B (domain resolution) ─────────────────
-// عندما تصبح multi-tenant، بدّل getTenantId() بهذا:
-//
-// import { headers } from 'next/headers';
-//
-// export async function getTenantIdFromDomain(): Promise<string> {
-//   const headersList = await headers();
-//   const host = headersList.get('host') ?? '';
-//   const domain = host.split(':')[0]; // remove port
-//
-//   const supabase = createServerClient();
-//   const { data } = await supabase
-//     .from('tenants')
-//     .select('id')
-//     .or(`domain.eq.${domain},subdomain.eq.${domain.split('.')[0]}`)
-//     .eq('active', true)
-//     .single();
-//
-//   if (!data) throw new Error(`No tenant for domain: ${domain}`);
-//   return data.id;
-// }

@@ -1,107 +1,63 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { resolveTenantId } from '@/lib/tenant/resolveTenant';
 
-const locales = ['en', 'ar'];
+// Self-contained 404 body for an unresolved host. Returned directly from
+// middleware so the status is a real 404 — every app route sits under a
+// loading.tsx boundary, so a notFound() in the render tree would stream a 200
+// first (wrong for SEO). Kept minimal/neutral: the tenant is unknown, so there
+// is no branding to apply.
+const TENANT_NOT_FOUND_HTML = `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="robots" content="noindex"/>
+<title>Site not found</title>
+<style>
+  html,body{height:100%;margin:0}
+  body{display:flex;align-items:center;justify-content:center;
+    font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    background:#0b0f1a;color:#e5e7eb}
+  .box{text-align:center;max-width:32rem;padding:2rem}
+  h1{font-size:3rem;margin:0 0 .5rem}
+  p{color:#9ca3af;line-height:1.6}
+</style></head>
+<body><div class="box">
+  <h1>404</h1>
+  <p>No site is configured for this address.</p>
+</div></body></html>`;
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Only redirect if the path is exactly '/'
+  // ─── Locale routing ──────────────────────────────────────────
   if (pathname === '/') {
     return NextResponse.redirect(new URL('/en', request.url));
   }
 
-  // If the path starts with a valid locale, do nothing
-  if (locales.some(locale => pathname.startsWith(`/${locale}`))) {
-    return NextResponse.next();
+  // ─── Runtime tenant resolution (P4) ──────────────────────────
+  // Resolve the tenant from the request host and forward it to the app as a
+  // request header. Server components read it via getTenantId() (next/headers).
+  const host = request.headers.get('host') ?? '';
+  const tenantId = await resolveTenantId(host);
+
+  // Unknown host → hard 404 (no tenant exists for this address).
+  if (!tenantId) {
+    return new NextResponse(TENANT_NOT_FOUND_HTML, {
+      status: 404,
+      headers: { 'content-type': 'text/html; charset=utf-8' },
+    });
   }
 
-  return NextResponse.next();
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('x-tenant-host', host);
+  requestHeaders.set('x-tenant-id', tenantId);
+
+  return NextResponse.next({ request: { headers: requestHeaders } });
 }
 
-
-// middleware.ts
-// ─────────────────────────────────────────────────────────────
-// يتعامل مع:
-// 1. Locale routing (موجود مسبقاً)
-// 2. حماية /dashboard/* بـ Supabase Auth
-// 3. حماية /auth/login (redirect لو عنده session)
-// ─────────────────────────────────────────────────────────────
-
-// import { NextResponse } from 'next/server';
-// import type { NextRequest } from 'next/server';
-// import { createServerClient as createSupabaseMiddlewareClient } from '@supabase/ssr';
-
-// const locales = ['en', 'ar'];
-
-// export async function middleware(request: NextRequest) {
-//   const { pathname } = request.nextUrl;
-
-//   // ─── 1. Locale routing (لم يتغير) ──────────────────────────
-//   if (pathname === '/') {
-//     return NextResponse.redirect(new URL('/en', request.url));
-//   }
-
-//   if (locales.some(locale => pathname.startsWith(`/${locale}`))) {
-//     return NextResponse.next();
-//   }
-
-//   // ─── 2. Dashboard + Auth routes ────────────────────────────
-//   const isDashboard = pathname.startsWith('/dashboard');
-//   const isAuthPage  = pathname.startsWith('/auth');
-
-//   if (!isDashboard && !isAuthPage) {
-//     return NextResponse.next();
-//   }
-
-//   // إنشاء Supabase client للـ middleware
-//   let response = NextResponse.next({ request });
-
-//   const supabase = createSupabaseMiddlewareClient(
-//     {
-//       url:    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-//       anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-//     },
-//     {
-//       cookies: {
-//         getAll() {
-//           return request.cookies.getAll();
-//         },
-//         setAll(cookiesToSet) {
-//           cookiesToSet.forEach(({ name, value }) =>
-//             request.cookies.set(name, value)
-//           );
-//           response = NextResponse.next({ request });
-//           cookiesToSet.forEach(({ name, value, options }) =>
-//             response.cookies.set(name, value, options)
-//           );
-//         },
-//       },
-//     }
-//   );
-
-//   // التحقق من الـ session
-//   const {
-//     data: { user },
-//   } = await supabase.auth.getUser();
-
-//   // لو dashboard وما عنده session → login
-//   if (isDashboard && !user) {
-//     const loginUrl = new URL('/auth/login', request.url);
-//     loginUrl.searchParams.set('redirectTo', pathname);
-//     return NextResponse.redirect(loginUrl);
-//   }
-
-//   // لو auth page وعنده session → dashboard
-//   if (isAuthPage && user) {
-//     return NextResponse.redirect(new URL('/dashboard', request.url));
-//   }
-
-//   return response;
-// }
-
-// export const config = {
-//   matcher: [
-//     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
-//   ],
-// };
+export const config = {
+  // Run on every request except Next internals and static asset files.
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|woff2?)$).*)',
+  ],
+};
