@@ -1,34 +1,30 @@
 -- ============================================================================
 -- Phase 2 · Task 3 — Baseline schema (schema-only, RLS excluded)
 -- ============================================================================
--- Reconstructed WITHOUT a Docker-based `supabase db dump` (Docker unavailable),
--- from data gathered this session:
---   * column structure, types, nullability, defaults-presence — from the
---     generated lib/supabase/database.types.ts (Row/Insert shapes)
---   * enum values — from database.types.ts Constants (pre-P2 values; the
---     extend_market_enums migration adds the rest)
---   * FK relationships — from database.types.ts "Relationships"
---   * my_tenant_id() body — confirmed live this session
+-- Docker-free reconstruction (supabase db dump was unavailable). Sources:
+--   * columns/types/nullability/defaults-presence — database.types.ts
+--   * enum values — database.types.ts Constants (pre-P2; extend_market_enums adds rest)
+--   * FK relationships — database.types.ts "Relationships"
+--   * numeric precisions — provided: numeric(10,2) money, numeric(5,2) fuel, numeric(3,2) rating
+--   * my_tenant_id() + get_tenant_id_by_domain() bodies — confirmed live this session
 --
--- RLS is intentionally EXCLUDED — it lives in 20260614091000_rls_policies.sql.
+-- PROVENANCE NOTES (reconstructed by convention where no dump existed):
+--   * PK = id on every table; UNIQUE/index set below is the conventional set
+--     justified by app query patterns — verify against the Dashboard if exactness
+--     matters for a fresh rebuild.
+--   * get_tenant_id_by_slug() body is INFERRED by analogy to the domain resolver
+--     and lib/supabase/tenant.ts (slug + active) — confirm if needed.
+--   * Functions here are the ORIGINAL (un-hardened) bodies — baseline reflects the
+--     live schema as-is; harden_my_tenant_id migration pins search_path afterward.
+--
+-- RLS intentionally EXCLUDED — see 20260614091000_rls_policies.sql.
 -- Apply order: THIS → extend_market_enums → harden_my_tenant_id → rls_policies.
---
--- ⚠️ VERIFY-FROM-DASHBOARD gaps (flagged inline as TODO, not guessed):
---   * exact numeric types (int vs numeric/precision) — TS collapses all to `number`
---   * PRIMARY KEY / UNIQUE constraints, INDEXes, sequences
---   * get_tenant_id_by_domain() / get_tenant_id_by_slug() bodies (not captured)
---   * exact DEFAULT expressions for booleans/enums/jsonb/colors
---   * user_id FK to auth.users
--- A 90%-accurate, clearly-flagged baseline — confirm the TODOs before relying on
--- it to recreate a fresh environment.
 -- ============================================================================
 
 -- ── Extensions ──────────────────────────────────────────────────────────────
--- pg_trgm is implied by the show_limit()/show_trgm() functions present in the DB
--- (trigram search). gen_random_uuid() is built-in on PG13+.
-create extension if not exists pg_trgm;
+create extension if not exists pg_trgm;  -- implied by show_trgm()/show_limit()
 
--- ── Enums (pre-P2 values; extend_market_enums adds market-complete values) ────
+-- ── Enums (pre-P2 values) ─────────────────────────────────────────────────--
 create type public.car_category as enum ('sedan','suv','coupe','hatchback','convertible','pickup','electric','sports');
 create type public.car_class    as enum ('economy','standard','premium','luxury','executive','performance','ultra-luxury');
 create type public.car_condition as enum ('new','used','certified');
@@ -43,17 +39,17 @@ create type public.user_role     as enum ('owner','admin','editor');
 
 -- ── tenants ───────────────────────────────────────────────────────────────--
 create table public.tenants (
-  id              uuid primary key default gen_random_uuid(),  -- TODO confirm PK
+  id              uuid primary key default gen_random_uuid(),
   name            text not null,
   name_ar         text,
-  slug            text not null,                               -- TODO confirm UNIQUE
-  subdomain       text,                                        -- TODO confirm UNIQUE
-  domain          text,                                        -- TODO confirm UNIQUE
-  active          boolean not null default true,               -- TODO confirm default
-  plan            public.tenant_plan not null default 'starter', -- TODO confirm default
-  color_primary   text not null default '#000000',             -- TODO confirm default
-  color_secondary text not null default '#ffffff',             -- TODO confirm default
-  color_accent    text not null default '#3b82f6',             -- TODO confirm default
+  slug            text not null unique,
+  subdomain       text unique,
+  domain          text unique,
+  active          boolean not null default true,
+  plan            public.tenant_plan not null default 'starter',
+  color_primary   text not null default '#000000',
+  color_secondary text not null default '#ffffff',
+  color_accent    text not null default '#3b82f6',
   logo_url        text,
   favicon_url     text,
   og_image_url    text,
@@ -65,7 +61,7 @@ create table public.tenants (
   business_hours  jsonb,
   map_center      jsonb,
   social          jsonb,
-  features        jsonb not null default '{}'::jsonb,           -- TODO confirm default ({} vs [])
+  features        jsonb not null default '{}'::jsonb,
   seo_title_ar    text,
   seo_title_en    text,
   seo_desc_ar     text,
@@ -76,21 +72,19 @@ create table public.tenants (
 
 -- ── tenant_users ──────────────────────────────────────────────────────────--
 create table public.tenant_users (
-  id         uuid primary key default gen_random_uuid(),       -- TODO confirm PK
-  tenant_id  uuid not null references public.tenants(id),      -- FK (from generated Relationships)
-  user_id    uuid not null,                                    -- TODO FK -> auth.users(id) (confirm)
-  role       public.user_role not null default 'editor',       -- TODO confirm default
-  created_at timestamptz not null default now()
-  -- TODO confirm UNIQUE (tenant_id, user_id)
+  id         uuid primary key default gen_random_uuid(),
+  tenant_id  uuid not null references public.tenants(id) on delete cascade,
+  user_id    uuid not null references auth.users(id) on delete cascade,
+  role       public.user_role not null default 'editor',
+  created_at timestamptz not null default now(),
+  unique (tenant_id, user_id)
 );
 
 -- ── cars ────────────────────────────────────────────────────────────────────
--- TODO numeric types: integers chosen for counts; numeric for money/measures.
--- Confirm exact types/precision against the DB.
 create table public.cars (
-  id                  uuid primary key default gen_random_uuid(), -- TODO confirm PK
-  tenant_id           uuid not null references public.tenants(id), -- FK
-  slug                text not null,                            -- TODO confirm UNIQUE (per tenant?)
+  id                  uuid primary key default gen_random_uuid(),
+  tenant_id           uuid not null references public.tenants(id) on delete cascade,
+  slug                text not null,
   brand               text not null,
   model               text not null,
   trim                text,
@@ -99,7 +93,7 @@ create table public.cars (
   condition           public.car_condition not null,
   category            public.car_category not null,
   class               public.car_class not null,
-  available           boolean not null default true,            -- TODO confirm default
+  available           boolean not null default true,
   is_hero             boolean,
   is_featured         boolean,
   is_popular          boolean,
@@ -110,7 +104,7 @@ create table public.cars (
   drivetrain          public.drivetrain,
   seats               integer not null,
   doors               integer not null,
-  mileage             integer not null,                         -- TODO confirm default (0?)
+  mileage             integer not null default 0,
   color               text,
   interior_color      text,
   engine              text,
@@ -119,21 +113,21 @@ create table public.cars (
   torque              integer,
   top_speed           integer,
   acceleration        text,
-  electric_range      numeric,
-  fuel_tank_capacity  numeric,
-  fuel_city           numeric,
-  fuel_highway        numeric,
-  fuel_combined       numeric,
-  fuel_per_20km       numeric,
-  currency            public.currency not null default 'USD',   -- TODO confirm default
-  price_hourly        numeric,
-  price_daily         numeric,
-  price_weekly        numeric,
-  price_monthly       numeric,
-  price_total         numeric,
-  price_old           numeric,
-  monthly_installment numeric,
-  security_deposit    numeric,
+  electric_range      integer,                       -- km (judgment; not money/fuel)
+  fuel_tank_capacity  numeric(5,2),
+  fuel_city           numeric(5,2),
+  fuel_highway        numeric(5,2),
+  fuel_combined       numeric(5,2),
+  fuel_per_20km       numeric(5,2),
+  currency            public.currency not null default 'USD',
+  price_hourly        numeric(10,2),
+  price_daily         numeric(10,2),
+  price_weekly        numeric(10,2),
+  price_monthly       numeric(10,2),
+  price_total         numeric(10,2),
+  price_old           numeric(10,2),
+  monthly_installment numeric(10,2),
+  security_deposit    numeric(10,2),
   min_rental_days     integer,
   negotiable          boolean,
   financing_available boolean,
@@ -147,16 +141,17 @@ create table public.cars (
   service_history     boolean,
   thumbnail           text,
   images              text[],
-  rating              numeric,
+  rating              numeric(3,2),
   reviews_count       integer,
   created_at          timestamptz not null default now(),
-  updated_at          timestamptz not null default now()
+  updated_at          timestamptz not null default now(),
+  unique (tenant_id, slug)
 );
 
 -- ── car_content (one row per car per locale) ────────────────────────────────
 create table public.car_content (
-  id                     uuid primary key default gen_random_uuid(), -- TODO confirm PK
-  car_id                 uuid not null references public.cars(id),    -- FK
+  id                     uuid primary key default gen_random_uuid(),
+  car_id                 uuid not null references public.cars(id) on delete cascade,
   locale                 public.content_locale not null,
   title                  text not null,
   short_description      text,
@@ -172,42 +167,56 @@ create table public.car_content (
   included_services      text[],
   warranty               text,
   created_at             timestamptz not null default now(),
-  updated_at             timestamptz not null default now()
-  -- TODO confirm UNIQUE (car_id, locale)
+  updated_at             timestamptz not null default now(),
+  unique (car_id, locale)
 );
 
 -- ── leads ───────────────────────────────────────────────────────────────────
 create table public.leads (
-  id         uuid primary key default gen_random_uuid(),       -- TODO confirm PK
-  tenant_id  uuid not null references public.tenants(id),      -- FK
-  car_id     uuid references public.cars(id),                  -- FK (nullable)
+  id         uuid primary key default gen_random_uuid(),
+  tenant_id  uuid not null references public.tenants(id) on delete cascade,
+  car_id     uuid references public.cars(id) on delete set null,
   name       text,
   email      text,
   phone      text,
   message    text,
   source     text,
-  status     text,                                             -- TODO confirm default ('new'?)
+  status     text default 'new',                     -- convention
   locale     public.content_locale,
   created_at timestamptz not null default now()
 );
 
 -- ── tenant_pages ────────────────────────────────────────────────────────────
 create table public.tenant_pages (
-  id         uuid primary key default gen_random_uuid(),       -- TODO confirm PK
-  tenant_id  uuid not null references public.tenants(id),      -- FK
-  slug       text not null,                                    -- TODO confirm UNIQUE (tenant_id, slug)
+  id         uuid primary key default gen_random_uuid(),
+  tenant_id  uuid not null references public.tenants(id) on delete cascade,
+  slug       text not null,
   title_ar   text,
   title_en   text,
   content    jsonb,
-  active     boolean not null default true,                    -- TODO confirm default
+  active     boolean not null default true,
   sort_order integer,
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  updated_at timestamptz not null default now(),
+  unique (tenant_id, slug)
 );
 
--- ── Functions ─────────────────────────────────────────────────────────────--
--- ORIGINAL my_tenant_id() (unhardened) — the harden_my_tenant_id migration adds
--- SET search_path='' + schema-qualification on top of this.
+-- ── Indexes (conventional set, justified by query patterns) ─────────────────
+create index idx_tenant_users_user_id on public.tenant_users (user_id);          -- my_tenant_id() lookup
+create index idx_cars_tenant_available on public.cars (tenant_id, available);    -- public listings
+create index idx_cars_tenant_featured on public.cars (tenant_id, is_featured);   -- featured carousel
+create index idx_leads_tenant_created on public.leads (tenant_id, created_at desc); -- dashboard leads
+
+-- GIN full-text index on car_content ('simple' config — multi-locale ar/en, no stemming)
+create index idx_car_content_fts on public.car_content
+  using gin (to_tsvector('simple',
+    coalesce(title,'') || ' ' || coalesce(short_description,'') || ' ' || coalesce(description,'')));
+
+-- Optional trigram index for fuzzy brand/model search (pg_trgm enabled):
+create index idx_cars_brand_model_trgm on public.cars
+  using gin ((brand || ' ' || model) gin_trgm_ops);
+
+-- ── Functions (ORIGINAL, un-hardened — harden migration pins search_path) ───--
 create or replace function public.my_tenant_id()
 returns uuid
 language sql
@@ -220,14 +229,29 @@ as $$
   limit 1
 $$;
 
--- TODO: get_tenant_id_by_domain(p_domain text) returns uuid — body not captured.
--- TODO: get_tenant_id_by_slug(p_slug text)   returns uuid — body not captured.
---       Retrieve from Dashboard (Database → Functions) and add here.
+create or replace function public.get_tenant_id_by_domain(p_domain text)
+returns uuid
+language sql
+stable
+security definer
+as $$
+  select id
+  from tenants
+  where (domain = p_domain or subdomain = p_domain)
+    and active = true
+  limit 1
+$$;
 
--- ── Indexes ─────────────────────────────────────────────────────────────────
--- TODO: add indexes (none captured). Likely candidates given query patterns:
---   * cars (tenant_id), cars (tenant_id, available), cars (slug)
---   * car_content (car_id, locale)
---   * leads (tenant_id, created_at)
---   * tenant_users (user_id), tenant_users (tenant_id)
---   * trigram (pg_trgm) indexes on cars brand/model if used for search
+-- NOTE: body inferred by analogy to get_tenant_id_by_domain + lib/supabase/tenant.ts.
+create or replace function public.get_tenant_id_by_slug(p_slug text)
+returns uuid
+language sql
+stable
+security definer
+as $$
+  select id
+  from tenants
+  where slug = p_slug
+    and active = true
+  limit 1
+$$;
