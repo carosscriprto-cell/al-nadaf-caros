@@ -1,4 +1,4 @@
-export type Json =
+﻿export type Json =
   | string
   | number
   | boolean
@@ -544,6 +544,14 @@ export type Database = {
         | "pickup"
         | "electric"
         | "sports"
+        | "wagon"
+        | "crossover"
+        | "van"
+        | "minivan"
+        | "truck"
+        | "mpv"
+        | "supercar"
+        | "roadster"
       car_class:
         | "economy"
         | "standard"
@@ -556,10 +564,15 @@ export type Database = {
       content_locale: "ar" | "en"
       currency: "USD" | "EUR" | "AED"
       drivetrain: "FWD" | "RWD" | "AWD" | "4WD"
-      fuel_type: "petrol" | "diesel" | "hybrid" | "electric"
+      fuel_type: "petrol" | "diesel" | "hybrid" | "electric" | "plug-in-hybrid"
       listing_type: "rent" | "sale" | "both"
       tenant_plan: "starter" | "pro" | "enterprise"
-      transmission: "automatic" | "manual"
+      transmission:
+        | "automatic"
+        | "manual"
+        | "cvt"
+        | "dual-clutch"
+        | "semi-automatic"
       user_role: "owner" | "admin" | "editor"
     }
     CompositeTypes: {
@@ -697,6 +710,14 @@ export const Constants = {
         "pickup",
         "electric",
         "sports",
+        "wagon",
+        "crossover",
+        "van",
+        "minivan",
+        "truck",
+        "mpv",
+        "supercar",
+        "roadster",
       ],
       car_class: [
         "economy",
@@ -711,10 +732,16 @@ export const Constants = {
       content_locale: ["ar", "en"],
       currency: ["USD", "EUR", "AED"],
       drivetrain: ["FWD", "RWD", "AWD", "4WD"],
-      fuel_type: ["petrol", "diesel", "hybrid", "electric"],
+      fuel_type: ["petrol", "diesel", "hybrid", "electric", "plug-in-hybrid"],
       listing_type: ["rent", "sale", "both"],
       tenant_plan: ["starter", "pro", "enterprise"],
-      transmission: ["automatic", "manual"],
+      transmission: [
+        "automatic",
+        "manual",
+        "cvt",
+        "dual-clutch",
+        "semi-automatic",
+      ],
       user_role: ["owner", "admin", "editor"],
     },
   },
