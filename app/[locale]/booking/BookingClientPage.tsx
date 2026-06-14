@@ -8,8 +8,7 @@ import { StepLocation } from "@/components/booking/StepLocation";
 import { Stepper } from "@/components/booking/Stepper"
 import { siteConfig } from "@/config";
 import { BookingExperienceProps } from "@/data/booking";
-import type { Car as CarType } from '@/data/cars';
-import { useCarContentMap } from "@/data/cars-content/useCarContent";
+import type { Car as CarType } from '@/types/vehicles';
 import { bookingReducer } from "@/lib/booking/bookingReducer";
 import { buildWhatsAppMessage } from "@/lib/booking/buildWhatsAppMessage";
 import { initialState } from "@/lib/booking/initialState";
@@ -27,6 +26,8 @@ import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "r
 export function BookingClientPage({
   cars,
   contentMap,
+  contentAr = {},
+  contentEn = {},
 }: BookingExperienceProps) {
 
   const [state, dispatch] = useReducer(bookingReducer, initialState);
@@ -34,10 +35,9 @@ export function BookingClientPage({
 
   const locale = useLocale();
   const tCar = useTranslations('car');
-  const arContentMap = useCarContentMap('ar');
-  const enContentMap = useCarContentMap('en');
-  const defaultContentMap = useCarContentMap(locale);
-  const carContentMap = contentMap || defaultContentMap;
+  const arContentMap = contentAr;
+  const enContentMap = contentEn;
+  const carContentMap = useMemo(() => contentMap ?? {}, [contentMap]);
   const [mobileOpen, setMobileOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [direction, setDirection] = useState(1);

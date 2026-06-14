@@ -2,8 +2,6 @@
 
 import { useMemo, useState, useCallback } from 'react';
 
-import { cars } from '@/data/cars';
-
 import { prepareCarsForSearch } from '@/lib/search/buildIndex';
 import { searchVehicles } from '@/lib/search/searchVehicles';
 
@@ -17,20 +15,30 @@ import {
 import useDebouncedValue from '@/hooks/useDebouncedValue';
 
 // Canonical type — fuelType is FuelType | '', not string
-import type { HeroFilterState } from '@/types/vehicles';
+import type { Car, CarContentMap, HeroFilterState } from '@/types/vehicles';
 
 import { useSearchIndex } from './useSearchIndex';
-
-// ─── Module-level search index ────────────────────────────────────────────
-
-const searchableCars = prepareCarsForSearch(cars, {}, {});
 
 const HERO_RESULT_LIMIT = 6;
 const MIN_QUERY_LENGTH = 2;
 
-// ─── Hook ─────────────────────────────────────────────────────────────────
+const EMPTY_CONTENT: CarContentMap = {};
 
-export function useHeroSearch(pageType: PageListingType = 'all') {
+// ─── Hook ─────────────────────────────────────────────────────────────────
+// cars + per-locale content are passed from the server (getAllCarsForSearch),
+// replacing the old static `@/data/cars` import. The search index is built
+// per-render-memoised from those props.
+
+export function useHeroSearch(
+  cars: Car[],
+  pageType: PageListingType = 'all',
+  contentAr: CarContentMap = EMPTY_CONTENT,
+  contentEn: CarContentMap = EMPTY_CONTENT,
+) {
+  const searchableCars = useMemo(
+    () => prepareCarsForSearch(cars, contentAr, contentEn),
+    [cars, contentAr, contentEn],
+  );
   const [filters, setFilters] = useState<HeroFilterState>({
     query: '',
     brand: '',
@@ -47,7 +55,7 @@ export function useHeroSearch(pageType: PageListingType = 'all') {
 
   const allOptions = useMemo(
     () => deriveVehicleOptions(cars, pageType),
-    [pageType],
+    [cars, pageType],
   );
 
   const modelOptions = useMemo(() => {
@@ -56,7 +64,7 @@ export function useHeroSearch(pageType: PageListingType = 'all') {
     return allOptions.modelOptions.filter((opt) =>
       cars.some((car) => car.brand === filters.brand && car.model === opt.value),
     );
-  }, [filters.brand, allOptions.modelOptions]);
+  }, [cars, filters.brand, allOptions.modelOptions]);
 
   const hasQuery = filters.query.trim().length > 0;
 
@@ -94,7 +102,7 @@ export function useHeroSearch(pageType: PageListingType = 'all') {
       query: debouncedQuery,
       search: searchIndex,
     }).slice(0, HERO_RESULT_LIMIT);
-  }, [debouncedQuery, filters, searchIndex, shouldShowResults]);
+  }, [debouncedQuery, filters, searchIndex, shouldShowResults, searchableCars]);
 
   const hasResults = results.length > 0;
 

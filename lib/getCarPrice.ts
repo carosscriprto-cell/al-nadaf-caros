@@ -1,4 +1,4 @@
-import { Car } from "@/data/cars";
+import type { Car } from "@/types/vehicles";
 
 export function getCarPrice(car: Car, type: "rent" | "sale") {
   if (type === "sale") {

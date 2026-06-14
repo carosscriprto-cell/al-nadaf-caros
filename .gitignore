@@ -42,3 +42,5 @@ next-env.d.ts
 
 # supabase
 supabase/.temp/
+# Phase 3 safety exports (contain live tenant data)
+scripts/_backups/

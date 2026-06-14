@@ -7,7 +7,6 @@ import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { ArrowRight, ChevronLeft, ChevronRight, Zap, Gauge, Users } from 'lucide-react';
 import { useLocale } from 'next-intl';
 
-import { cars } from '@/data/cars';
 import type { Car } from '@/types/vehicles';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────
@@ -113,11 +112,15 @@ function SpotlightStat({
 
 // ─── Main component ───────────────────────────────────────────────────────
 
-export default function HeroSpotlight() {
+type HeroSpotlightProps = {
+  cars: Car[];
+};
+
+export default function HeroSpotlight({ cars }: HeroSpotlightProps) {
   const locale = useLocale();
 
 
-  const spotlightCars = useMemo(() => selectSpotlightCars(cars), []);
+  const spotlightCars = useMemo(() => selectSpotlightCars(cars), [cars]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [direction, setDirection] = useState<1 | -1>(1);
 

@@ -21,11 +21,18 @@ import { useHeroPlaceholder } from '@/hooks/useHeroPlaceholder';
 import { FilterSelect } from './FilterSelecte';
 import HeroResultsDropdown from './HeroResultsDropdown';
 import { FuelType } from '@/types/vehicles';
+import type { Car, CarContentMap } from '@/types/vehicles';
 
 
 // ─── Component ────────────────────────────────────────────────────────────
 
-export default function HeroSearchPanel() {
+type HeroSearchPanelProps = {
+  cars: Car[];
+  contentAr?: CarContentMap;
+  contentEn?: CarContentMap;
+};
+
+export default function HeroSearchPanel({ cars, contentAr, contentEn }: HeroSearchPanelProps) {
   const t = useTranslations();
   const router = useRouter();
   const locale = useLocale();
@@ -55,7 +62,7 @@ export default function HeroSearchPanel() {
     brandOptions,
     modelOptions,
     fuelTypeOptions,
-  } = useHeroSearch();
+  } = useHeroSearch(cars, 'all', contentAr, contentEn);
 
   // ── Navigation helper — preserves all filter context in URL ──────────
 
@@ -280,6 +287,7 @@ export default function HeroSearchPanel() {
           >
             <HeroResultsDropdown
               cars={results}
+              allCars={cars}
               hasQuery={hasQuery}
               searchURL={buildSearchURL()}
               onClose={closeDropdown}

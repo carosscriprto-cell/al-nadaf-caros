@@ -47,7 +47,7 @@ Hard limits: build green at every commit. Zero features. When in doubt, flag. Ke
 
 ---
 
-## Phase 2 — Schema Foundation (enums, types, migrations, RLS)
+## Phase 2 — Schema Foundation (enums, types, migrations, RLS) / done
 
 **Branch:** `chore/p2-schema-foundation`
 **Prereq:** P1 merged. Requires Supabase CLI linked to the project.
@@ -73,25 +73,47 @@ Hard limits: no data seeding, no public-route refactor yet. Schema + types + RLS
 
 ## Phase 3 — Data Unification (kill static, single source)
 
-**Branch:** `chore/p3-data-unification`
-**Prereq:** P2 merged. Enums aligned, RLS proven.
+Phase 3 — Data Unification. CRITICAL: this wipes live data, so we verify before deleting.
 
-```
-You are a Senior Next.js engineer. Phase 3: make Supabase the SINGLE data source and delete all static car data. This is a one-time seed + repoint, NOT an ongoing sync.
+STEP 0 — VERIFY THE CORE ASSUMPTION FIRST (no writes, no deletes):
+The plan assumes static data/cars.ts is newer and Supabase is stale. But the live DB uses 
+8 car categories while static only uses sedan/suv — so the live DB may contain real cars NOT 
+present in static. Before anything:
+- Report: count of cars in data/cars.ts vs count in live Supabase cars table.
+- List any cars in the live DB that would be DELETED but have no equivalent in static 
+  (by slug or brand/model/year).
+- Produce a dry-run diff: what the seed inserts vs what the wipe deletes.
+- STOP and show me this report. Do NOT delete or insert anything yet.
 
-Context: static data/cars.ts is the NEWER/correct data; current Supabase rows are STALE. We wipe stale rows, seed from static once, then delete static permanently.
+After I approve the report, proceed:
 
-Rules: branch chore/p3-data-unification. Build green after each step. The existing scripts/migrate-to-supabase.ts can be reused/fixed for the seed.
+STEP 1 — SEED SCRIPT: fix/extend scripts/migrate-to-supabase.ts to map static cars + 
+cars-content (en/ar) into cars + car_content, respecting the P2 market-complete enums. 
+Dry-run mode (log only) first.
 
-Tasks (in order):
-1. SEED SCRIPT: fix/extend scripts/migrate-to-supabase.ts to map static cars + cars-content (en/ar) into cars + car_content, respecting the canonical enums from P2. Dry-run mode first (log, no write).
-2. WIPE + SEED: under the target tenant, delete stale car rows, then seed from static. Verify counts match. Keep this idempotent and re-runnable.
-3. REPOINT IMPORTS: replace every @/data/cars data import (the ~19 files: booking/page.tsx, useHeroSearch, HeroSpotlight, HeroResultsDropdown, BrandShowcase, RentVsBuyBanner, etc.) with the existing Supabase query layer (queries.server → mappers). Keep the `Car` type import pointing ONLY to types/vehicles.ts.
-4. UNIFY FETCH PATTERN: ensure all pages use the same server-component → query → mapper → client-component pattern. No component reads static data. The hero search and booking now read from Supabase.
-5. DELETE STATIC: remove data/cars.ts and cars-content/{en,ar}.ts. Archive the seed script (move to scripts/_archive/ with a note). Confirm zero remaining imports from @/data/cars.
-6. REPORT: files repointed, rows seeded, confirm grep for "@/data/cars" returns only type imports (or none), build green.
+STEP 2 — ELECTRIC REMAP: handle the 3 rows where category='electric' — remap them to a real 
+category + set fuel_type='electric' (per the P2 flag). Don't let the seed produce category='electric'.
 
-Hard limits: no new features, no dashboard work, no multi-tenant runtime. Data unification only.
+STEP 3 — WIPE + SEED: only after my approval. Take a safety export first (the script should 
+log/save the current rows before deleting). Delete stale car rows under the target tenant, 
+seed from static, verify counts. Idempotent + re-runnable.
+
+STEP 4 — REPOINT IMPORTS: replace every @/data/cars DATA import (~19 files: booking/page.tsx, 
+useHeroSearch, HeroSpotlight, HeroResultsDropdown, BrandShowcase, RentVsBuyBanner...) with the 
+Supabase query layer (queries.server → mappers). Keep the `Car` TYPE import pointing only to 
+types/vehicles.ts.
+
+STEP 5 — UNIFY FETCH: all pages use server-component → query → mapper → client-component. 
+No component reads static data.
+
+STEP 6 — DELETE STATIC: remove data/cars.ts + cars-content/{en,ar}.ts. Archive the seed script 
+to scripts/_archive/. Confirm zero remaining @/data/cars data imports (grep).
+
+STEP 7 — VERIFY: build green, re-run scripts/test-rls.ts (isolation still holds), confirm the 
+storefront still renders cars from Supabase.
+
+Hard limits: no features, no dashboard, no multi-tenant runtime. Data unification only.
+DO NOT execute Step 3 (wipe) until I approve the Step 0 report.
 ```
 
 ---

@@ -1,6 +1,6 @@
 import { Fuel, Settings2, Users, Zap } from "lucide-react";
 import Image from "next/image";
-import type { Car as CarType } from '@/data/cars';
+import type { Car as CarType } from '@/types/vehicles';
 
 
 export function CarSummaryCard({ car, title }: { car: CarType; title: string }) {

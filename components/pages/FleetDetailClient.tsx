@@ -34,7 +34,7 @@ import {
 import WhatsAppButton from '@/components/WhatsAppButton';
 import VipDeliveryBadge from '@/components/VipDeliveryBadge';
 import { clientConfig } from '@/config/client';
-import type { Car } from '@/data/cars';
+import type { Car } from '@/types/vehicles';
 import {
   getCarTitleFallback,
   type CarContentEntry,

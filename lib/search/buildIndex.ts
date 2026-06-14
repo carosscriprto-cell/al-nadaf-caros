@@ -1,8 +1,8 @@
-import type { Car } from '@/data/cars';
 import type {
+  Car,
   CarContentEntry,
   CarContentMap,
-} from '@/data/cars-content/types';
+} from '@/types/vehicles';
 
 import { normalize } from './normalize';
 import type {

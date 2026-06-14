@@ -1,4 +1,4 @@
-import type { Car as CarType } from '@/data/cars';
+import type { Car as CarType } from '@/types/vehicles';
 import { Check, Sparkles, Star } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';

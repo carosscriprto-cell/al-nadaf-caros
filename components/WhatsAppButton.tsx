@@ -2,7 +2,7 @@
 
 import { useLocale, useTranslations } from 'next-intl';
 import { featureFlags, siteConfig } from '@/config';
-import type { Car } from '../data/cars';
+import type { Car } from '@/types/vehicles';
 import type { CarContentEntry } from '@/data/cars-content';
 import { buildWhatsAppMessage } from '@/lib/buildWhatsAppMessage';
 import Link from 'next/link';

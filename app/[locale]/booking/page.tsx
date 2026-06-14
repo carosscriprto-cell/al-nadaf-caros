@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
-import { cars } from '@/data/cars';
+import { getLocale, getTranslations } from 'next-intl/server';
+import { getAllCarsForSearch } from '@/lib/supabase/queries.server';
 import { siteConfig } from '@/config';
 import { BookingClientPage } from './BookingClientPage';
 
@@ -15,11 +15,17 @@ export async function generateMetadata(): Promise<Metadata> {
 
 
 
-export default function BookingPage() {
+export default async function BookingPage() {
+  const locale = await getLocale() as 'en' | 'ar';
+  const { cars, contentMap, contentAr, contentEn } =
+    await getAllCarsForSearch(locale);
 
   return (
-      <BookingClientPage 
+      <BookingClientPage
           cars={cars}
+          contentMap={contentMap}
+          contentAr={contentAr}
+          contentEn={contentEn}
           whatsappNumber={siteConfig.contact.whatsapp}
         />
   );

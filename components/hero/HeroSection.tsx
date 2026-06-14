@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { getBlurDataURL } from '@/lib/image';
 import HeroTrustBar from '../hero/HeroTrustBar';
 import HeroSearchPanel from '../hero/HeroSearchPanel';
+import type { Car, CarContentMap } from '@/types/vehicles';
 
 // ─── Animation variants ────────────────────────────────────────────────────
 
@@ -37,7 +38,13 @@ const fadeIn: Variants = {
 
 // ─── Component ────────────────────────────────────────────────────────────
 
-export default function HeroSection() {
+type HeroSectionProps = {
+  cars: Car[];
+  contentAr?: CarContentMap;
+  contentEn?: CarContentMap;
+};
+
+export default function HeroSection({ cars, contentAr, contentEn }: HeroSectionProps) {
   const t = useTranslations();
   const sectionRef = useRef<HTMLElement>(null);
 
@@ -189,7 +196,7 @@ export default function HeroSection() {
             animate="visible"
             custom={0.36}
           >
-            <HeroSearchPanel />
+            <HeroSearchPanel cars={cars} contentAr={contentAr} contentEn={contentEn} />
           </motion.div>
         </div>
       </div>

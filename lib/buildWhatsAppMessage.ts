@@ -1,4 +1,4 @@
-import type { Car } from '@/data/cars';
+import type { Car } from '@/types/vehicles';
 import {
   getCarTitleFallback,
   type CarContentEntry,

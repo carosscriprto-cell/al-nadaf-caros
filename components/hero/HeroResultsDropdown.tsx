@@ -6,7 +6,6 @@ import { useMemo } from 'react';
 import { ArrowRight, Sparkles, Search } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 
-import { cars as allCars } from '@/data/cars';
 import type { Car } from '@/types/vehicles';
 
 // ─── Types ────────────────────────────────────────────────────────────────
@@ -14,6 +13,8 @@ import type { Car } from '@/types/vehicles';
 interface Props {
   /** Filtered/searched result set — may be empty if no query yet */
   cars: Car[];
+  /** Full inventory (from Supabase) used to build the curated fallback */
+  allCars: Car[];
   /** Whether the user has typed anything */
   hasQuery: boolean;
   /** Pre-built URL with all current filter params */
@@ -26,7 +27,7 @@ interface Props {
 /** Vehicles to surface when the user has not yet typed — curated fallback.
  *  Priority vehicles are sorted by badge importance so the most curated car
  *  always appears as the featured card. */
-function getCuratedFallback(): Car[] {
+function getCuratedFallback(allCars: Car[]): Car[] {
   const priority = allCars
     .filter(
       (c) =>
@@ -226,6 +227,7 @@ function ResultCard({
 
 export default function HeroResultsDropdown({
   cars,
+  allCars,
   hasQuery,
   searchURL,
   onClose,
@@ -233,7 +235,7 @@ export default function HeroResultsDropdown({
   const locale = useLocale();
   const t = useTranslations();
 
-  const curated = useMemo(() => getCuratedFallback(), []);
+  const curated = useMemo(() => getCuratedFallback(allCars), [allCars]);
 
   // If user hasn't typed, show curated fallback
   const hasResultsToShow = cars.length > 0;

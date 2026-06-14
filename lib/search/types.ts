@@ -1,8 +1,8 @@
-import type { Car } from '@/data/cars';
 import type {
+  Car,
   CarContentEntry,
   CarContentMap,
-} from '@/data/cars-content/types';
+} from '@/types/vehicles';
 
 export type SearchableCarFields = {
   brand: string;

@@ -5,16 +5,22 @@ import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { ArrowRight, Zap, Gauge, Users, Fuel } from 'lucide-react';
-import { cars } from '@/data/cars';
 import { getCarTitleFallback } from '@/data/cars-content';
-import { useCarContentMap } from '@/data/cars-content/useCarContent';
 import { getBlurDataURL } from '@/lib/image';
+import type { Car, CarContentMap } from '@/types/vehicles';
 
-export default function RentBuyExperienceSection() {
+type RentVsBuyBannerProps = {
+  cars: Car[];
+  contentMap?: CarContentMap;
+};
+
+export default function RentBuyExperienceSection({
+  cars,
+  contentMap = {},
+}: RentVsBuyBannerProps) {
   const locale = useLocale();
   const t = useTranslations();
   const tb = useTranslations('buttons');
-  const contentMap = useCarContentMap(locale);
 
   const featuredCar =
     cars

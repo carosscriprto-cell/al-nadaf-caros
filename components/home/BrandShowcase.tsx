@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 
-import { cars } from '@/data/cars';
+import type { Car } from '@/types/vehicles';
 import { getBlurDataURL } from '@/lib/image';
 import HeadSection from '../HeadSection';
 
@@ -98,7 +98,7 @@ function getBrandFallback(brand: string) {
     .join('');
 }
 
-function getTopBrands() {
+function getTopBrands(cars: Car[]) {
   return Object.entries(
     cars.reduce((acc, car) => {
       acc[car.brand] = (acc[car.brand] || 0) + 1;
@@ -148,11 +148,15 @@ function BrandLogo({
   );
 }
 
-export default function BrandShowcase() {
+type BrandShowcaseProps = {
+  cars: Car[];
+};
+
+export default function BrandShowcase({ cars }: BrandShowcaseProps) {
   const t = useTranslations('');
   const locale = useLocale();
 
-  const brands = getTopBrands();
+  const brands = getTopBrands(cars);
 
   return (
     <section className="bg-background py-16">

@@ -12,8 +12,7 @@ import {
   Search,
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
-import type { Car as CarType } from '@/data/cars';
-import { useCarContentMap } from '@/data/cars-content/useCarContent';
+import type { Car as CarType } from '@/types/vehicles';
 import { prepareCarsForSearch } from '@/lib/search/buildIndex';
 import { createSearch } from '@/lib/search/createSearch';
 import { searchVehicles } from '@/lib/search/searchVehicles';
@@ -33,15 +32,16 @@ import { initialState } from '@/lib/booking/initialState';
 export default function BookingExperience({
   cars,
   contentMap,
+  contentAr = {},
+  contentEn = {},
   whatsappNumber = siteConfig.contact.whatsapp,
 }: BookingExperienceProps) {
   const locale = useLocale();
   const t = useTranslations('booking');
   const tCar = useTranslations('car');
-  const arContentMap = useCarContentMap('ar');
-  const enContentMap = useCarContentMap('en');
-  const defaultContentMap = useCarContentMap(locale);
-  const carContentMap = contentMap || defaultContentMap;
+  const arContentMap = contentAr;
+  const enContentMap = contentEn;
+  const carContentMap = useMemo(() => contentMap ?? {}, [contentMap]);
   
   // Prepare cars for search with Arabic support
   const preparedCars = useMemo(() => prepareCarsForSearch(cars, arContentMap, enContentMap), [cars, arContentMap, enContentMap]);

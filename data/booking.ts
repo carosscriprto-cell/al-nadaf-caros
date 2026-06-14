@@ -1,6 +1,6 @@
 import { SiteConfig } from "@/config/site";
 import { CarContentEntry } from "./cars-content";
-import type { Car as CarType } from '@/data/cars';
+import type { Car as CarType } from '@/types/vehicles';
 
 
 export type Step = 0 | 1 | 2 | 3;
@@ -28,5 +28,10 @@ export type BookingAction =
 export interface BookingExperienceProps {
   cars: CarType[];
   contentMap?: Record<string, CarContentEntry>;
+  // Per-locale content maps for the search index (Arabic + English). Provided by
+  // the server component via getAllCarsForSearch; replaces the old client-side
+  // useCarContentMap() static loaders removed in Phase 3.
+  contentAr?: Record<string, CarContentEntry>;
+  contentEn?: Record<string, CarContentEntry>;
   whatsappNumber?: SiteConfig['contact']['whatsapp'];
 }
