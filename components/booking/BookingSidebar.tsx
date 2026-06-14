@@ -101,7 +101,7 @@ export function BookingSidebar({ state, carTitle }: { state: BookingState; carTi
               {t('booking_summary.estimated_total')}
             </p>
             <p className="text-3xl font-bold text-accent">
-              ${(state.selectedCar.pricing.daily * nights).toLocaleString()}
+              ${((state.selectedCar.pricing.daily ?? 0) * nights).toLocaleString()}
             </p>
             <p className="text-xs mt-1 text-muted-foreground">
               {nights} {t('booking_summary.night', { count: nights })} · ${state.selectedCar.pricing.daily}/{t('booking_summary.day')}

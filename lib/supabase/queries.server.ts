@@ -133,7 +133,7 @@ export const getSimilarCars = cache(
       .select(`*, car_content(*)`)
       .eq('tenant_id', tenantId)
       .eq('available',  true)
-      .neq('id', currentCar.id)
+      .neq('id', String(currentCar.id))
       .or(
         `category.eq.${currentCar.category},class.eq.${currentCar.class}`
       )

@@ -6,7 +6,7 @@ export
 function buildWhatsAppMessage(state: BookingState, carTitle: string, locale: string): string {
   const nights = calcNights(state.dateFrom, state.dateTo);
   const totalPrice = state.selectedCar
-    ? (state.selectedCar.pricing.daily * nights).toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US')
+    ? ((state.selectedCar.pricing.daily ?? 0) * nights).toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US')
     : '—';
 
   const isArabic = locale === 'ar';

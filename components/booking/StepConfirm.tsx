@@ -16,8 +16,8 @@ export function StepConfirm({
   onSubmit: () => void;
 }) {
   const nights = calcNights(state.dateFrom, state.dateTo);
-  const total = state.selectedCar ? state.selectedCar.pricing.daily * nights : 0;
-  const deposit = state.selectedCar ? state.selectedCar.pricing.securityDeposit : 0;
+  const total = state.selectedCar ? (state.selectedCar.pricing.daily ?? 0) * nights : 0;
+  const deposit = state.selectedCar ? (state.selectedCar.pricing.securityDeposit ?? 0) : 0;
   const t = useTranslations('booking');
   const rows = [
     { label: t('pickup_location'), value: state.locationLabel || '—', icon: <MapPin size={14} /> },
