@@ -1,4 +1,3 @@
-import { getLocale } from 'next-intl/server';
 import { getAllCarsForSearch } from '@/lib/supabase/queries.server';
 import HeroSection from '@/components/hero/HeroSection';
 import FeaturedCarsSection from '@/components/home/FeaturedCarsSection';
@@ -10,8 +9,16 @@ import HowItWorks from '@/components/home/HowItWorks';
 import FAQSection from '@/components/home/FAQSection';
 import FinalCTA from '@/components/home/FinalCTA';
 
-export default async function Home() {
-  const locale = await getLocale() as 'en' | 'ar';
+export default async function Home({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  // Use the route param (authoritative from the URL). next-intl's server
+  // getLocale() can't resolve here — this app uses a custom middleware with no
+  // setRequestLocale — so it would default to 'ar' and serve Arabic content.
+  const { locale: rawLocale } = await params;
+  const locale = rawLocale === 'ar' ? 'ar' : 'en';
 
   // Single source: Supabase. Fetch once on the server, drill into the client
   // hero/brand/banner components (which previously imported static data/cars.ts).
@@ -22,7 +29,7 @@ export default async function Home() {
     <div>
       <HeroSection cars={cars} contentAr={contentAr} contentEn={contentEn} />
       <BrandShowcase cars={cars} />
-      <FeaturedCarsSection />
+      <FeaturedCarsSection locale={locale} />
       <WhyChooseUs />
       <RentVsBuyBanner cars={cars} contentMap={contentMap} />
       <TestimonialsSection />

@@ -1,9 +1,14 @@
-import { getLocale } from 'next-intl/server';
 import CarsListingPage from '@/components/pages/CarsListingPage';
 import { getAllCarsForSearch } from '@/lib/supabase/queries.server';
 
-export default async function RentalPage() {
-  const locale = await getLocale() as 'en' | 'ar';
+export default async function RentalPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  // Route param is authoritative; server getLocale() defaults to 'ar' here.
+  const { locale: rawLocale } = await params;
+  const locale = rawLocale === 'ar' ? 'ar' : 'en';
 
   // جلب البيانات هنا — Server Component
   const { cars, contentMap, contentAr, contentEn } =

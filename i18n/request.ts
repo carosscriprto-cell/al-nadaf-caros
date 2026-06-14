@@ -7,4 +7,4 @@ export default getRequestConfig(async ({ locale }) => {
     messages: await loadMessages(safeLocale),
     locale: safeLocale
   };
-}); 
+});
