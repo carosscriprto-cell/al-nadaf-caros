@@ -21,7 +21,7 @@ Dependency: each phase assumes the previous one is merged. Do not reorder.
 
 ---
 
-## Phase 1 — Project Cleanup
+## Phase 1 — Project Cleanup / done
 
 **Branch:** `chore/p1-cleanup`
 
