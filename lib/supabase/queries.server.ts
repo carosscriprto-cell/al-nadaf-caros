@@ -6,9 +6,14 @@
 
 import { cache } from 'react';
 import { createPublicServerClient } from './client';
-import { getTenantId } from './getTenant';
+import { getTenantId, getStorefrontFeatures } from './getTenant';
 import { mapDbCarToCar, buildContentMap } from './mappers';
+import { storefrontListingTypes } from '@/lib/tenant/features';
 import type { Car, CarContentMap } from '@/types/vehicles';
+
+// Listing types the storefront may show for this tenant. null = no restriction
+// (hybrid). Single-type tenants never surface the other type anywhere.
+const getVisibleTypes = cache(async () => storefrontListingTypes(await getStorefrontFeatures()));
 
 // ─── getCarsWithContent ───────────────────────────────────────
 // يجلب كل السيارات + المحتوى بـ locale محدد
@@ -23,14 +28,14 @@ export const getCarsWithContent = cache(
     const tenantId  = await getTenantId();
 
     // جلب السيارات والمحتوى في طلب واحد
-    const { data: carsData, error: carsError } = await supabase
+    const types = await getVisibleTypes();
+    let q = supabase
       .from('cars')
-      .select(`
-        *,
-        car_content(*)
-      `)
+      .select(`*, car_content(*)`)
       .eq('tenant_id', tenantId)
-      .eq('available', true)
+      .eq('available', true);
+    if (types) q = q.in('listing_type', types);
+    const { data: carsData, error: carsError } = await q
       .order('is_featured', { ascending: false })
       .order('created_at',  { ascending: false });
 
@@ -95,12 +100,15 @@ export const getFeaturedCars = cache(
     const supabase = createPublicServerClient();
     const tenantId = await getTenantId();
 
-    const { data, error } = await supabase
+    const types = await getVisibleTypes();
+    let q = supabase
       .from('cars')
       .select(`*, car_content(*)`)
       .eq('tenant_id',  tenantId)
       .eq('available',  true)
-      .eq('is_featured', true)
+      .eq('is_featured', true);
+    if (types) q = q.in('listing_type', types);
+    const { data, error } = await q
       .order('created_at', { ascending: false })
       .limit(limit);
 
@@ -129,7 +137,8 @@ export const getSimilarCars = cache(
     const supabase = createPublicServerClient();
     const tenantId = await getTenantId();
 
-    const { data, error } = await supabase
+    const types = await getVisibleTypes();
+    let q = supabase
       .from('cars')
       .select(`*, car_content(*)`)
       .eq('tenant_id', tenantId)
@@ -137,8 +146,9 @@ export const getSimilarCars = cache(
       .neq('id', String(currentCar.id))
       .or(
         `category.eq.${currentCar.category},class.eq.${currentCar.class}`
-      )
-      .limit(limit * 2); // نجلب أكثر ثم نرتب
+      );
+    if (types) q = q.in('listing_type', types);
+    const { data, error } = await q.limit(limit * 2); // نجلب أكثر ثم نرتب
 
     if (error || !data) return { cars: [], contentMap: {} };
 
@@ -183,12 +193,14 @@ export const getAllCarsForSearch = cache(
     const supabase = createPublicServerClient();
     const tenantId = await getTenantId();
 
-    const { data, error } = await supabase
+    const types = await getVisibleTypes();
+    let q = supabase
       .from('cars')
       .select(`*, car_content(*)`)
       .eq('tenant_id', tenantId)
-      .eq('available', true) // public storefront sees available cars only
-      .order('is_featured', { ascending: false });
+      .eq('available', true); // public storefront sees available cars only
+    if (types) q = q.in('listing_type', types);
+    const { data, error } = await q.order('is_featured', { ascending: false });
 
     if (error || !data) {
       return { cars: [], contentMap: {}, contentAr: {}, contentEn: {} };

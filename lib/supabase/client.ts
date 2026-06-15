@@ -7,6 +7,7 @@
 // للاستخدام في Server Components و API Routes
 
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
+import { createBrowserClient as createSSRBrowserClient } from '@supabase/ssr';
 import type { Database } from './database.types';
 
 
@@ -31,10 +32,14 @@ export function createPublicServerClient() {
   );
 }
 
-// Browser client (يستخدم anon key في client-side)
+// Browser client (anon key, client-side). Uses @supabase/ssr so the auth
+// session is stored in COOKIES — the SSR middleware + server components read the
+// session from the same cookies. (Plain supabase-js stores the session in
+// localStorage, which the server can't see → sign-in would appear to hang as
+// the middleware bounces /dashboard back to /auth/login.)
 export function createBrowserClient() {
-  return createSupabaseClient<Database>(
+  return createSSRBrowserClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
   );
 }

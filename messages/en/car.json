@@ -129,7 +129,7 @@
         "fuel_consumption_city": "City Consumption",
         "fuel_consumption_highway": "Highway Consumption",
         "fuel_tank_capacity": "Fuel Tank Capacity",
-        "distance_per_20l": "Distance per 20L",
+        "distance_per_20l": "Range per 20 L (km)",
         "electric_range": "Electric Range",
         "savings": "Save {value}"
       },

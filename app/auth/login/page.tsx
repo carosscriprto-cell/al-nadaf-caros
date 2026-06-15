@@ -1,272 +1,186 @@
 'use client';
 
-// app/auth/login/page.tsx
-// ─────────────────────────────────────────────────────────────
-// صفحة تسجيل الدخول — Email/Password + Magic Link
-// ثنائية اللغة EN/AR
-// ─────────────────────────────────────────────────────────────
+// app/auth/login/page.tsx — Caros dashboard sign-in.
+// Email/password only (accounts are provisioned per client — NO self-signup).
+// Bilingual EN / AR (RTL). Caros brand: #F7F7F7 bg, #75ACE8 accent, Cairo type.
 
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createBrowserClient } from '@/lib/supabase/client';
-import { Car, Mail, Lock, ArrowRight, Loader2, CheckCircle } from 'lucide-react';
+import { cairo } from '@/lib/fonts';
+import { Lock, Mail, ArrowRight, Loader2 } from 'lucide-react';
 
-// ─── Translations ─────────────────────────────────────────────
 const i18n = {
   en: {
-    title:          'Welcome back',
-    subtitle:       'Sign in to manage your inventory',
-    email:          'Email address',
-    password:       'Password',
-    signIn:         'Sign in',
-    magicLink:      'Send magic link',
-    magicLinkSent:  'Check your email',
-    magicLinkDesc:  'We sent a sign-in link to',
-    orDivider:      'or',
-    switchMagic:    'Sign in without password',
-    switchPassword: 'Sign in with password',
-    loading:        'Signing in...',
-    errorInvalid:   'Invalid email or password',
-    errorGeneral:   'Something went wrong. Please try again.',
-    lang:           'العربية',
+    title: 'Welcome back',
+    subtitle: 'Sign in to manage your inventory',
+    email: 'Email address',
+    password: 'Password',
+    signIn: 'Sign in',
+    loading: 'Signing in…',
+    errorInvalid: 'Invalid email or password',
+    errorGeneral: 'Something went wrong. Please try again.',
+    lang: 'العربية',
   },
   ar: {
-    title:          'مرحباً بعودتك',
-    subtitle:       'سجّل دخولك لإدارة مخزونك',
-    email:          'البريد الإلكتروني',
-    password:       'كلمة المرور',
-    signIn:         'تسجيل الدخول',
-    magicLink:      'إرسال رابط الدخول',
-    magicLinkSent:  'تحقق من بريدك',
-    magicLinkDesc:  'أرسلنا رابط الدخول إلى',
-    orDivider:      'أو',
-    switchMagic:    'الدخول بدون كلمة مرور',
-    switchPassword: 'الدخول بكلمة المرور',
-    loading:        'جارٍ الدخول...',
-    errorInvalid:   'البريد أو كلمة المرور غير صحيحة',
-    errorGeneral:   'حدث خطأ ما. حاول مرة أخرى.',
-    lang:           'English',
+    title: 'مرحباً بعودتك',
+    subtitle: 'سجّل دخولك لإدارة مخزونك',
+    email: 'البريد الإلكتروني',
+    password: 'كلمة المرور',
+    signIn: 'تسجيل الدخول',
+    loading: '…جارٍ الدخول',
+    errorInvalid: 'البريد أو كلمة المرور غير صحيحة',
+    errorGeneral: 'حدث خطأ ما. حاول مرة أخرى.',
+    lang: 'English',
   },
 } as const;
 
 type Lang = keyof typeof i18n;
 
 export default function LoginPage() {
-  const router      = useRouter();
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo  = searchParams.get('redirectTo') || '/dashboard';
+  const redirectTo = searchParams.get('redirectTo') || '/dashboard';
 
-  const [lang,        setLang]        = useState<Lang>('en');
-  const [mode,        setMode]        = useState<'password' | 'magic'>('password');
-  const [email,       setEmail]       = useState('');
-  const [password,    setPassword]    = useState('');
-  const [loading,     setLoading]     = useState(false);
-  const [error,       setError]       = useState('');
-  const [magicSent,   setMagicSent]   = useState(false);
+  const [lang, setLang] = useState<Lang>('en');
+  const [email, setEmail] = useState('caros@gmail.com');
+  const [password, setPassword] = useState('caros123');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const t   = i18n[lang];
+  const t = i18n[lang];
   const dir = lang === 'ar' ? 'rtl' : 'ltr';
   const supabase = createBrowserClient();
 
-  const handlePasswordLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
 
-    if (error) {
-      setError(
-        error.message.includes('Invalid')
-          ? t.errorInvalid
-          : t.errorGeneral
-      );
-      setLoading(false);
-      return;
-    }
+  console.log(data);
+  console.log(error);
 
+  if (error) {
+    console.error(error);
+    setError(error.message);
+    setLoading(false);
+    return;
+  }
+
+ 
     router.push(redirectTo);
     router.refresh();
   };
 
-  const handleMagicLink = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: `${window.location.origin}${redirectTo}`,
-      },
-    });
-
-    if (error) {
-      setError(t.errorGeneral);
-      setLoading(false);
-      return;
-    }
-
-    setMagicSent(true);
-    setLoading(false);
-  };
-
   return (
     <div
-      className="min-h-screen bg-[#0a0a14] flex items-center justify-center p-4"
       dir={dir}
+      className={`${cairo.variable} flex min-h-screen items-center justify-center bg-[#F7F7F7] p-6 font-[family-name:var(--font-cairo)] text-[#1a1d21]`}
     >
-      {/* Language toggle */}
       <button
-        onClick={() => setLang(l => l === 'en' ? 'ar' : 'en')}
-        className="fixed top-5 right-5 text-xs text-white/40 hover:text-white/70 transition-colors border border-white/10 rounded-lg px-3 py-1.5"
+        onClick={() => setLang((l) => (l === 'en' ? 'ar' : 'en'))}
+        className="fixed top-6 ltr:right-6 rtl:left-6 rounded-full border border-black/10 bg-white px-4 py-1.5 text-xs font-medium text-[#5b6168] shadow-sm transition hover:border-[#75ACE8]/40 hover:text-[#1a1d21]"
       >
         {t.lang}
       </button>
 
-      <div className="w-full max-w-sm">
-
-        {/* Logo */}
-        <div className="flex flex-col items-center mb-8">
-          <div className="w-12 h-12 rounded-2xl bg-violet-600 flex items-center justify-center mb-4 shadow-lg shadow-violet-600/20">
-            <Car size={22} className="text-white" />
+      <div className="w-full max-w-[400px]">
+        {/* Brand */}
+        <div className="mb-10 flex flex-col items-center text-center">
+          <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#75ACE8] text-xl font-bold text-white shadow-lg shadow-[#75ACE8]/25">
+            C
           </div>
-          <h1 className="text-2xl font-bold text-white">{t.title}</h1>
-          <p className="text-sm text-white/40 mt-1">{t.subtitle}</p>
+          <h1 className="text-2xl font-bold tracking-tight">{t.title}</h1>
+          <p className="mt-1.5 text-sm text-[#8a9099]">{t.subtitle}</p>
         </div>
 
         {/* Card */}
-        <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-6">
+        <div className="rounded-3xl border border-black/5 bg-white p-8 shadow-[0_8px_40px_rgba(15,23,42,0.06)]">
+          <form onSubmit={handleLogin} className="space-y-5">
+            <Field label={t.email} icon={<Mail size={16} />}>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                autoComplete="email"
+                placeholder="name@company.com"
+                className="w-full rounded-xl border border-black/10 bg-[#F7F7F7] py-3 text-sm outline-none transition placeholder:text-[#b3b8bf] focus:border-[#75ACE8] focus:bg-white focus:ring-4 focus:ring-[#75ACE8]/15 ltr:pl-10 ltr:pr-3.5 rtl:pr-10 rtl:pl-3.5"
+              />
+            </Field>
 
-          {/* Magic link sent state */}
-          {magicSent ? (
-            <div className="text-center py-4">
-              <div className="w-14 h-14 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
-                <CheckCircle size={28} className="text-emerald-400" />
-              </div>
-              <h2 className="text-lg font-semibold text-white mb-2">
-                {t.magicLinkSent}
-              </h2>
-              <p className="text-sm text-white/40">
-                {t.magicLinkDesc}
+            <Field label={t.password} icon={<Lock size={16} />}>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                autoComplete="current-password"
+                placeholder="••••••••"
+                className="w-full rounded-xl border border-black/10 bg-[#F7F7F7] py-3 text-sm outline-none transition placeholder:text-[#b3b8bf] focus:border-[#75ACE8] focus:bg-white focus:ring-4 focus:ring-[#75ACE8]/15 ltr:pl-10 ltr:pr-3.5 rtl:pr-10 rtl:pl-3.5"
+              />
+            </Field>
+
+            {error && (
+              <p className="rounded-xl border border-red-200 bg-red-50 px-3.5 py-2.5 text-xs font-medium text-red-600">
+                {error}
               </p>
-              <p className="text-sm text-violet-400 mt-1 font-medium">
-                {email}
-              </p>
-              <button
-                onClick={() => { setMagicSent(false); setEmail(''); }}
-                className="mt-6 text-xs text-white/30 hover:text-white/60 transition-colors"
-              >
-                ← {lang === 'en' ? 'Use different email' : 'استخدم بريداً آخر'}
-              </button>
-            </div>
-          ) : (
-            <form
-              onSubmit={mode === 'password' ? handlePasswordLogin : handleMagicLink}
-              className="space-y-4"
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#75ACE8] py-3 text-sm font-semibold text-white shadow-lg shadow-[#75ACE8]/25 transition hover:bg-[#5f9ad9] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {/* Email */}
-              <div>
-                <label className="block text-xs font-medium text-white/40 uppercase tracking-widest mb-1.5">
-                  {t.email}
-                </label>
-                <div className="relative">
-                  <Mail
-                    size={15}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-white/25 pointer-events-none"
-                    style={{ left: dir === 'rtl' ? 'auto' : '12px', right: dir === 'rtl' ? '12px' : 'auto' }}
-                  />
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                    required
-                    placeholder="name@company.com"
-                    className="w-full bg-white/[0.05] border border-white/10 rounded-xl py-2.5 text-sm text-white placeholder-white/20 focus:outline-none focus:border-violet-500/50 transition-all"
-                    style={{
-                      paddingLeft:  dir === 'rtl' ? '12px' : '36px',
-                      paddingRight: dir === 'rtl' ? '36px' : '12px',
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* Password */}
-              {mode === 'password' && (
-                <div>
-                  <label className="block text-xs font-medium text-white/40 uppercase tracking-widest mb-1.5">
-                    {t.password}
-                  </label>
-                  <div className="relative">
-                    <Lock
-                      size={15}
-                      className="absolute top-1/2 -translate-y-1/2 text-white/25 pointer-events-none"
-                      style={{ left: dir === 'rtl' ? 'auto' : '12px', right: dir === 'rtl' ? '12px' : 'auto' }}
-                    />
-                    <input
-                      type="password"
-                      value={password}
-                      onChange={e => setPassword(e.target.value)}
-                      required
-                      placeholder="••••••••"
-                      className="w-full bg-white/[0.05] border border-white/10 rounded-xl py-2.5 text-sm text-white placeholder-white/20 focus:outline-none focus:border-violet-500/50 transition-all"
-                      style={{
-                        paddingLeft:  dir === 'rtl' ? '12px' : '36px',
-                        paddingRight: dir === 'rtl' ? '36px' : '12px',
-                      }}
-                    />
-                  </div>
-                </div>
+              {loading ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" /> {t.loading}
+                </>
+              ) : (
+                <>
+                  {t.signIn}
+                  <ArrowRight size={16} className="rtl:rotate-180" />
+                </>
               )}
-
-              {/* Error */}
-              {error && (
-                <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
-                  {error}
-                </p>
-              )}
-
-              {/* Submit */}
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full flex items-center justify-center gap-2 py-2.5 bg-violet-600 hover:bg-violet-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl text-sm font-semibold text-white transition-all"
-              >
-                {loading ? (
-                  <><Loader2 size={15} className="animate-spin" /> {t.loading}</>
-                ) : mode === 'password' ? (
-                  <>{t.signIn} <ArrowRight size={15} /></>
-                ) : (
-                  <>{t.magicLink} <ArrowRight size={15} /></>
-                )}
-              </button>
-
-              {/* Divider */}
-              <div className="flex items-center gap-3 my-1">
-                <div className="flex-1 h-px bg-white/[0.06]" />
-                <span className="text-xs text-white/20">{t.orDivider}</span>
-                <div className="flex-1 h-px bg-white/[0.06]" />
-              </div>
-
-              {/* Mode switch */}
-              <button
-                type="button"
-                onClick={() => { setMode(m => m === 'password' ? 'magic' : 'password'); setError(''); }}
-                className="w-full text-xs text-white/40 hover:text-white/70 transition-colors py-1"
-              >
-                {mode === 'password' ? t.switchMagic : t.switchPassword}
-              </button>
-            </form>
-          )}
+            </button>
+          </form>
         </div>
 
-        {/* Footer */}
-        <p className="text-center text-xs text-white/20 mt-6">
-          Caros Dashboard © {new Date().getFullYear()}
+        <p className="mt-8 text-center text-xs text-[#b3b8bf]">
+          Caros © {new Date().getFullYear()}
         </p>
+      </div>
+    </div>
+  );
+}
+
+function Field({
+  label,
+  icon,
+  children,
+}: {
+  label: string;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[#8a9099]">
+        {label}
+      </label>
+      <div className="relative">
+        <span
+          className="pointer-events-none absolute top-1/2 -translate-y-1/2 text-[#b3b8bf] ltr:left-3.5 rtl:right-3.5"
+          aria-hidden
+        >
+          {icon}
+        </span>
+        {children}
       </div>
     </div>
   );

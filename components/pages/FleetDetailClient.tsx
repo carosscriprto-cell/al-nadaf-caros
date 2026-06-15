@@ -602,7 +602,7 @@ export default function FleetDetailClient({
                     )}
                   </div>
 
-                  <VipDeliveryBadge />
+                  {car.deliveryAvailable && <VipDeliveryBadge />}
                 </div>
 
                 {trustSignals.length ? (
@@ -655,29 +655,43 @@ export default function FleetDetailClient({
                 ) : null}
 
                 <div className="mt-6 flex flex-col gap-4">
-                  {clientConfig.features.enableWhatsApp && (
-                    <WhatsAppButton
-                      car={car}
-                      content={content}
-                      className="flex-1 flex items-center justify-center w-full gap-2 rounded-2xl 
-                      bg-[#25D366] py-3 text-[14px] font-semibold text-white  truncate
-                      shadow-lg shadow-[#25D366]/20 
-                      transition-all duration-300 
-                      hover:scale-[1.02] hover:shadow-xl hover:shadow-[#25D366]/30"
+                  {car.status === 'sold' || car.status === 'reserved' ? (
+                    // Sold/reserved but shown (dealer opted in): badge instead of
+                    // a booking CTA — you can't inquire on an unavailable car.
+                    <div
+                      className={`flex w-full items-center justify-center gap-2 rounded-2xl py-3 text-[14px] font-bold uppercase tracking-wider ${
+                        car.status === 'sold'
+                          ? 'bg-red-50 text-red-600 ring-1 ring-red-200'
+                          : 'bg-amber-50 text-amber-700 ring-1 ring-amber-200'
+                      }`}
                     >
-                      {isRental
-                        ? t('actions.book_now')
-                        : isSale
-                        ? t('actions.buy_now')
-                        : t('actions.contact_now')}
-                          <Image 
-                            src="/WhatsApp.png" 
-                            alt="WhatsApp" 
-                            width={24} 
-                            height={24} 
-                            loading="lazy"
-                          />  
-                    </WhatsAppButton>
+                      {car.status === 'sold'
+                        ? locale === 'ar'
+                          ? 'مُباعة'
+                          : 'Sold'
+                        : locale === 'ar'
+                        ? 'محجوزة'
+                        : 'Reserved'}
+                    </div>
+                  ) : (
+                    clientConfig.features.enableWhatsApp && (
+                      <WhatsAppButton
+                        car={car}
+                        content={content}
+                        className="flex-1 flex items-center justify-center w-full gap-2 rounded-2xl
+                      bg-[#25D366] py-3 text-[14px] font-semibold text-white  truncate
+                      shadow-lg shadow-[#25D366]/20
+                      transition-all duration-300
+                      hover:scale-[1.02] hover:shadow-xl hover:shadow-[#25D366]/30"
+                      >
+                        {isRental
+                          ? t('actions.book_now')
+                          : isSale
+                          ? t('actions.buy_now')
+                          : t('actions.contact_now')}
+                        <Image src="/WhatsApp.png" alt="WhatsApp" width={24} height={24} loading="lazy" />
+                      </WhatsAppButton>
+                    )
                   )}
 
                   <p className="text-sm leading-6 text-muted-foreground">

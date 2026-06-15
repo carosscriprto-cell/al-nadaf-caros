@@ -1,28 +1,9 @@
-import { setRequestLocale } from 'next-intl/server';
-import CarsListingPage from '@/components/pages/CarsListingPage';
-import { getAllCarsForSearch } from '@/lib/supabase/queries.server';
+import { redirect } from 'next/navigation';
 
-export default async function RentalPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  // Route param is authoritative; server getLocale() defaults to 'ar' here.
-  const { locale: rawLocale } = await params;
-  const locale = rawLocale === 'ar' ? 'ar' : 'en';
-  setRequestLocale(locale);
-
-  // جلب البيانات هنا — Server Component
-  const { cars, contentMap, contentAr, contentEn } =
-    await getAllCarsForSearch(locale);
-
-  return (
-    <CarsListingPage
-      cars={cars}
-      contentMap={contentMap}
-      contentAr={contentAr}
-      contentEn={contentEn}
-      type="rent"
-    />
-  );
+// Standalone Rental page removed (P5a storefront gating). Fleet is the single
+// inventory page; hybrid tenants get a sale/rent filter there. Redirect keeps
+// old links/bookmarks working.
+export default async function RentalPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  redirect(`/${locale}/fleet`);
 }

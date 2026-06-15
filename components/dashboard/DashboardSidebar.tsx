@@ -1,149 +1,67 @@
 'use client';
 
-// components/dashboard/DashboardSidebar.tsx
-// ─────────────────────────────────────────────────────────────
-
-import { useState } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import {
-  Car, LayoutDashboard, MessageSquare, Settings,
-  ChevronLeft, ChevronRight, LogOut, Globe,
-} from 'lucide-react';
-import { createBrowserClient } from '@/lib/supabase/client';
+import { usePathname } from 'next/navigation';
+import { Car, LayoutDashboard } from 'lucide-react';
 import type { Tables } from '@/lib/supabase/database.types';
-
-type Tenant   = Tables<'tenants'>;
-type UserRole = 'owner' | 'admin' | 'editor';
-
-// ─── Translations ─────────────────────────────────────────────
-const labels = {
-  en: {
-    overview: 'Overview',
-    inventory: 'Inventory',
-    leads:    'Leads',
-    settings: 'Settings',
-    logout:   'Sign out',
-  },
-  ar: {
-    overview: 'نظرة عامة',
-    inventory: 'المخزون',
-    leads:    'الطلبات',
-    settings: 'الإعدادات',
-    logout:   'تسجيل الخروج',
-  },
-};
+import { useDash } from './DashboardI18n';
 
 type Props = {
-  tenant:   Tenant;
-  userRole: UserRole;
+  tenant: Tables<'tenants'>;
+  userRole: 'owner' | 'admin' | 'editor';
 };
 
-export default function DashboardSidebar({ tenant, userRole }: Props) {
-  const pathname   = usePathname();
-  const router     = useRouter();
-  const supabase   = createBrowserClient();
-  const [collapsed, setCollapsed] = useState(false);
-  const [lang,      setLang]      = useState<'en' | 'ar'>('en');
+export default function DashboardSidebar({ tenant }: Props) {
+  const pathname = usePathname();
+  const { t, lang } = useDash();
 
-  const t = labels[lang];
+  const nav = [
+    { href: '/dashboard', icon: LayoutDashboard, label: t.overview, exact: true },
+    { href: '/dashboard/cars', icon: Car, label: t.inventory, exact: false },
+  ];
 
-  const navItems = [
-    { href: '/dashboard',          icon: <LayoutDashboard size={16} />, label: t.overview  },
-    { href: '/dashboard/cars',     icon: <Car size={16} />,             label: t.inventory },
-    { href: '/dashboard/leads',    icon: <MessageSquare size={16} />,   label: t.leads     },
-    { href: '/dashboard/settings', icon: <Settings size={16} />,        label: t.settings,
-      hidden: userRole === 'editor' },
-  ].filter(item => !item.hidden);
+  const isActive = (href: string, exact: boolean) =>
+    exact ? pathname === href : pathname.startsWith(href);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push('/auth/login');
-    router.refresh();
-  };
-
-  const isActive = (href: string) =>
-    href === '/dashboard'
-      ? pathname === '/dashboard'
-      : pathname.startsWith(href);
+  const brandName = lang === 'ar' ? tenant.name_ar || tenant.name : tenant.name;
 
   return (
-    <aside
-      className={`
-        ${collapsed ? 'w-16' : 'w-56'}
-        flex-shrink-0 border-r border-white/[0.05]
-        flex flex-col bg-[#0d0d1a]
-        transition-all duration-300
-      `}
-      dir={lang === 'ar' ? 'rtl' : 'ltr'}
-    >
-      {/* Logo */}
-      <div className="h-14 flex items-center gap-3 px-4 border-b border-white/[0.05]">
-        <div className="w-8 h-8 rounded-xl bg-violet-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-violet-600/20">
-          <Car size={15} className="text-white" />
+    <aside className="hidden w-60 shrink-0 flex-col border-[#ececec] bg-white ltr:border-r rtl:border-l lg:flex">
+      {/* Brand */}
+      <div className="flex h-16 items-center gap-3 px-5">
+        <div
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-sm font-bold text-white"
+          style={{ backgroundColor: tenant.color_accent || '#75ACE8' }}
+        >
+          {brandName?.charAt(0)?.toUpperCase() ?? 'C'}
         </div>
-        {!collapsed && (
-          <div className="overflow-hidden">
-            <p className="text-sm font-semibold text-white truncate leading-none">
-              {lang === 'ar' ? (tenant.name_ar || tenant.name) : tenant.name}
-            </p>
-            <p className="text-[10px] text-white/30 mt-0.5">Dashboard</p>
-          </div>
-        )}
+        <div className="min-w-0">
+          <p className="truncate text-sm font-bold leading-tight">{brandName}</p>
+          <p className="text-[11px] text-[#9aa0a8]">{t.dashboard}</p>
+        </div>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 py-3 px-2">
-        {navItems.map(item => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={`
-              flex items-center gap-3 px-3 py-2.5 rounded-xl mb-1
-              text-sm font-medium transition-all
-              ${isActive(item.href)
-                ? 'bg-violet-600/20 text-violet-300'
-                : 'text-white/40 hover:text-white hover:bg-white/[0.05]'}
-            `}
-          >
-            <span className="flex-shrink-0">{item.icon}</span>
-            {!collapsed && <span>{item.label}</span>}
-          </Link>
-        ))}
+      <nav className="flex-1 space-y-1 px-3 py-4">
+        {nav.map((item) => {
+          const active = isActive(item.href, item.exact);
+          const Icon = item.icon;
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
+                active
+                  ? 'bg-[#75ACE8]/12 text-[#3d7cc0]'
+                  : 'text-[#6b7178] hover:bg-[#f0f1f3] hover:text-[#1a1d21]'
+              }`}
+            >
+              <Icon size={18} className="shrink-0" />
+              <span>{item.label}</span>
+            </Link>
+          );
+        })}
       </nav>
-
-      {/* Bottom actions */}
-      <div className="p-2 border-t border-white/[0.05] space-y-1">
-        {/* Language toggle */}
-        <button
-          onClick={() => setLang(l => l === 'en' ? 'ar' : 'en')}
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-white/30 hover:text-white/60 hover:bg-white/[0.04] transition-all"
-        >
-          <Globe size={15} className="flex-shrink-0" />
-          {!collapsed && (
-            <span className="text-xs">{lang === 'en' ? 'العربية' : 'English'}</span>
-          )}
-        </button>
-
-        {/* Logout */}
-        <button
-          onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-white/30 hover:text-red-400 hover:bg-red-500/[0.06] transition-all"
-        >
-          <LogOut size={15} className="flex-shrink-0" />
-          {!collapsed && <span className="text-xs">{t.logout}</span>}
-        </button>
-
-        {/* Collapse toggle */}
-        <button
-          onClick={() => setCollapsed(c => !c)}
-          className="w-full flex items-center justify-center py-2 rounded-xl text-white/20 hover:text-white/40 hover:bg-white/[0.03] transition-all"
-        >
-          {collapsed
-            ? <ChevronRight size={14} />
-            : <ChevronLeft  size={14} />}
-        </button>
-      </div>
     </aside>
   );
 }

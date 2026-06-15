@@ -116,6 +116,7 @@ export type Database = {
           horsepower: number | null
           id: string
           images: string[] | null
+          insurance: string | null
           interior_color: string | null
           is_best_seller: boolean | null
           is_featured: boolean | null
@@ -124,6 +125,7 @@ export type Database = {
           is_popular: boolean | null
           listing_type: Database["public"]["Enums"]["listing_type"]
           mileage: number
+          mileage_limit: number | null
           min_rental_days: number | null
           model: string
           monthly_installment: number | null
@@ -142,6 +144,7 @@ export type Database = {
           security_deposit: number | null
           service_history: boolean | null
           slug: string
+          status: string
           tenant_id: string
           thumbnail: string | null
           top_speed: number | null
@@ -181,6 +184,7 @@ export type Database = {
           horsepower?: number | null
           id?: string
           images?: string[] | null
+          insurance?: string | null
           interior_color?: string | null
           is_best_seller?: boolean | null
           is_featured?: boolean | null
@@ -189,6 +193,7 @@ export type Database = {
           is_popular?: boolean | null
           listing_type: Database["public"]["Enums"]["listing_type"]
           mileage?: number
+          mileage_limit?: number | null
           min_rental_days?: number | null
           model: string
           monthly_installment?: number | null
@@ -207,6 +212,7 @@ export type Database = {
           security_deposit?: number | null
           service_history?: boolean | null
           slug: string
+          status?: string
           tenant_id: string
           thumbnail?: string | null
           top_speed?: number | null
@@ -246,6 +252,7 @@ export type Database = {
           horsepower?: number | null
           id?: string
           images?: string[] | null
+          insurance?: string | null
           interior_color?: string | null
           is_best_seller?: boolean | null
           is_featured?: boolean | null
@@ -254,6 +261,7 @@ export type Database = {
           is_popular?: boolean | null
           listing_type?: Database["public"]["Enums"]["listing_type"]
           mileage?: number
+          mileage_limit?: number | null
           min_rental_days?: number | null
           model?: string
           monthly_installment?: number | null
@@ -272,6 +280,7 @@ export type Database = {
           security_deposit?: number | null
           service_history?: boolean | null
           slug?: string
+          status?: string
           tenant_id?: string
           thumbnail?: string | null
           top_speed?: number | null

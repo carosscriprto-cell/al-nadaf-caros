@@ -68,6 +68,59 @@
     "passenger_labels": {
       "one": "راكب",
       "other": "ركاب"
-    }
+    },
+    "meta": {
+      "title": "احجز مركبة",
+      "description": "احجز مركبتك في خطوات بسيطة — اختر السيارة والموقع والوقت."
+    },
+    "header": {
+      "title": "احجز مركبة",
+      "subtitle": "سريع وسهل",
+      "description": "اختر مركبة، حدّد موقع الاستلام والوقت، ثم أكّد عبر واتساب."
+    },
+    "steps": {
+      "vehicle": "المركبة",
+      "location": "الموقع",
+      "datetime": "التاريخ والوقت",
+      "confirmation": "التأكيد",
+      "select_vehicle": "اختر مركبة",
+      "select_location": "اختر موقع الاستلام",
+      "select_datetime": "اختر التاريخ والوقت",
+      "review_confirm": "المراجعة والتأكيد",
+      "vehicle_description": "{count} مركبة متاحة في {city}",
+      "location_description": "أين نوصّل لك السيارة؟",
+      "datetime_description": "متى تحتاج السيارة؟",
+      "confirm_description": "راجع حجزك قبل الإرسال."
+    },
+    "booking_summary": {
+      "title": "ملخص الحجز",
+      "vehicle": "المركبة",
+      "dates": "التواريخ",
+      "pickup": "الاستلام",
+      "time": "الوقت",
+      "day": "يوم",
+      "night": "ليلة",
+      "security_deposit": "مبلغ التأمين",
+      "estimated_total": "الإجمالي التقديري"
+    },
+    "buttons": {
+      "back": "رجوع",
+      "continue": "متابعة",
+      "review_booking": "مراجعة الحجز",
+      "reset": "البدء من جديد",
+      "whatsapp_button": "التأكيد عبر واتساب"
+    },
+    "pickup_locations": {
+      "airport": "المطار",
+      "mezzeh": "المزة",
+      "hotel": "فندق",
+      "custom": "موقع مخصص"
+    },
+    "search": {
+      "placeholder": "ابحث عن مركبة…",
+      "no_results": "لا توجد مركبات تطابق بحثك."
+    },
+    "duration": "المدة",
+    "finalize_message": "راجع تفاصيلك ثم أكّد الحجز عبر واتساب."
   }
 }

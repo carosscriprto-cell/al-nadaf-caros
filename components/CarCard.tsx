@@ -119,6 +119,22 @@ export default function CarCard({
         {/* Top badges */}
         <div className="absolute left-4 right-4 top-3 flex items-start justify-between gap-3">
           <div className="flex flex-wrap gap-2">
+            {(car.status === 'sold' || car.status === 'reserved') && (
+              <span
+                className={`inline-flex items-center rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-white backdrop-blur-md ${
+                  car.status === 'sold' ? 'bg-red-600/85' : 'bg-amber-500/85'
+                }`}
+              >
+                {car.status === 'sold'
+                  ? locale === 'ar'
+                    ? 'مُباعة'
+                    : 'Sold'
+                  : locale === 'ar'
+                    ? 'محجوزة'
+                    : 'Reserved'}
+              </span>
+            )}
+
             {car.isFeatured && (
               <span className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-black/30 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/90 backdrop-blur-md">
                 <Sparkles className="h-3 w-3 text-amber-300" />

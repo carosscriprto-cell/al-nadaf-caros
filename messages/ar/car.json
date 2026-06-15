@@ -129,7 +129,7 @@
         "fuel_consumption_city": "استهلاك المدينة",
         "fuel_consumption_highway": "استهلاك الطريق السريع",
         "fuel_tank_capacity": "سعة خزان الوقود",
-        "distance_per_20l": "المسافة لكل 20 لتر",
+        "distance_per_20l": "المدى لكل 20 لتر (كم)",
         "electric_range": "المدى الكهربائي",
         "savings": "توفير {value}"
       },

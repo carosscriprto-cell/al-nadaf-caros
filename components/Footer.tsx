@@ -46,13 +46,11 @@ export default function Footer() {
   const companyLinks = [
     { href: `/${locale}/about`, label: t('footer.links.about') },
     { href: `/${locale}/fleet`, label: t('footer.links.fleet') },
-    { href: `/${locale}/sales`, label: t('footer.links.sales') },
     { href: `/${locale}/contact`, label: t('footer.links.contact') },
   ];
 
   const serviceLinks = [
-    { href: `/${locale}/rental`, label: t('footer.services.rental') },
-    { href: `/${locale}/sales`, label: t('footer.services.sales') },
+    { href: `/${locale}/fleet`, label: t('footer.links.fleet') },
     { href: `/${locale}/services`, label: t('footer.services.chauffeur') },
     { href: `/${locale}/booking`, label: t('footer.services.booking') },
   ];

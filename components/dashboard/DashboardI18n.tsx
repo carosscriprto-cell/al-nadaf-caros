@@ -1,0 +1,178 @@
+'use client';
+
+// Dashboard i18n — shared lang (en/ar) + RTL, persisted to a cookie. The
+// dashboard sits outside the storefront [locale] tree, so it owns its own
+// dictionary (mirrors the storefront enum labels, completed for the
+// market-complete enums) and an `el()` enum-label helper.
+
+import { createContext, useCallback, useContext, useMemo, useState } from 'react';
+
+export type DashLang = 'en' | 'ar';
+
+type EnumMap = Record<string, string>;
+type EnumGroups = {
+  category: EnumMap; class: EnumMap; condition: EnumMap; listing_type: EnumMap;
+  fuel_type: EnumMap; transmission: EnumMap; drivetrain: EnumMap; status: EnumMap; currency: EnumMap;
+};
+
+const enums: Record<DashLang, EnumGroups> = {
+  en: {
+    category: { sedan: 'Sedan', suv: 'SUV', coupe: 'Coupe', hatchback: 'Hatchback', convertible: 'Convertible', pickup: 'Pickup', electric: 'Electric', sports: 'Sports', wagon: 'Wagon', crossover: 'Crossover', van: 'Van', minivan: 'Minivan', truck: 'Truck', mpv: 'MPV', supercar: 'Supercar', roadster: 'Roadster' },
+    class: { economy: 'Economy', standard: 'Standard', premium: 'Premium', luxury: 'Luxury', executive: 'Executive', performance: 'Performance', 'ultra-luxury': 'Ultra-luxury' },
+    condition: { new: 'New', used: 'Used', certified: 'Certified' },
+    listing_type: { rent: 'For Rent', sale: 'For Sale', both: 'Rent / Sale' },
+    fuel_type: { petrol: 'Petrol', diesel: 'Diesel', hybrid: 'Hybrid', electric: 'Electric', 'plug-in-hybrid': 'Plug-in Hybrid' },
+    transmission: { automatic: 'Automatic', manual: 'Manual', cvt: 'CVT', 'dual-clutch': 'Dual-clutch', 'semi-automatic': 'Semi-automatic' },
+    drivetrain: { FWD: 'FWD', RWD: 'RWD', AWD: 'AWD', '4WD': '4WD' },
+    status: { available: 'Available', sold: 'Sold', reserved: 'Reserved' },
+    currency: { USD: 'USD', EUR: 'EUR', AED: 'AED' },
+  },
+  ar: {
+    category: { sedan: 'سيدان', suv: 'دفع رباعي', coupe: 'كوبيه', hatchback: 'هاتشباك', convertible: 'كشف', pickup: 'بيك أب', electric: 'كهربائية', sports: 'رياضية', wagon: 'ستيشن', crossover: 'كروس أوفر', van: 'فان', minivan: 'ميني فان', truck: 'شاحنة', mpv: 'متعددة الاستخدامات', supercar: 'خارقة', roadster: 'رودستر' },
+    class: { economy: 'اقتصادية', standard: 'قياسية', premium: 'مميزة', luxury: 'فاخرة', executive: 'تنفيذية', performance: 'عالية الأداء', 'ultra-luxury': 'فائقة الفخامة' },
+    condition: { new: 'جديدة', used: 'مستعملة', certified: 'معتمدة' },
+    listing_type: { rent: 'للإيجار', sale: 'للبيع', both: 'إيجار / بيع' },
+    fuel_type: { petrol: 'بنزين', diesel: 'ديزل', hybrid: 'هايبرد', electric: 'كهربائية', 'plug-in-hybrid': 'هايبرد قابل للشحن' },
+    transmission: { automatic: 'أوتوماتيك', manual: 'يدوي', cvt: 'ناقل متغير', 'dual-clutch': 'قابض مزدوج', 'semi-automatic': 'نصف أوتوماتيك' },
+    drivetrain: { FWD: 'دفع أمامي', RWD: 'دفع خلفي', AWD: 'دفع كلي', '4WD': 'دفع رباعي' },
+    status: { available: 'متاحة', sold: 'مُباعة', reserved: 'محجوزة' },
+    currency: { USD: 'USD', EUR: 'EUR', AED: 'AED' },
+  },
+};
+
+const DICT = {
+  en: {
+    overview: 'Overview', inventory: 'Inventory', signOut: 'Sign out', dashboard: 'Dashboard', langToggle: 'العربية',
+    welcome: 'Welcome back', totalCars: 'Total vehicles', available: 'Available', hidden: 'Hidden', featured: 'Featured',
+    overviewHint: 'Manage your inventory from the Inventory section.',
+    inventoryTitle: 'Inventory', inventorySubtitle: 'Manage your vehicles — availability, status, and details.',
+    addCar: 'Add vehicle', search: 'Search brand, model…', noCars: 'No vehicles yet', noCarsHint: 'Add your first vehicle to get started.',
+    // table
+    colVehicle: 'Vehicle', colListing: 'Listing', colStatus: 'Status', colPrice: 'Price', colFeatured: 'Featured', colVisible: 'Visible', colActions: 'Actions',
+    allStatuses: 'All statuses', allTypes: 'All types', forSale: 'For Sale', forRent: 'For Rent',
+    selected: 'selected', show: 'Show', hide: 'Hide', feature: 'Feature', unfeature: 'Unfeature', del: 'Delete', vehicles: 'vehicles',
+    deleteOneTitle: 'Delete vehicle?', deleteManyTitle: 'Delete selected vehicles?', cannotUndo: 'This cannot be undone.', cancel: 'Cancel',
+    // price edit
+    editPrice: 'Edit price', salePrice: 'Sale price', rentalDaily: 'Daily rental', monthlyPrice: 'Monthly', oldPrice: 'Was (old price)', save: 'Save', noPriceForType: 'No editable price for this listing type.',
+    adjustPrice: 'Adjust price', byAmount: 'By amount', byPercent: 'By percentage', increase: 'Increase', decrease: 'Decrease', value: 'Value', apply: 'Apply',
+    willUpdate: 'This will update', applyHint: 'Sale prices adjust the sale total; rental prices adjust the daily rate. Cars without that price are skipped.',
+    // form
+    addVehicle: 'Add vehicle', editVehicle: 'Edit vehicle', saving: 'Saving…',
+    secBasics: 'Basics', secClass: 'Classification', secVisibility: 'Visibility', secPricing: 'Pricing', secSpecs: 'Specs', secLocation: 'Location', secContent: 'Content',
+    fixFields: 'Please fix the highlighted fields', vehicleAdded: 'Vehicle added', vehicleUpdated: 'Vehicle updated', required: 'Required',
+    showOnStore: 'Show on storefront', showSoldHint: 'Shown with a SOLD/RESERVED badge and no booking CTA', negotiable: 'Price negotiable',
+    f: {
+      brand: 'Brand', model: 'Model', year: 'Year', trim: 'Trim', listing_type: 'Listing', condition: 'Condition', category: 'Category', class: 'Class', status: 'Status',
+      currency: 'Currency', price_daily: 'Daily', price_monthly: 'Monthly', price_total: 'Total / Sale', security_deposit: 'Deposit',
+      transmission: 'Transmission', fuel_type: 'Fuel', drivetrain: 'Drivetrain', seats: 'Seats', doors: 'Doors', mileage: 'Mileage', color: 'Color', engine: 'Engine', horsepower: 'Horsepower',
+      city: 'City', country: 'Country', title_en: 'Title (EN)', title_ar: 'Title (AR)', short_en: 'Short desc (EN)', short_ar: 'Short desc (AR)',
+    },
+    cf: {
+      secBasics: 'Basics', secClassification: 'Classification', secPromotion: 'Promotion & visibility', secSpecs: 'Specifications', secConsumption: 'Fuel consumption', secLocation: 'Location & delivery', secSale: 'Sale pricing & details', secRental: 'Rental pricing & terms', secOwnership: 'Ownership history', secHighlights: 'Highlights', secFeatures: 'Features', secContent: 'Description & content',
+      chooseTitle: 'What are you listing?', chooseHint: 'Pick how this vehicle is offered.', typeSale: 'For Sale', typeRent: 'For Rent', typeBoth: 'Sale & Rent',
+      addTitle: 'Add vehicle', editTitle: 'Edit vehicle', backToList: 'Back to inventory', createBtn: 'Add vehicle', saveBtn: 'Save changes', saving: 'Saving…', fixFields: 'Please fix the highlighted fields', tagHint: 'Type and press Enter', required: 'Required', createdToast: 'Vehicle added', updatedToast: 'Vehicle updated', limitReached: "You've reached your plan's limit",
+      brand: 'Brand', model: 'Model', year: 'Year', trim: 'Trim', listing_type: 'Listing type', condition: 'Condition', category: 'Category', class: 'Class', status: 'Status',
+      currency: 'Currency', price_total: 'Sale price', price_old: 'Old price (was)', monthly_installment: 'Monthly installment', price_daily: 'Daily', price_weekly: 'Weekly', price_monthly: 'Monthly', price_hourly: 'Hourly', security_deposit: 'Security deposit', min_rental_days: 'Min rental days', mileage_limit: 'Mileage limit (km/day)', insurance: 'Insurance',
+      transmission: 'Transmission', fuel_type: 'Fuel', drivetrain: 'Drivetrain', seats: 'Seats', doors: 'Doors', mileage: 'Mileage (km)', color: 'Exterior color', interior_color: 'Interior color', engine: 'Engine', cylinders: 'Cylinders', horsepower: 'Horsepower', torque: 'Torque (Nm)', top_speed: 'Top speed (km/h)', acceleration: 'Acceleration (0-100)', fuel_tank: 'Fuel tank (L)', electric_range: 'Electric range (km)', fuel_city: 'City (L/100)', fuel_highway: 'Highway (L/100)', fuel_combined: 'Combined (L/100)', fuel_per20: 'Range per 20 L (km)',
+      city: 'City', country: 'Country', address: 'Address', pickup_locations: 'Pickup locations', owners_count: 'Previous owners',
+      title: 'Title', short_description: 'Short description', description: 'Full description', warranty: 'Warranty',
+      features: 'Features', comfort: 'Comfort features', safety: 'Safety features', entertainment: 'Entertainment', requirements: 'Requirements', included_services: 'Included services', ideal_for: 'Ideal for', pros: 'Pros', cons: 'Considerations',
+      available: 'Show on storefront', availableHint: 'Visible to the public', showSoldHint: 'Shown with a SOLD/RESERVED badge and no booking CTA',
+      featured: 'Featured', featuredHint: 'Highlight in featured sections', hero: 'Hero spotlight', heroHint: 'Show in the homepage hero', popular: 'Popular', newArrival: 'New arrival', bestSeller: 'Best seller',
+      negotiable: 'Price negotiable', financing: 'Financing available', delivery: 'Delivery available', accidentFree: 'Accident-free', serviceHistory: 'Full service history',
+      tabEn: 'English', tabAr: 'العربية',
+      ph: {
+        brand: 'Toyota', model: 'Camry', year: '2022', trim: 'GLX',
+        price_total: '25000', price_old: '28000', monthly_installment: '450',
+        price_daily: '50', price_weekly: '300', price_monthly: '1000', price_hourly: '10', security_deposit: '500', min_rental_days: '2', mileage_limit: '250', insurance: 'Comprehensive',
+        seats: '5', doors: '4', mileage: '45000', color: 'White', interior_color: 'Black', engine: '2.0L Turbo', cylinders: '4', horsepower: '200', torque: '350', top_speed: '240', acceleration: '0-100 in 7.2s', fuel_tank: '60', electric_range: '450', fuel_city: '9.5', fuel_highway: '6.5', fuel_combined: '8.0', fuel_per20: '280',
+        city: 'Damascus', country: 'Syria', address: 'Mezzeh, Damascus', owners_count: '1',
+        title: 'Toyota Camry 2022', short_description: 'Well-maintained, low mileage, single owner', description: 'Full vehicle description…', warranty: '2 years',
+      },
+    },
+  },
+  ar: {
+    overview: 'نظرة عامة', inventory: 'المخزون', signOut: 'تسجيل الخروج', dashboard: 'لوحة التحكم', langToggle: 'English',
+    welcome: 'مرحباً بعودتك', totalCars: 'إجمالي المركبات', available: 'متاحة', hidden: 'مخفية', featured: 'مميّزة',
+    overviewHint: 'أدر مخزونك من قسم المخزون.',
+    inventoryTitle: 'المخزون', inventorySubtitle: 'أدر مركباتك — التوفر والحالة والتفاصيل.',
+    addCar: 'إضافة مركبة', search: 'ابحث بالماركة أو الموديل…', noCars: 'لا توجد مركبات بعد', noCarsHint: 'أضف أول مركبة للبدء.',
+    colVehicle: 'المركبة', colListing: 'العرض', colStatus: 'الحالة', colPrice: 'السعر', colFeatured: 'مميّزة', colVisible: 'ظاهرة', colActions: 'إجراءات',
+    allStatuses: 'كل الحالات', allTypes: 'كل الأنواع', forSale: 'للبيع', forRent: 'للإيجار',
+    selected: 'محدد', show: 'إظهار', hide: 'إخفاء', feature: 'تمييز', unfeature: 'إلغاء التمييز', del: 'حذف', vehicles: 'مركبة',
+    deleteOneTitle: 'حذف المركبة؟', deleteManyTitle: 'حذف المركبات المحددة؟', cannotUndo: 'لا يمكن التراجع عن هذا.', cancel: 'إلغاء',
+    editPrice: 'تعديل السعر', salePrice: 'سعر البيع', rentalDaily: 'الإيجار اليومي', monthlyPrice: 'الشهري', oldPrice: 'السعر السابق', save: 'حفظ', noPriceForType: 'لا يوجد سعر قابل للتعديل لهذا النوع.',
+    adjustPrice: 'تعديل الأسعار', byAmount: 'بمبلغ ثابت', byPercent: 'بنسبة مئوية', increase: 'زيادة', decrease: 'خفض', value: 'القيمة', apply: 'تطبيق',
+    willUpdate: 'سيتم تحديث', applyHint: 'أسعار البيع تعدّل سعر البيع الكلي؛ أسعار الإيجار تعدّل السعر اليومي. تُتجاهل المركبات بدون هذا السعر.',
+    addVehicle: 'إضافة مركبة', editVehicle: 'تعديل المركبة', saving: 'جارٍ الحفظ…',
+    secBasics: 'الأساسيات', secClass: 'التصنيف', secVisibility: 'الظهور', secPricing: 'التسعير', secSpecs: 'المواصفات', secLocation: 'الموقع', secContent: 'المحتوى (عربي / إنجليزي)',
+    fixFields: 'يرجى تصحيح الحقول المميزة', vehicleAdded: 'تمت إضافة المركبة', vehicleUpdated: 'تم تحديث المركبة', required: 'مطلوب',
+    showOnStore: 'إظهار على المتجر', showSoldHint: 'ستظهر مع شارة "مُباعة/محجوزة" وبدون زر الحجز', negotiable: 'قابل للتفاوض',
+    f: {
+      brand: 'الماركة', model: 'الموديل', year: 'السنة', trim: 'الفئة', listing_type: 'العرض', condition: 'الحالة', category: 'النوع', class: 'الفئة', status: 'الحالة',
+      currency: 'العملة', price_daily: 'يومي', price_monthly: 'شهري', price_total: 'الكلي / البيع', security_deposit: 'التأمين',
+      transmission: 'ناقل الحركة', fuel_type: 'الوقود', drivetrain: 'الدفع', seats: 'المقاعد', doors: 'الأبواب', mileage: 'المسافة', color: 'اللون', engine: 'المحرك', horsepower: 'القوة',
+      city: 'المدينة', country: 'الدولة', title_en: 'العنوان (EN)', title_ar: 'العنوان (AR)', short_en: 'وصف مختصر (EN)', short_ar: 'وصف مختصر (AR)',
+    },
+    cf: {
+      secBasics: 'الأساسيات', secClassification: 'التصنيف', secPromotion: 'الترويج والظهور', secSpecs: 'المواصفات', secConsumption: 'استهلاك الوقود', secLocation: 'الموقع والتوصيل', secSale: 'تفاصيل وأسعار البيع', secRental: 'أسعار وشروط الإيجار', secOwnership: 'سجل الملكية', secHighlights: 'أبرز النقاط', secFeatures: 'المزايا', secContent: 'الوصف والمحتوى',
+      chooseTitle: 'ما نوع العرض؟', chooseHint: 'اختر طريقة عرض هذه المركبة.', typeSale: 'للبيع', typeRent: 'للإيجار', typeBoth: 'بيع وإيجار',
+      addTitle: 'إضافة مركبة', editTitle: 'تعديل المركبة', backToList: 'العودة للمخزون', createBtn: 'إضافة مركبة', saveBtn: 'حفظ التغييرات', saving: 'جارٍ الحفظ…', fixFields: 'يرجى تصحيح الحقول المميزة', tagHint: 'اكتب ثم اضغط Enter', required: 'مطلوب', createdToast: 'تمت إضافة المركبة', updatedToast: 'تم تحديث المركبة', limitReached: 'لقد وصلت إلى حد باقتك',
+      brand: 'الماركة', model: 'الموديل', year: 'السنة', trim: 'الطراز', listing_type: 'نوع العرض', condition: 'الحالة', category: 'النوع', class: 'الفئة', status: 'حالة العرض',
+      currency: 'العملة', price_total: 'سعر البيع', price_old: 'السعر السابق', monthly_installment: 'القسط الشهري', price_daily: 'يومي', price_weekly: 'أسبوعي', price_monthly: 'شهري', price_hourly: 'بالساعة', security_deposit: 'مبلغ التأمين', min_rental_days: 'أقل عدد أيام', mileage_limit: 'حد المسافة (كم/يوم)', insurance: 'التأمين',
+      transmission: 'ناقل الحركة', fuel_type: 'الوقود', drivetrain: 'الدفع', seats: 'المقاعد', doors: 'الأبواب', mileage: 'المسافة (كم)', color: 'اللون الخارجي', interior_color: 'اللون الداخلي', engine: 'المحرك', cylinders: 'الأسطوانات', horsepower: 'القوة', torque: 'العزم', top_speed: 'السرعة القصوى', acceleration: 'التسارع (0-100)', fuel_tank: 'خزان الوقود (لتر)', electric_range: 'المدى الكهربائي (كم)', fuel_city: 'المدينة (لتر/100)', fuel_highway: 'الطريق (لتر/100)', fuel_combined: 'مشترك (لتر/100)', fuel_per20: 'المدى لكل 20 لتر (كم)',
+      city: 'المدينة', country: 'الدولة', address: 'العنوان', pickup_locations: 'مواقع الاستلام', owners_count: 'الملاك السابقون',
+      title: 'العنوان', short_description: 'وصف مختصر', description: 'الوصف الكامل', warranty: 'الضمان',
+      features: 'المزايا', comfort: 'مزايا الراحة', safety: 'مزايا الأمان', entertainment: 'الترفيه', requirements: 'المتطلبات', included_services: 'الخدمات المشمولة', ideal_for: 'مثالية لـ', pros: 'الإيجابيات', cons: 'اعتبارات',
+      available: 'إظهار على المتجر', availableHint: 'ظاهرة للعامة', showSoldHint: 'تظهر مع شارة "مُباعة/محجوزة" وبدون زر الحجز',
+      featured: 'مميّزة', featuredHint: 'إبراز في الأقسام المميزة', hero: 'العرض الرئيسي', heroHint: 'الظهور في الواجهة الرئيسية', popular: 'شائعة', newArrival: 'وصلت حديثاً', bestSeller: 'الأكثر مبيعاً',
+      negotiable: 'قابل للتفاوض', financing: 'تمويل متاح', delivery: 'توصيل متاح', accidentFree: 'خالية من الحوادث', serviceHistory: 'سجل صيانة كامل',
+      tabEn: 'English', tabAr: 'العربية',
+      ph: {
+        brand: 'Toyota', model: 'Camry', year: '2022', trim: 'GLX',
+        price_total: '25000', price_old: '28000', monthly_installment: '450',
+        price_daily: '50', price_weekly: '300', price_monthly: '1000', price_hourly: '10', security_deposit: '500', min_rental_days: '2', mileage_limit: '250', insurance: 'تأمين شامل',
+        seats: '5', doors: '4', mileage: '45000', color: 'أبيض', interior_color: 'أسود', engine: '2.0 لتر تيربو', cylinders: '4', horsepower: '200', torque: '350', top_speed: '240', acceleration: '0-100 في 7.2 ث', fuel_tank: '60', electric_range: '450', fuel_city: '9.5', fuel_highway: '6.5', fuel_combined: '8.0', fuel_per20: '280',
+        city: 'دمشق', country: 'سوريا', address: 'المزة، دمشق', owners_count: '1',
+        title: 'تويوتا كامري 2022', short_description: 'بحالة ممتازة، مسافة قليلة، مالك واحد', description: 'وصف كامل للمركبة…', warranty: 'سنتان',
+      },
+    },
+  },
+};
+
+export type DashDict = (typeof DICT)['en'];
+
+type Ctx = {
+  lang: DashLang;
+  dir: 'rtl' | 'ltr';
+  t: DashDict;
+  toggle: () => void;
+  el: (group: keyof EnumGroups, value: string) => string;
+};
+const DashI18nContext = createContext<Ctx | null>(null);
+
+export function DashI18nProvider({ initialLang = 'en', children }: { initialLang?: DashLang; children: React.ReactNode }) {
+  const [lang, setLang] = useState<DashLang>(initialLang);
+
+  const toggle = useCallback(() => {
+    setLang((prev) => {
+      const next = prev === 'en' ? 'ar' : 'en';
+      document.cookie = `caros_dash_lang=${next}; path=/; max-age=31536000; samesite=lax`;
+      return next;
+    });
+  }, []);
+
+  const value = useMemo<Ctx>(() => {
+    const dir = lang === 'ar' ? 'rtl' : 'ltr';
+    const el = (group: keyof EnumGroups, v: string) => enums[lang][group]?.[v] ?? v;
+    return { lang, dir, t: DICT[lang], toggle, el };
+  }, [lang, toggle]);
+
+  return <DashI18nContext.Provider value={value}>{children}</DashI18nContext.Provider>;
+}
+
+export function useDash() {
+  const ctx = useContext(DashI18nContext);
+  if (!ctx) throw new Error('useDash must be used within DashI18nProvider');
+  return ctx;
+}

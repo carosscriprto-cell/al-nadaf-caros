@@ -14,6 +14,11 @@ export type Currency = Enums<'currency'>;              // USD | EUR | AED
 export type CarClass = Enums<'car_class'>;
 export type ContentLocale = Enums<'content_locale'>;   // ar | en
 
+// Lifecycle status (P5a). Stored in cars.status (text + CHECK). Independent of
+// `available`: a sold/reserved car may still be shown (with a badge) if the
+// dealer opts in. See lib/dashboard/carSchema + the cars.status migration.
+export type CarStatus = 'available' | 'sold' | 'reserved';
+
 // 'electric' exists in the DB car_category enum but is intentionally NOT a
 // domain category concept (it overlaps fuel_type). Live rows using it are
 // remapped in a P3 data-fix; until then the mapper guard logs + passes them.
@@ -65,6 +70,7 @@ export type Car = {
   isHero?: boolean;
   listingType: ListingType;
   condition: CarCondition;
+  status?: CarStatus;
   category: CarCategory;
   class: CarClass;
   pricing: CarPricing;

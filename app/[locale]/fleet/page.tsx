@@ -1,6 +1,8 @@
 import { setRequestLocale } from 'next-intl/server';
 import CarsListingPage from '@/components/pages/CarsListingPage';
 import { getAllCarsForSearch } from '@/lib/supabase/queries.server';
+import { getStorefrontFeatures } from '@/lib/supabase/getTenant';
+import { isHybridTenant } from '@/lib/tenant/features';
 
 export default async function FleetPage({
   params,
@@ -12,8 +14,10 @@ export default async function FleetPage({
   const locale = rawLocale === 'ar' ? 'ar' : 'en';
   setRequestLocale(locale);
 
-  const { cars, contentMap, contentAr, contentEn } =
-    await getAllCarsForSearch(locale);
+  const [{ cars, contentMap, contentAr, contentEn }, features] = await Promise.all([
+    getAllCarsForSearch(locale),
+    getStorefrontFeatures(),
+  ]);
 
   return (
     <CarsListingPage
@@ -22,7 +26,8 @@ export default async function FleetPage({
       contentAr={contentAr}
       contentEn={contentEn}
       type="all"
-      showTypeFilter
+      // Sale/Rent filter only for hybrid tenants (offer both).
+      showTypeFilter={isHybridTenant(features)}
     />
   );
 }

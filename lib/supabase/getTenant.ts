@@ -10,6 +10,7 @@ import { cache } from 'react';
 import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { createPublicServerClient } from './client';
+import { parseTenantFeatures, type TenantFeatures } from '@/lib/tenant/features';
 
 // ─── Current tenant id (from the resolved request header) ─────
 // Async because next/headers is async in this Next version. Wrapped in
@@ -46,4 +47,10 @@ export const getTenantConfig = cache(async () => {
   }
 
   return data;
+});
+
+// Parsed feature flags for the current storefront tenant (anon, RLS-scoped).
+export const getStorefrontFeatures = cache(async (): Promise<TenantFeatures> => {
+  const tenant = await getTenantConfig();
+  return parseTenantFeatures(tenant.features);
 });

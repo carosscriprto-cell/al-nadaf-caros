@@ -68,6 +68,59 @@
     "passenger_labels": {
       "one": "Passenger",
       "other": "Passengers"
-    }
+    },
+    "meta": {
+      "title": "Book a Vehicle",
+      "description": "Reserve your vehicle in a few steps — choose a car, location, and time."
+    },
+    "header": {
+      "title": "Book a Vehicle",
+      "subtitle": "Quick & Easy",
+      "description": "Pick a vehicle, choose your pickup location and time, and confirm via WhatsApp."
+    },
+    "steps": {
+      "vehicle": "Vehicle",
+      "location": "Location",
+      "datetime": "Date & Time",
+      "confirmation": "Confirmation",
+      "select_vehicle": "Select a vehicle",
+      "select_location": "Select pickup location",
+      "select_datetime": "Select date & time",
+      "review_confirm": "Review & confirm",
+      "vehicle_description": "{count} vehicles available in {city}",
+      "location_description": "Where should we deliver the car?",
+      "datetime_description": "When do you need the car?",
+      "confirm_description": "Review your booking before sending."
+    },
+    "booking_summary": {
+      "title": "Booking summary",
+      "vehicle": "Vehicle",
+      "dates": "Dates",
+      "pickup": "Pickup",
+      "time": "Time",
+      "day": "Day",
+      "night": "Night",
+      "security_deposit": "Security deposit",
+      "estimated_total": "Estimated total"
+    },
+    "buttons": {
+      "back": "Back",
+      "continue": "Continue",
+      "review_booking": "Review booking",
+      "reset": "Start over",
+      "whatsapp_button": "Confirm on WhatsApp"
+    },
+    "pickup_locations": {
+      "airport": "Airport",
+      "mezzeh": "Mezzeh",
+      "hotel": "Hotel",
+      "custom": "Custom location"
+    },
+    "search": {
+      "placeholder": "Search vehicles…",
+      "no_results": "No vehicles match your search."
+    },
+    "duration": "Duration",
+    "finalize_message": "Review your details, then confirm your booking on WhatsApp."
   }
 }

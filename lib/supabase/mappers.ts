@@ -59,6 +59,7 @@ export function mapDbCarToCar(row: DbCar): Car {
     isHero:        row.is_hero ?? false,
     listingType:   guardEnum(row.listing_type, Constants.public.Enums.listing_type, 'listing_type', row.id),
     condition:     guardEnum(row.condition, Constants.public.Enums.car_condition, 'condition', row.id),
+    status:        (row.status === 'sold' || row.status === 'reserved') ? row.status : 'available',
     category:      guardCategory(row.category, row.id),
     class:         guardEnum(row.class, Constants.public.Enums.car_class, 'class', row.id),
     available:     row.available,

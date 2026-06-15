@@ -51,8 +51,6 @@ export default function Navbar({ brandName, logoUrl }: NavbarProps) {
     () => [
       { href: '', label: t('nav.home') },
       { href: '/fleet', label: t('nav.fleet') },
-      { href: '/rental', label: t('nav.rental') },
-      { href: '/sales', label: t('nav.sales') },
       { href: '/services', label: t('nav.services') },
       { href: '/about', label: t('nav.about') },
       { href: '/contact', label: t('nav.contact') },

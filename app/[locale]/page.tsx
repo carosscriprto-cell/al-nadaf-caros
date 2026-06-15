@@ -1,5 +1,7 @@
 import { setRequestLocale } from 'next-intl/server';
 import { getAllCarsForSearch } from '@/lib/supabase/queries.server';
+import { getStorefrontFeatures } from '@/lib/supabase/getTenant';
+import { isHybridTenant } from '@/lib/tenant/features';
 import HeroSection from '@/components/hero/HeroSection';
 import FeaturedCarsSection from '@/components/home/FeaturedCarsSection';
 import WhyChooseUs from '@/components/home/WhyChooseUs';
@@ -24,12 +26,15 @@ export default async function Home({
 
   // Single source: Supabase. Fetch once on the server, drill into the client
   // hero/brand/banner components (which previously imported static data/cars.ts).
-  const { cars, contentMap, contentAr, contentEn } =
-    await getAllCarsForSearch(locale);
+  const [{ cars, contentMap, contentAr, contentEn }, features] = await Promise.all([
+    getAllCarsForSearch(locale),
+    getStorefrontFeatures(),
+  ]);
+  const hybrid = isHybridTenant(features);
 
   return (
     <div>
-      <HeroSection cars={cars} contentAr={contentAr} contentEn={contentEn} />
+      <HeroSection cars={cars} contentAr={contentAr} contentEn={contentEn} showTypeFilter={hybrid} />
       <BrandShowcase cars={cars} />
       <FeaturedCarsSection locale={locale} />
       <WhyChooseUs />

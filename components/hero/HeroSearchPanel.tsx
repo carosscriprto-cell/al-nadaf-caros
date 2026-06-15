@@ -30,9 +30,10 @@ type HeroSearchPanelProps = {
   cars: Car[];
   contentAr?: CarContentMap;
   contentEn?: CarContentMap;
+  showTypeFilter?: boolean;
 };
 
-export default function HeroSearchPanel({ cars, contentAr, contentEn }: HeroSearchPanelProps) {
+export default function HeroSearchPanel({ cars, contentAr, contentEn, showTypeFilter = true }: HeroSearchPanelProps) {
   const t = useTranslations();
   const router = useRouter();
   const locale = useLocale();
@@ -252,19 +253,21 @@ export default function HeroSearchPanel({ cars, contentAr, contentEn }: HeroSear
               options={fuelTypeOptions}
               anyLabel={t('hero.fuel')}
             />
-            <FilterSelect
-              value={filters.listingType}
-              onChange={(v) => {
-                if (v === '' || v === 'rent' || v === 'sale') {
-                  setFilter('listingType', v);
-                }
-              }}
-              options={[
-                { value: 'sale', label: t('hero.buy') },
-                { value: 'rent', label: t('hero.rent') },
-              ]}
-              anyLabel={t('hero.type')}
-            />
+            {showTypeFilter && (
+              <FilterSelect
+                value={filters.listingType}
+                onChange={(v) => {
+                  if (v === '' || v === 'rent' || v === 'sale') {
+                    setFilter('listingType', v);
+                  }
+                }}
+                options={[
+                  { value: 'sale', label: t('hero.buy') },
+                  { value: 'rent', label: t('hero.rent') },
+                ]}
+                anyLabel={t('hero.type')}
+              />
+            )}
           </div>
         </div>
 

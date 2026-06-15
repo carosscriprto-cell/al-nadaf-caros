@@ -31,14 +31,18 @@ type Props = {
   cars:       Car[];
   contentMap: CarContentMap;
   locale:     string;
+  showTypeTabs?: boolean;
 };
 
 const UI_LOADING_DELAY = 300;
 
-export default function FeaturedCarousel({ cars, contentMap, locale }: Props) {
+export default function FeaturedCarousel({ cars, contentMap, locale, showTypeTabs = true }: Props) {
   const tb = useTranslations('buttons');
   const tf = useTranslations('filters');
   const t  = useTranslations('');
+
+  // Hide For-Sale/For-Rent tabs for single-type tenants.
+  const visibleTabs = TABS.filter((tab) => (tab.id === 'rent' || tab.id === 'sale' ? showTypeTabs : true));
 
   const [activeTab,     setActiveTab]     = useState<FeaturedTab>('featured');
   const [isLoading,     setIsLoading]     = useState(false);
@@ -121,7 +125,7 @@ export default function FeaturedCarousel({ cars, contentMap, locale }: Props) {
 
         <div className="mb-2 flex items-center justify-between">
           <div className="flex flex-wrap gap-2 border-b border-border/40 rounded-xl p-2">
-            {TABS.map((tab) => {
+            {visibleTabs.map((tab) => {
               const isActive = activeTab === tab.id;
               return (
                 <button

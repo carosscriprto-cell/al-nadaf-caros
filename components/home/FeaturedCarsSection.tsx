@@ -1,4 +1,6 @@
 import { getAllCarsForSearch } from '@/lib/supabase/queries.server';
+import { getStorefrontFeatures } from '@/lib/supabase/getTenant';
+import { isHybridTenant } from '@/lib/tenant/features';
 import FeaturedCarousel from './FeaturedCarousel';
 
 // Locale is passed from the page (route param) — server getLocale() defaults to
@@ -8,14 +10,18 @@ export default async function FeaturedCarsSection({
 }: {
   locale: 'en' | 'ar';
 }) {
-  // نجلب كل السيارات لأن التابس تحتاج (featured, rent, sale, new)
-  const { cars, contentMap } = await getAllCarsForSearch(locale);
+  const [{ cars, contentMap }, features] = await Promise.all([
+    getAllCarsForSearch(locale),
+    getStorefrontFeatures(),
+  ]);
 
   return (
     <FeaturedCarousel
       cars={cars}
       contentMap={contentMap}
       locale={locale}
+      // Sale/Rent tabs only for hybrid tenants.
+      showTypeTabs={isHybridTenant(features)}
     />
   );
 }

@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { createServerClient } from '@supabase/ssr';
 import { resolveTenantId } from '@/lib/tenant/resolveTenant';
 
 // Self-contained 404 body for an unresolved host. Returned directly from
 // middleware so the status is a real 404 — every app route sits under a
 // loading.tsx boundary, so a notFound() in the render tree would stream a 200
-// first (wrong for SEO). Kept minimal/neutral: the tenant is unknown, so there
-// is no branding to apply.
+// first (wrong for SEO). Kept minimal/neutral: the tenant is unknown.
 const TENANT_NOT_FOUND_HTML = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -34,9 +34,50 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/en', request.url));
   }
 
-  // ─── Runtime tenant resolution (P4) ──────────────────────────
-  // Resolve the tenant from the request host and forward it to the app as a
-  // request header. Server components read it via getTenantId() (next/headers).
+  const isAuth = pathname.startsWith('/auth');
+  const isDashboard = pathname.startsWith('/dashboard');
+
+  // ─── Auth-gated app routes (P5a) ─────────────────────────────
+  // /dashboard and /auth are tenant-scoped by the logged-in USER (tenant_users),
+  // not by the storefront host — so skip host resolution / 404 here and run the
+  // Supabase session check instead (also refreshes the session cookie).
+  if (isAuth || isDashboard) {
+    let response = NextResponse.next({ request });
+
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll();
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+            response = NextResponse.next({ request });
+            cookiesToSet.forEach(({ name, value, options }) =>
+              response.cookies.set(name, value, options),
+            );
+          },
+        },
+      },
+    );
+
+    // getUser() validates the token with Supabase (secure; not just decode).
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (isDashboard && !user) {
+      const loginUrl = new URL('/auth/login', request.url);
+      loginUrl.searchParams.set('redirectTo', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+    if (isAuth && user) {
+      return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
+    return response;
+  }
+
+  // ─── Storefront: runtime tenant resolution (P4) ──────────────
   const host = request.headers.get('host') ?? '';
   const tenantId = await resolveTenantId(host);
 

@@ -42,9 +42,10 @@ type HeroSectionProps = {
   cars: Car[];
   contentAr?: CarContentMap;
   contentEn?: CarContentMap;
+  showTypeFilter?: boolean;
 };
 
-export default function HeroSection({ cars, contentAr, contentEn }: HeroSectionProps) {
+export default function HeroSection({ cars, contentAr, contentEn, showTypeFilter = true }: HeroSectionProps) {
   const t = useTranslations();
   const sectionRef = useRef<HTMLElement>(null);
 
@@ -196,7 +197,7 @@ export default function HeroSection({ cars, contentAr, contentEn }: HeroSectionP
             animate="visible"
             custom={0.36}
           >
-            <HeroSearchPanel cars={cars} contentAr={contentAr} contentEn={contentEn} />
+            <HeroSearchPanel cars={cars} contentAr={contentAr} contentEn={contentEn} showTypeFilter={showTypeFilter} />
           </motion.div>
         </div>
       </div>
