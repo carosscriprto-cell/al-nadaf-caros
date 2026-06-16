@@ -15,6 +15,7 @@ import { createCar, updateCar } from '@/app/dashboard/cars/actions';
 import type { DashCarWithContent } from '@/lib/dashboard/cars';
 import { useDash } from '../DashboardI18n';
 import { Section, TextField, NumField, SelField, SwitchField, TextareaField, TagInput } from './fields';
+import ImagesField from './ImagesField';
 
 const E = Constants.public.Enums;
 const STATUSES = ['available', 'sold', 'reserved'] as const;
@@ -53,6 +54,7 @@ function initial(car: DashCarWithContent | undefined, listing: Listing): CarForm
     top_speed: car?.top_speed ?? undefined, acceleration: car?.acceleration ?? '', fuel_tank_capacity: car?.fuel_tank_capacity ?? undefined,
     electric_range: car?.electric_range ?? undefined, fuel_city: car?.fuel_city ?? undefined, fuel_highway: car?.fuel_highway ?? undefined,
     fuel_combined: car?.fuel_combined ?? undefined, fuel_per_20km: car?.fuel_per_20km ?? undefined,
+    thumbnail: car?.thumbnail ?? '', images: car?.images ?? [],
     city: car?.city ?? '', country: car?.country ?? '', address: car?.address ?? '', delivery_available: car?.delivery_available ?? false,
     pickup_locations: car?.pickup_locations ?? [],
     owners_count: car?.owners_count ?? undefined, accident_free: car?.accident_free ?? false, service_history: car?.service_history ?? false,
@@ -60,12 +62,15 @@ function initial(car: DashCarWithContent | undefined, listing: Listing): CarForm
   };
 }
 
-export default function CarFormPage({ car, features }: { car?: DashCarWithContent; features: TenantFeatures }) {
+export default function CarFormPage({ car, features, tenantId }: { car?: DashCarWithContent; features: TenantFeatures; tenantId: string }) {
   const { t, el } = useDash();
   const cf = t.cf;
   const ph = cf.ph;
   const router = useRouter();
   const isEdit = !!car;
+  // Stable car id for storage paths ({tenant}/cars/{carId}/). On create we mint
+  // it client-side and pass it to createCar so the row uses the same id.
+  const [carId] = useState<string>(() => car?.id ?? crypto.randomUUID());
   const allowed = allowedListingTypes(features);
 
   // Resolved listing type: edit→existing; single-type tenant→that type; else chooser.
@@ -136,10 +141,12 @@ export default function CarFormPage({ car, features }: { car?: DashCarWithConten
     }
     setErrors({});
     setBusy(true);
-    const res = isEdit ? await updateCar({ id: car!.id, values: v }) : await createCar(v);
+    // Pass the client-minted id on create so the row matches the storage path.
+    const res = isEdit ? await updateCar({ id: car!.id, values: v }) : await createCar({ ...v, id: carId });
     setBusy(false);
     if (!res.ok) {
       if (res.error.startsWith('LIMIT_MAX_CARS:')) toast.error(`${cf.limitReached} (${res.error.split(':')[1]})`);
+      else if (res.error.startsWith('LIMIT_MAX_IMAGES:')) toast.error(`${cf.imgLimit} (${res.error.split(':')[1]})`);
       else toast.error(res.error);
       return;
     }
@@ -177,6 +184,16 @@ export default function CarFormPage({ car, features }: { car?: DashCarWithConten
         <SwitchField label={cf.newArrival} checked={v.is_new_arrival} onChange={(x) => set('is_new_arrival', x)} />
         <SwitchField label={cf.bestSeller} checked={v.is_best_seller} onChange={(x) => set('is_best_seller', x)} />
       </Section>
+
+      {/* Images */}
+      <ImagesField
+        tenantId={tenantId}
+        carId={carId}
+        images={v.images}
+        thumbnail={v.thumbnail}
+        maxImages={features.maxImagesPerCar}
+        onChange={(images, thumbnail) => setV((p) => ({ ...p, images, thumbnail }))}
+      />
 
       {/* Sale pricing & details */}
       {includeSale && (

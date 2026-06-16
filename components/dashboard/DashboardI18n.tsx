@@ -80,6 +80,7 @@ const DICT = {
       available: 'Show on storefront', availableHint: 'Visible to the public', showSoldHint: 'Shown with a SOLD/RESERVED badge and no booking CTA',
       featured: 'Featured', featuredHint: 'Highlight in featured sections', hero: 'Hero spotlight', heroHint: 'Show in the homepage hero', popular: 'Popular', newArrival: 'New arrival', bestSeller: 'Best seller',
       negotiable: 'Price negotiable', financing: 'Financing available', delivery: 'Delivery available', accidentFree: 'Accident-free', serviceHistory: 'Full service history',
+      imgTitle: 'Images', imgHint: 'JPG / PNG / WebP — compressed to WebP before upload', imgAdd: 'Add images', imgUploading: 'Uploading…', imgPrimary: 'Primary', imgSetPrimary: 'Set as primary', imgLimit: 'Image limit reached', imgInvalidType: 'Unsupported file type', imgTooLarge: 'File too large (max 15MB)', imgCompressed: 'Compressed',
       tabEn: 'English', tabAr: 'العربية',
       ph: {
         brand: 'Toyota', model: 'Camry', year: '2022', trim: 'GLX',
@@ -127,6 +128,7 @@ const DICT = {
       available: 'إظهار على المتجر', availableHint: 'ظاهرة للعامة', showSoldHint: 'تظهر مع شارة "مُباعة/محجوزة" وبدون زر الحجز',
       featured: 'مميّزة', featuredHint: 'إبراز في الأقسام المميزة', hero: 'العرض الرئيسي', heroHint: 'الظهور في الواجهة الرئيسية', popular: 'شائعة', newArrival: 'وصلت حديثاً', bestSeller: 'الأكثر مبيعاً',
       negotiable: 'قابل للتفاوض', financing: 'تمويل متاح', delivery: 'توصيل متاح', accidentFree: 'خالية من الحوادث', serviceHistory: 'سجل صيانة كامل',
+      imgTitle: 'الصور', imgHint: 'JPG / PNG / WebP — تُضغط إلى WebP قبل الرفع', imgAdd: 'إضافة صور', imgUploading: 'جارٍ الرفع…', imgPrimary: 'رئيسية', imgSetPrimary: 'تعيين كرئيسية', imgLimit: 'تم بلوغ حد الصور', imgInvalidType: 'نوع ملف غير مدعوم', imgTooLarge: 'الملف كبير جداً (الحد 15MB)', imgCompressed: 'تم الضغط',
       tabEn: 'English', tabAr: 'العربية',
       ph: {
         brand: 'Toyota', model: 'Camry', year: '2022', trim: 'GLX',

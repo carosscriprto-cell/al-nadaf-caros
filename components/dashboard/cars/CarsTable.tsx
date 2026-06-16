@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import ImageWithFallback from '@/components/ui/ImageWithFallback';
 import * as Checkbox from '@radix-ui/react-checkbox';
 import { toast } from 'sonner';
 import {
@@ -208,8 +209,15 @@ export default function CarsTable({ cars, showTypeFilter }: { cars: DashCarWithC
                   <tr key={c.id} className="border-b border-[#f3f3f3] last:border-0 hover:bg-[#fafbfc]">
                     <td className="px-4 py-3"><Cb checked={selected.has(c.id)} onChange={() => toggleRow(c.id)} /></td>
                     <td className="px-4 py-3">
-                      <div className="font-semibold capitalize">{c.brand} {c.model}</div>
-                      <div className="text-xs text-[#9aa0a8]">{c.year}{c.trim ? ` · ${c.trim}` : ''}</div>
+                      <div className="flex items-center gap-3">
+                        <div className="relative h-11 w-16 shrink-0 overflow-hidden rounded-lg bg-[#f0f1f3]">
+                          <ImageWithFallback src={c.thumbnail ?? ''} alt="" fill sizes="64px" className="object-cover" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="truncate font-semibold capitalize">{c.brand} {c.model}</div>
+                          <div className="text-xs text-[#9aa0a8]">{c.year}{c.trim ? ` · ${c.trim}` : ''}</div>
+                        </div>
+                      </div>
                     </td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex rounded-full border px-2.5 py-0.5 text-xs font-semibold ${LISTING_STYLES[c.listing_type] ?? 'border-[#e7e8ea] bg-[#f7f7f7] text-[#6b7178]'}`}>{el('listing_type', c.listing_type)}</span>

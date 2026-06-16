@@ -66,6 +66,10 @@ function mapFormToRow(d: CarFormValues) {
     delivery_available: d.delivery_available, pickup_locations: d.pickup_locations,
     // ownership (sale)
     owners_count: d.owners_count ?? null, accident_free: d.accident_free, service_history: d.service_history,
+    // media — thumbnail falls back to the first gallery image, else null (the
+    // mapper substitutes a placeholder for null).
+    thumbnail: d.thumbnail || d.images[0] || null,
+    images: d.images,
   };
 }
 
@@ -110,7 +114,12 @@ export async function createCar(values: CarFormValues): Promise<ActionResult & {
   }
 
   const d = parsed.data;
-  const row = { tenant_id: tenant.tenantId, thumbnail: '', images: [] as string[], ...mapFormToRow(d), slug: slugify(d.brand, d.model, d.year) };
+  // Layer 2 limit: maxImagesPerCar (-1 = unlimited).
+  const maxImg = num(tenant.features, 'maxImagesPerCar', 5);
+  if (maxImg !== -1 && d.images.length > maxImg) return { ok: false, error: `LIMIT_MAX_IMAGES:${maxImg}` };
+
+  // Use the client-supplied id (storage uploads already used {tenant}/cars/{id}/).
+  const row = { tenant_id: tenant.tenantId, ...mapFormToRow(d), slug: slugify(d.brand, d.model, d.year), ...(d.id ? { id: d.id } : {}) };
 
   let ins = await supabase.from('cars').insert(row).select('id').single();
   if (ins.error && /duplicate|unique/i.test(ins.error.message)) {
@@ -132,6 +141,11 @@ export async function updateCar(input: { id: string; values: CarFormValues }): P
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? 'Invalid input' };
 
   const supabase = await createSupabaseServerClient();
+  // Layer 2 limit: maxImagesPerCar.
+  const tenant = await getMyTenant(supabase);
+  const maxImg = num(tenant?.features ?? {}, 'maxImagesPerCar', 5);
+  if (maxImg !== -1 && parsed.data.images.length > maxImg) return { ok: false, error: `LIMIT_MAX_IMAGES:${maxImg}` };
+
   const { error } = await supabase.from('cars').update(mapFormToRow(parsed.data)).eq('id', input.id);
   if (error) return { ok: false, error: error.message };
 

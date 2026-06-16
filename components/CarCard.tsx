@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import ImageWithFallback from '@/components/ui/ImageWithFallback';
 import Link from 'next/link';
 import {
   ArrowRight,
@@ -98,7 +99,7 @@ export default function CarCard({
           <div className="absolute inset-0 animate-pulse bg-muted" />
         )}
 
-        <Image
+        <ImageWithFallback
           src={cardImage}
           alt={title}
           fill

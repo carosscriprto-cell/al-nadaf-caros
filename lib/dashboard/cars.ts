@@ -31,17 +31,23 @@ export async function getMyCarById(id: string): Promise<DashCarWithContent | nul
 
 // Parsed feature flags for the logged-in user's tenant.
 export async function getMyTenantFeatures(): Promise<TenantFeatures> {
+  return (await getMyTenantContext()).features;
+}
+
+// Tenant id + parsed features for the logged-in user (the form needs the id to
+// build storage upload paths {tenant_id}/cars/{car_id}/).
+export async function getMyTenantContext(): Promise<{ tenantId: string | null; features: TenantFeatures }> {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return parseTenantFeatures(null);
+  if (!user) return { tenantId: null, features: parseTenantFeatures(null) };
   const { data } = await supabase
     .from('tenant_users')
-    .select('tenant:tenants(features)')
+    .select('tenant_id, tenant:tenants(features)')
     .eq('user_id', user.id)
     .single();
-  return parseTenantFeatures(data?.tenant?.features);
+  return { tenantId: data?.tenant_id ?? null, features: parseTenantFeatures(data?.tenant?.features) };
 }
 
 export function carStats(cars: DashCar[]) {

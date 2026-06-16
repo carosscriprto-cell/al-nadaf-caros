@@ -14,6 +14,12 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'basemaps.cartocdn.com',
       },
+      {
+        // Supabase Storage public objects (car images live here, P5a Task 5).
+        protocol: 'https',
+        hostname: '*.supabase.co',
+        pathname: '/storage/v1/object/public/**',
+      },
     ],
   },
 };

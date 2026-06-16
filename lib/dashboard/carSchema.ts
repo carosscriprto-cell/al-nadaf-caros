@@ -45,6 +45,14 @@ export const carFormSchema = z.object({
   class: z.enum(E.car_class),
   status: z.enum(CAR_STATUSES).default('available'),
 
+  // ── media ──
+  // id is supplied by the client on CREATE so storage uploads can use the final
+  // car_id path ({tenant}/cars/{id}/) before the row exists. thumbnail = primary
+  // image; images = ordered gallery (public Storage URLs).
+  id: z.string().uuid().optional(),
+  thumbnail: z.string().trim().default(''),
+  images: z.array(z.string().trim()).default([]),
+
   // ── promotion / visibility ──
   available: z.boolean().default(true),
   is_featured: z.boolean().default(false),
