@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { siteConfig } from '@/config/site';
+import { persistThenWhatsApp } from '@/lib/leads/persistThenWhatsApp';
 
 export default function WhatsAppFloatingButton({
   locale = 'en',
@@ -12,19 +13,30 @@ export default function WhatsAppFloatingButton({
 
   const message =
     locale === 'ar'
-    ? 'مرحباً، اطلعت على موقعكم وأرغب بالحصول على مزيد من التفاصيل.'
-    : 'Hello, I visited your website and would like more details.';
+      ? 'مرحباً، اطلعت على موقعكم وأرغب بالحصول على مزيد من التفاصيل.'
+      : 'Hello, I visited your website and would like more details.';
 
-  const url = `https://wa.me/${phone}?text=${encodeURIComponent(
-    message
-  )}`;
-  
+  const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+
+  // Generic site-wide contact: persist a no-car inquiry lead FIRST, then open
+  // WhatsApp. (write-only — anon can't read leads back.)
+  const handleClick = () => {
+    void persistThenWhatsApp(
+      {
+        type: 'inquiry',
+        source: 'floating',
+        locale: locale === 'ar' ? 'ar' : 'en',
+        message,
+      },
+      url,
+    );
+  };
 
   return (
-    <a
-      href={url}
-      target="_blank"
-      rel="noopener noreferrer"
+    <button
+      type="button"
+      onClick={handleClick}
+      aria-label="WhatsApp"
       className="
         fixed bottom-4 right-6 z-40
         flex h-12 w-12 items-center justify-center
@@ -42,6 +54,6 @@ export default function WhatsAppFloatingButton({
         height={28}
         loading="lazy"
       />
-    </a>
+    </button>
   );
 }

@@ -678,6 +678,7 @@ export default function FleetDetailClient({
                       <WhatsAppButton
                         car={car}
                         content={content}
+                        source="detail"
                         className="flex-1 flex items-center justify-center w-full gap-2 rounded-2xl
                       bg-[#25D366] py-3 text-[14px] font-semibold text-white  truncate
                       shadow-lg shadow-[#25D366]/20

@@ -312,7 +312,8 @@ export default function CarCard({
             <WhatsAppButton
               car={car}
               content={content}
-              className="flex-1 flex items-center justify-center w-full gap-2 rounded-2xl 
+              source="card"
+              className="flex-1 flex items-center justify-center w-full gap-2 rounded-2xl
               bg-[#25D366] py-3 text-[14px] font-semibold text-white truncate
               shadow-lg shadow-[#25D366]/20 
               transition-all duration-300 
