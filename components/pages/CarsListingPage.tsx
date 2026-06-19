@@ -1,9 +1,3 @@
-// components/pages/CarsListingPage.tsx
-// ─────────────────────────────────────────────────────────────
-// Client Component — يستقبل البيانات كـ props من Server Component
-// لا يجلب بيانات بنفسه
-// ─────────────────────────────────────────────────────────────
-
 'use client';
 
 import CarsFilters from '@/components/CarsFilters';

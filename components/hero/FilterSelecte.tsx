@@ -59,7 +59,7 @@ export function FilterSelect({
         <Select.Trigger
           className={
             triggerClassName ??
-            'flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white backdrop-blur-sm outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/20 cursor-pointer'
+            'flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-foreground backdrop-blur-sm outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/20 cursor-pointer'
           }
         >
           <Select.Value placeholder={anyLabel} />
@@ -79,7 +79,7 @@ export function FilterSelect({
             <Select.Viewport className="p-1">
               <Select.Item
                 value={EMPTY_SELECT_VALUE}
-                className="relative flex cursor-pointer select-none items-center rounded-lg px-3 py-2 text-sm text-muted-foreground outline-none hover:bg-accent hover:text-white"
+                className="relative flex cursor-pointer select-none items-center rounded-lg px-3 py-2 text-sm text-muted-foreground outline-none hover:bg-accent hover:text-foreground"
               >
                 <Select.ItemText>{anyLabel}</Select.ItemText>
                 <Select.ItemIndicator className="absolute right-2">
@@ -91,7 +91,7 @@ export function FilterSelect({
                 <Select.Item
                   key={option.value}
                   value={option.value}
-                  className="relative flex cursor-pointer select-none items-center rounded-lg px-3 py-2 text-sm text-foreground outline-none hover:bg-accent hover:text-white"
+                  className="relative flex cursor-pointer select-none items-center rounded-lg px-3 py-2 text-sm text-foreground outline-none hover:bg-accent hover:text-foreground"
                 >
                   <Select.ItemText>{option.label}</Select.ItemText>
                   <Select.ItemIndicator className="absolute right-2">
