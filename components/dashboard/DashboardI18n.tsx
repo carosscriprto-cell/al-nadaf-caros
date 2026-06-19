@@ -13,6 +13,7 @@ type EnumMap = Record<string, string>;
 type EnumGroups = {
   category: EnumMap; class: EnumMap; condition: EnumMap; listing_type: EnumMap;
   fuel_type: EnumMap; transmission: EnumMap; drivetrain: EnumMap; status: EnumMap; currency: EnumMap;
+  lead_type: EnumMap; lead_status: EnumMap;
 };
 
 const enums: Record<DashLang, EnumGroups> = {
@@ -26,6 +27,8 @@ const enums: Record<DashLang, EnumGroups> = {
     drivetrain: { FWD: 'FWD', RWD: 'RWD', AWD: 'AWD', '4WD': '4WD' },
     status: { available: 'Available', sold: 'Sold', reserved: 'Reserved' },
     currency: { USD: 'USD', EUR: 'EUR', AED: 'AED' },
+    lead_type: { inquiry: 'Inquiry', booking: 'Booking', purchase: 'Purchase' },
+    lead_status: { new: 'New', contacted: 'Contacted', closed: 'Closed' },
   },
   ar: {
     category: { sedan: 'سيدان', suv: 'دفع رباعي', coupe: 'كوبيه', hatchback: 'هاتشباك', convertible: 'كشف', pickup: 'بيك أب', electric: 'كهربائية', sports: 'رياضية', wagon: 'ستيشن', crossover: 'كروس أوفر', van: 'فان', minivan: 'ميني فان', truck: 'شاحنة', mpv: 'متعددة الاستخدامات', supercar: 'خارقة', roadster: 'رودستر' },
@@ -37,14 +40,26 @@ const enums: Record<DashLang, EnumGroups> = {
     drivetrain: { FWD: 'دفع أمامي', RWD: 'دفع خلفي', AWD: 'دفع كلي', '4WD': 'دفع رباعي' },
     status: { available: 'متاحة', sold: 'مُباعة', reserved: 'محجوزة' },
     currency: { USD: 'USD', EUR: 'EUR', AED: 'AED' },
+    lead_type: { inquiry: 'استفسار', booking: 'حجز', purchase: 'شراء' },
+    lead_status: { new: 'جديد', contacted: 'تم التواصل', closed: 'مغلق' },
   },
 };
 
 const DICT = {
   en: {
-    overview: 'Overview', inventory: 'Inventory', signOut: 'Sign out', dashboard: 'Dashboard', langToggle: 'العربية',
+    overview: 'Overview', inventory: 'Inventory', leads: 'Leads', signOut: 'Sign out', dashboard: 'Dashboard', langToggle: 'العربية',
     welcome: 'Welcome back', totalCars: 'Total vehicles', available: 'Available', hidden: 'Hidden', featured: 'Featured',
+    newLeads: 'New leads', overviewLeadsHint: 'unhandled — review them in Leads.',
     overviewHint: 'Manage your inventory from the Inventory section.',
+    ld: {
+      title: 'Leads', subtitle: 'Incoming inquiries and bookings — track and follow up.',
+      total: 'Total', new: 'New', handled: 'Handled', contacted: 'Contacted', closed: 'Closed',
+      search: 'Search name, phone, email…', allTypes: 'All types', allStatuses: 'All statuses',
+      colWho: 'Who', colContact: 'Contact', colVehicle: 'Vehicle', colType: 'Type', colDate: 'Received', colStatus: 'Status',
+      noLeads: 'No leads yet', noLeadsHint: 'Inquiries and bookings from your storefront will appear here.',
+      selected: 'selected', changeStatus: 'Set status', markNew: 'New', markContacted: 'Contacted', markClosed: 'Closed',
+      leads: 'leads', general: 'General inquiry', noContact: 'No contact info', rentalWindow: 'Rental',
+    },
     inventoryTitle: 'Inventory', inventorySubtitle: 'Manage your vehicles — availability, status, and details.',
     addCar: 'Add vehicle', search: 'Search brand, model…', noCars: 'No vehicles yet', noCarsHint: 'Add your first vehicle to get started.',
     // table
@@ -93,9 +108,19 @@ const DICT = {
     },
   },
   ar: {
-    overview: 'نظرة عامة', inventory: 'المخزون', signOut: 'تسجيل الخروج', dashboard: 'لوحة التحكم', langToggle: 'English',
+    overview: 'نظرة عامة', inventory: 'المخزون', leads: 'الطلبات', signOut: 'تسجيل الخروج', dashboard: 'لوحة التحكم', langToggle: 'English',
     welcome: 'مرحباً بعودتك', totalCars: 'إجمالي المركبات', available: 'متاحة', hidden: 'مخفية', featured: 'مميّزة',
+    newLeads: 'طلبات جديدة', overviewLeadsHint: 'بانتظار المتابعة — راجعها في قسم الطلبات.',
     overviewHint: 'أدر مخزونك من قسم المخزون.',
+    ld: {
+      title: 'الطلبات الواردة', subtitle: 'الاستفسارات والحجوزات الواردة — تابعها وحدّث حالتها.',
+      total: 'الإجمالي', new: 'جديد', handled: 'تمت المعالجة', contacted: 'تم التواصل', closed: 'مغلق',
+      search: 'ابحث بالاسم أو الهاتف أو البريد…', allTypes: 'كل الأنواع', allStatuses: 'كل الحالات',
+      colWho: 'العميل', colContact: 'التواصل', colVehicle: 'المركبة', colType: 'النوع', colDate: 'وردت', colStatus: 'الحالة',
+      noLeads: 'لا توجد طلبات بعد', noLeadsHint: 'ستظهر هنا الاستفسارات والحجوزات الواردة من متجرك.',
+      selected: 'محدد', changeStatus: 'تعيين الحالة', markNew: 'جديد', markContacted: 'تم التواصل', markClosed: 'مغلق',
+      leads: 'طلب', general: 'استفسار عام', noContact: 'لا توجد بيانات تواصل', rentalWindow: 'الإيجار',
+    },
     inventoryTitle: 'المخزون', inventorySubtitle: 'أدر مركباتك — التوفر والحالة والتفاصيل.',
     addCar: 'إضافة مركبة', search: 'ابحث بالماركة أو الموديل…', noCars: 'لا توجد مركبات بعد', noCarsHint: 'أضف أول مركبة للبدء.',
     colVehicle: 'المركبة', colListing: 'العرض', colStatus: 'الحالة', colPrice: 'السعر', colFeatured: 'مميّزة', colVisible: 'ظاهرة', colActions: 'إجراءات',

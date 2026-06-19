@@ -10,11 +10,20 @@ export function StepConfirm({
   state,
   carTitle,
   onSubmit,
+  name,
+  phone,
+  onNameChange,
+  onPhoneChange,
 }: {
   state: BookingState;
   carTitle: string;
   onSubmit: () => void;
+  name?: string;
+  phone?: string;
+  onNameChange?: (v: string) => void;
+  onPhoneChange?: (v: string) => void;
 }) {
+  const captureContact = !!onNameChange && !!onPhoneChange;
   const nights = calcNights(state.dateFrom, state.dateTo);
   const total = state.selectedCar ? (state.selectedCar.pricing.daily ?? 0) * nights : 0;
   const deposit = state.selectedCar ? (state.selectedCar.pricing.securityDeposit ?? 0) : 0;
@@ -78,6 +87,36 @@ export function StepConfirm({
           <div className="border-t pt-2 flex justify-between border-accent">
             <span className="text-sm font-bold" style={{ color: 'var(--color-text-primary)' }}>{t('booking_summary.estimated_total')}</span>
             <span className="text-base font-bold text-accent" >${total.toLocaleString()}</span>
+          </div>
+        </div>
+      )}
+
+      {/* Optional contact capture — saved with the booking lead */}
+      {captureContact && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label className="mb-1.5 block text-xs font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+              {t('first_name')}
+            </label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => onNameChange?.(e.target.value)}
+              placeholder={t('first_name_placeholder')}
+              className="w-full rounded-xl border border-border bg-muted px-4 py-3 text-sm text-foreground outline-none focus:border-accent"
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+              {t('phone')}
+            </label>
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => onPhoneChange?.(e.target.value)}
+              placeholder={t('phone_placeholder')}
+              className="w-full rounded-xl border border-border bg-muted px-4 py-3 text-sm text-foreground outline-none focus:border-accent"
+            />
           </div>
         </div>
       )}

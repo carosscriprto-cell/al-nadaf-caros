@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Car, LayoutDashboard } from 'lucide-react';
+import { Car, LayoutDashboard, Inbox } from 'lucide-react';
 import type { Tables } from '@/lib/supabase/database.types';
 import { useDash } from './DashboardI18n';
 
@@ -18,6 +18,7 @@ export default function DashboardSidebar({ tenant }: Props) {
   const nav = [
     { href: '/dashboard', icon: LayoutDashboard, label: t.overview, exact: true },
     { href: '/dashboard/cars', icon: Car, label: t.inventory, exact: false },
+    { href: '/dashboard/leads', icon: Inbox, label: t.leads, exact: false },
   ];
 
   const isActive = (href: string, exact: boolean) =>

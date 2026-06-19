@@ -310,9 +310,13 @@ export type Database = {
           message: string | null
           name: string | null
           phone: string | null
+          pickup_location: string | null
+          rental_end: string | null
+          rental_start: string | null
           source: string | null
           status: string | null
           tenant_id: string
+          type: string
         }
         Insert: {
           car_id?: string | null
@@ -323,9 +327,13 @@ export type Database = {
           message?: string | null
           name?: string | null
           phone?: string | null
+          pickup_location?: string | null
+          rental_end?: string | null
+          rental_start?: string | null
           source?: string | null
           status?: string | null
           tenant_id: string
+          type?: string
         }
         Update: {
           car_id?: string | null
@@ -336,9 +344,13 @@ export type Database = {
           message?: string | null
           name?: string | null
           phone?: string | null
+          pickup_location?: string | null
+          rental_end?: string | null
+          rental_start?: string | null
           source?: string | null
           status?: string | null
           tenant_id?: string
+          type?: string
         }
         Relationships: [
           {

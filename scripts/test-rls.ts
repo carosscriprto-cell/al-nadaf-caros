@@ -119,6 +119,30 @@ async function main(): Promise<void> {
       const { data: anonLeads } = await anonPublic.from('leads').select('id');
       assert((anonLeads?.length ?? 0) === 0, 'anon CANNOT read leads (PII protected, no anon policy)');
 
+      // anon CAN INSERT a lead for an ACTIVE tenant (public storefront capture).
+      // IMPORTANT: no .select()/RETURNING — anon has no select policy on leads,
+      // so reading the row back is denied (42501) and would roll the insert back.
+      // We assert the write succeeds, then confirm via the service role it landed.
+      const { error: anonLeadErr } = await anonPublic
+        .from('leads')
+        .insert({ tenant_id: tenantBId, name: TAG, phone: '111111', type: 'inquiry', source: 'rls-test' });
+      assert(anonLeadErr === null, 'anon CAN INSERT a lead for an active tenant (P5b public capture, no RETURNING)');
+      const { count: landed } = await service
+        .from('leads').select('id', { count: 'exact', head: true })
+        .eq('tenant_id', tenantBId).eq('source', 'rls-test');
+      assert((landed ?? 0) === 1, 'the anon-inserted lead actually persisted (service-role count)');
+
+      // anon CANNOT INSERT a lead for a NON-EXISTENT tenant (tightened WITH CHECK).
+      // No .select() so the only thing that can fail is the WITH CHECK gate itself.
+      const { error: anonBadTenantErr } = await anonPublic
+        .from('leads')
+        .insert({ tenant_id: '00000000-0000-0000-0000-000000000000', name: TAG, phone: '222222' });
+      assert(anonBadTenantErr !== null, 'anon CANNOT INSERT a lead for a non-existent/inactive tenant (RLS rejects)');
+
+      // anon STILL cannot read leads after inserting one (write-only for the public)
+      const { data: anonLeads2 } = await anonPublic.from('leads').select('id');
+      assert((anonLeads2?.length ?? 0) === 0, 'anon CANNOT read leads even ones it just inserted');
+
       // anon CANNOT write a car (INSERT WITH CHECK = my_tenant_id() is null → rejected)
       const { error: anonInsErr } = await anonPublic.from('cars').insert({
         tenant_id: tenantBId, brand: TAG, model: 'ANON-INJECT', year: 2000,
@@ -191,6 +215,16 @@ async function main(): Promise<void> {
     // 5. Positive control: A can query its own tenant's cars (read-only)
     const { error: ownErr } = await anon.from('cars').select('id').eq('tenant_id', tenantAId).limit(1);
     assert(ownErr === null, 'A can query its own-tenant cars (positive control)');
+
+    // ── Leads isolation (P5b) ─────────────────────────────────────────────────
+    // 6. A's lead list never includes tenant B's leads (seeded above for B)
+    const { data: aLeads } = await anon.from('leads').select('id, tenant_id');
+    assert((aLeads ?? []).every((l) => l.tenant_id === tenantAId), 'A only sees own-tenant leads');
+
+    // 7. A cannot UPDATE tenant B's lead status (USING blocks → 0 rows affected)
+    const { data: updLeadB } = await anon
+      .from('leads').update({ status: 'closed' }).eq('tenant_id', tenantBId).select('id');
+    assert((updLeadB?.length ?? 0) === 0, 'A cannot UPDATE tenant B leads (0 rows affected)');
   } finally {
     // ── Teardown: ALWAYS remove disposable tenant B + ALL its cars ───────────
     await anon.auth.signOut().catch(() => {});

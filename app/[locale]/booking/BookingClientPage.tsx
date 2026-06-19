@@ -11,6 +11,7 @@ import { BookingExperienceProps } from "@/data/booking";
 import type { Car as CarType } from '@/types/vehicles';
 import { bookingReducer } from "@/lib/booking/bookingReducer";
 import { buildWhatsAppMessage } from "@/lib/booking/buildWhatsAppMessage";
+import { persistThenWhatsApp } from "@/lib/leads/persistThenWhatsApp";
 import { initialState } from "@/lib/booking/initialState";
 import { prepareCarsForSearch } from "@/lib/search/buildIndex";
 import { createSearch } from "@/lib/search/createSearch";
@@ -41,6 +42,10 @@ export function BookingClientPage({
   const [mobileOpen, setMobileOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [direction, setDirection] = useState(1);
+  // Optional contact capture on the confirm step — makes the persisted booking
+  // a real lead (the dealer sees who) even though delivery is via WhatsApp.
+  const [customerName, setCustomerName] = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
   
   
 
@@ -116,10 +121,25 @@ export function BookingClientPage({
 
   const cleanNumber = whatsappRaw.replace(/\D/g, '');
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
       const msg = buildWhatsAppMessage(state, carTitle, locale);
       const url = `https://wa.me/${cleanNumber}?text=${encodeURIComponent(msg)}`;
-      window.open(url, '_blank');
+      // Record the booking FIRST (DB), then fire the WhatsApp channel.
+      await persistThenWhatsApp(
+        {
+          type: 'booking',
+          source: 'booking',
+          car_id: state.selectedCar?.id != null ? String(state.selectedCar.id) : undefined,
+          name: customerName || undefined,
+          phone: customerPhone || undefined,
+          message: carTitle ? `${carTitle}` : undefined,
+          rental_start: state.dateFrom || undefined,
+          rental_end: state.dateTo || undefined,
+          pickup_location: state.locationLabel || undefined,
+          locale: locale === 'ar' ? 'ar' : 'en',
+        },
+        url,
+      );
     };
 
     useEffect(() => {
@@ -265,6 +285,10 @@ export function BookingClientPage({
                           state={state}
                           carTitle={carTitle}
                           onSubmit={handleSubmit}
+                          name={customerName}
+                          phone={customerPhone}
+                          onNameChange={setCustomerName}
+                          onPhoneChange={setCustomerPhone}
                         />
                       )}
                     </motion.div>

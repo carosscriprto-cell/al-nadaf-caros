@@ -19,6 +19,7 @@ import FAQSection from '@/components/home/FAQSection';
 import MapSection from '@/components/map/MapSection';
 import PageHero from '@/components/PageHero';
 import { siteConfig } from '@/config';
+import { persistThenWhatsApp } from '@/lib/leads/persistThenWhatsApp';
 
 type ContactPageClientProps = {
   locale: string;
@@ -50,7 +51,7 @@ export default function ContactPageClient({
     resolver: zodResolver(contactSchema),
   });
 
-  const onSubmit = (values: ContactFormData) => {
+  const onSubmit = async (values: ContactFormData) => {
     setIsSubmitting(true);
 
     const lines = [
@@ -73,7 +74,20 @@ export default function ContactPageClient({
       lines.join('\n')
     )}`;
 
-    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+    // Record FIRST (DB), then fire the WhatsApp channel.
+    await persistThenWhatsApp(
+      {
+        type: 'inquiry',
+        source: 'contact',
+        name: values.name,
+        email: values.email,
+        phone: values.phone,
+        message: `${values.subject}\n\n${values.message}`,
+        locale: locale === 'ar' ? 'ar' : 'en',
+      },
+      whatsappUrl,
+    );
+
     reset();
     setIsSubmitting(false);
   };
