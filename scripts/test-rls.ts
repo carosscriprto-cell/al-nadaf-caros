@@ -225,6 +225,13 @@ async function main(): Promise<void> {
     const { data: updLeadB } = await anon
       .from('leads').update({ status: 'closed' }).eq('tenant_id', tenantBId).select('id');
     assert((updLeadB?.length ?? 0) === 0, 'A cannot UPDATE tenant B leads (0 rows affected)');
+
+    // ── Settings isolation (P5c) ──────────────────────────────────────────────
+    // 8. A cannot UPDATE tenant B's tenants row (settings write is own-tenant +
+    //    owner-only; cross-tenant is blocked → 0 rows affected)
+    const { data: updTenantB } = await anon
+      .from('tenants').update({ name: 'HACKED' }).eq('id', tenantBId).select('id');
+    assert((updTenantB?.length ?? 0) === 0, 'A cannot UPDATE tenant B settings (cross-tenant denied)');
   } finally {
     // ── Teardown: ALWAYS remove disposable tenant B + ALL its cars ───────────
     await anon.auth.signOut().catch(() => {});

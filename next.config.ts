@@ -20,6 +20,14 @@ const nextConfig: NextConfig = {
         hostname: '*.supabase.co',
         pathname: '/storage/v1/object/public/**',
       },
+      {
+        // P5c settings: a dealer may set an EXTERNAL logo / favicon / OG image
+        // URL (any https host). The image optimizer needs this to render them.
+        // Tradeoff: the optimizer will fetch arbitrary https hosts on demand —
+        // acceptable for tenant-provided brand assets in this multi-tenant SaaS.
+        protocol: 'https',
+        hostname: '**',
+      },
     ],
   },
 };

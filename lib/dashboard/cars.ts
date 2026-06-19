@@ -51,10 +51,15 @@ export async function getMyTenantContext(): Promise<{ tenantId: string | null; f
 }
 
 export function carStats(cars: DashCar[]) {
+  const byStatus = (s: string) => cars.filter((c) => (c.status ?? 'available') === s).length;
   return {
     total: cars.length,
-    available: cars.filter((c) => c.available).length,
-    hidden: cars.filter((c) => !c.available).length,
+    available: byStatus('available'),      // status = available (sellable/rentable)
+    sold: byStatus('sold'),
+    reserved: byStatus('reserved'),
+    hidden: cars.filter((c) => !c.available).length,  // visibility switch off
     featured: cars.filter((c) => c.is_featured).length,
   };
 }
+
+export type CarStats = ReturnType<typeof carStats>;
