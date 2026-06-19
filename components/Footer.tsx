@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 
 import { featureFlags, siteConfig } from '@/config';
+import type { StorefrontSocial } from '@/lib/tenant/branding';
 import { useLocale, useTranslations } from 'next-intl';
 
 const socialIcons = {
@@ -30,7 +31,7 @@ const socialIcons = {
   linkedin: Linkedin,
 } as const;
 
-export default function Footer() {
+export default function Footer({ social }: { social?: StorefrontSocial }) {
   const t = useTranslations();
   const locale = useLocale();
   const localizedAddress =
@@ -66,7 +67,9 @@ export default function Footer() {
     },
   ];
 
-  const socialLinks = Object.entries(siteConfig.social).filter(
+  // Tenant socials (P5c white-label) override the static defaults, resolved
+  // server-side in the layout and passed down.
+  const socialLinks = Object.entries(social ?? siteConfig.social).filter(
     ([, href]) => Boolean(href)
   ) as Array<[keyof typeof socialIcons, string]>;
 

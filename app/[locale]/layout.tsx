@@ -10,6 +10,7 @@ import { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import { seoConfig, siteConfig } from '@/config';
 import { getTenantConfig } from '@/lib/supabase/getTenant';
+import { resolveSocial } from '@/lib/tenant/branding';
 import WhatsAppFloatingButton from "@/components/WhatsappFloatingButton";
 
 const inter = Inter({
@@ -106,7 +107,7 @@ export default async function LocaleLayout({
                   <main className="flex-1">
                     {children}
                   </main>
-                  <Footer />
+                  <Footer social={resolveSocial(tenant.social)} />
                   <WhatsAppFloatingButton />
                 </div>
               </ErrorBoundary>
