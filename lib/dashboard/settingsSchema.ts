@@ -2,6 +2,7 @@
 // tenant-settings form shape + validation. Shared by the form and the action.
 
 import { z } from 'zod';
+import { HOME_SECTIONS } from '@/lib/tenant/sections';
 
 // #rgb / #rrggbb hex colors (the storefront injects these as CSS variables).
 const hexColor = z
@@ -23,6 +24,13 @@ export const socialSchema = z.object({
   instagram: optUrl,
   twitter: optUrl,
   linkedin: optUrl,
+});
+
+// Storefront home sections (P6): ordered show/hide. The form always submits the
+// full normalized array; the storefront falls back to defaults when null.
+export const sectionItemSchema = z.object({
+  key: z.enum([...HOME_SECTIONS] as [string, ...string[]]),
+  enabled: z.boolean(),
 });
 
 export const settingsSchema = z.object({
@@ -49,6 +57,7 @@ export const settingsSchema = z.object({
   // structured jsonb
   business_hours: businessHoursSchema,
   social: socialSchema,
+  sections: z.array(sectionItemSchema).optional(),
 });
 
 export type SettingsValues = z.infer<typeof settingsSchema>;

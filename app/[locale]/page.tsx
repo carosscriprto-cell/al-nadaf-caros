@@ -1,7 +1,12 @@
+import { Fragment } from 'react';
 import { setRequestLocale } from 'next-intl/server';
 import { getAllCarsForSearch } from '@/lib/supabase/queries.server';
-import { getStorefrontFeatures } from '@/lib/supabase/getTenant';
+import { getStorefrontFeatures, getTenantConfig } from '@/lib/supabase/getTenant';
 import { isHybridTenant } from '@/lib/tenant/features';
+import { resolveVisibleSections, type HomeSectionKey } from '@/lib/tenant/sections';
+import { getRequestOrigin } from '@/lib/seo/host';
+import { buildOrganizationSchema } from '@/lib/seo/schema';
+import JsonLd from '@/components/seo/JsonLd';
 import HeroSection from '@/components/hero/HeroSection';
 import FeaturedCarsSection from '@/components/home/FeaturedCarsSection';
 import WhyChooseUs from '@/components/home/WhyChooseUs';
@@ -26,23 +31,39 @@ export default async function Home({
 
   // Single source: Supabase. Fetch once on the server, drill into the client
   // hero/brand/banner components (which previously imported static data/cars.ts).
-  const [{ cars, contentMap, contentAr, contentEn }, features] = await Promise.all([
+  const [{ cars, contentMap, contentAr, contentEn }, features, tenant, origin] = await Promise.all([
     getAllCarsForSearch(locale),
     getStorefrontFeatures(),
+    getTenantConfig(),
+    getRequestOrigin(),
   ]);
   const hybrid = isHybridTenant(features);
 
+  // Per-tenant section show/hide + order (P6 white-label). rentVsBuy is
+  // auto-hidden for non-hybrid tenants regardless of the toggle.
+  const order = resolveVisibleSections(tenant.sections, { hybrid });
+
+  // Each section keyed so the page can render them in the tenant's order.
+  const sectionMap: Record<HomeSectionKey, React.ReactNode> = {
+    hero: <HeroSection cars={cars} contentAr={contentAr} contentEn={contentEn} showTypeFilter={hybrid} />,
+    brandShowcase: <BrandShowcase cars={cars} />,
+    featuredCars: <FeaturedCarsSection locale={locale} />,
+    whyChooseUs: <WhyChooseUs />,
+    rentVsBuy: <RentVsBuyBanner cars={cars} contentMap={contentMap} />,
+    testimonials: <TestimonialsSection />,
+    howItWorks: <HowItWorks />,
+    faq: <FAQSection />,
+    finalCta: <FinalCTA />,
+  };
+
+  const orgSchema = buildOrganizationSchema(tenant, origin, locale);
+
   return (
     <div>
-      <HeroSection cars={cars} contentAr={contentAr} contentEn={contentEn} showTypeFilter={hybrid} />
-      <BrandShowcase cars={cars} />
-      <FeaturedCarsSection locale={locale} />
-      <WhyChooseUs />
-      <RentVsBuyBanner cars={cars} contentMap={contentMap} />
-      <TestimonialsSection />
-      <HowItWorks />
-      <FAQSection />
-      <FinalCTA />
+      <JsonLd data={orgSchema} />
+      {order.map((key) => (
+        <Fragment key={key}>{sectionMap[key]}</Fragment>
+      ))}
     </div>
   );
 }

@@ -3,6 +3,8 @@ import { getTranslations } from 'next-intl/server';
 
 import ContactPageClient from '@/components/pages/ContactPageClient';
 import { siteConfig } from '@/config';
+import { getTenantConfig } from '@/lib/supabase/getTenant';
+import { resolveContact } from '@/lib/tenant/branding';
 
 type PageProps = {
   params: Promise<{
@@ -62,6 +64,7 @@ export default async function ContactPage({
   params,
 }: PageProps) {
   const { locale } = await params;
+  const tenant = await getTenantConfig();
 
-  return <ContactPageClient locale={locale} />;
+  return <ContactPageClient locale={locale} contact={resolveContact(tenant)} />;
 }

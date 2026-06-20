@@ -21,8 +21,18 @@ import {
 } from 'lucide-react';
 
 import { featureFlags, siteConfig } from '@/config';
-import type { StorefrontSocial } from '@/lib/tenant/branding';
+import type { StorefrontSocial, StorefrontHours } from '@/lib/tenant/branding';
 import { useLocale, useTranslations } from 'next-intl';
+
+// Tenant contact, resolved server-side (P6 white-label). Each field falls back
+// to the static siteConfig/i18n default when the tenant hasn't set it.
+export type FooterContact = {
+  phone?: string;
+  email?: string;
+  addressEn?: string;
+  addressAr?: string;
+  hours?: StorefrontHours;
+};
 
 const socialIcons = {
   facebook: Facebook,
@@ -31,13 +41,28 @@ const socialIcons = {
   linkedin: Linkedin,
 } as const;
 
-export default function Footer({ social }: { social?: StorefrontSocial }) {
+export default function Footer({
+  social,
+  contact,
+}: {
+  social?: StorefrontSocial;
+  contact?: FooterContact;
+}) {
   const t = useTranslations();
   const locale = useLocale();
   const localizedAddress =
     siteConfig.contact.address.localized[
       locale as keyof typeof siteConfig.contact.address.localized
     ] ?? siteConfig.contact.address.localized.en;
+
+  // Tenant values win; fall back to the static defaults / i18n.
+  const phoneDisplay = contact?.phone ?? siteConfig.contact.phone.display;
+  const phoneRaw = contact?.phone ?? siteConfig.contact.phone.raw;
+  const emailPrimary = contact?.email ?? siteConfig.contact.email.primary;
+  const tenantAddress = locale === 'ar' ? contact?.addressAr : contact?.addressEn;
+  const addressLines = tenantAddress ? [tenantAddress] : [localizedAddress.line1, localizedAddress.line2];
+  const hoursWeekdays = contact?.hours?.weekdays ?? t('footer.contact.hours.weekdays');
+  const hoursWeekends = contact?.hours?.weekends ?? t('footer.contact.hours.weekends');
 
   const brandName =
     locale === 'ar'
@@ -78,34 +103,31 @@ export default function Footer({ social }: { social?: StorefrontSocial }) {
       ? {
           key: 'phone',
           icon: Phone,
-          href: `tel:${siteConfig.contact.phone.raw}`,
+          href: `tel:${phoneRaw}`,
           title: t('footer.contact.phone'),
-          lines: [siteConfig.contact.phone.display],
+          lines: [phoneDisplay],
         }
       : null,
     featureFlags.enableEmailContact
       ? {
           key: 'email',
           icon: Mail,
-          href: `mailto:${siteConfig.contact.email.primary}`,
+          href: `mailto:${emailPrimary}`,
           title: t('footer.contact.email'),
-          lines: [siteConfig.contact.email.primary],
+          lines: [emailPrimary],
         }
       : null,
     {
       key: 'address',
       icon: MapPin,
       title: t('footer.contact.address'),
-      lines: [localizedAddress.line1, localizedAddress.line2],
+      lines: addressLines,
     },
     {
       key: 'hours',
       icon: Clock3,
       title: t('footer.contact.hours.title'),
-      lines: [
-        t('footer.contact.hours.weekdays'),
-        t('footer.contact.hours.weekends'),
-      ],
+      lines: [hoursWeekdays, hoursWeekends],
     },
   ].filter(Boolean) as Array<{
     key: string;

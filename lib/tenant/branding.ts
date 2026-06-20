@@ -42,3 +42,33 @@ export function resolveBusinessHours(raw: unknown): StorefrontHours {
   const t = asRecord(raw);
   return { weekdays: str(t.weekdays), weekends: str(t.weekends) };
 }
+
+// Storefront contact block — tenant row wins, else the static siteConfig default
+// (so phone/whatsapp/email are never empty). address/hours are left undefined
+// when unset so the consumer can fall back to its localized i18n copy.
+export type StorefrontContact = {
+  phone: string;
+  whatsapp: string;
+  email: string;
+  addressEn?: string;
+  addressAr?: string;
+  hours: StorefrontHours;
+};
+
+export function resolveContact(t: {
+  phone?: string | null;
+  whatsapp?: string | null;
+  email?: string | null;
+  address_en?: string | null;
+  address_ar?: string | null;
+  business_hours?: unknown;
+}): StorefrontContact {
+  return {
+    phone: str(t.phone) ?? siteConfig.contact.phone.raw,
+    whatsapp: str(t.whatsapp) ?? siteConfig.contact.whatsapp.raw,
+    email: str(t.email) ?? siteConfig.contact.email.primary,
+    addressEn: str(t.address_en),
+    addressAr: str(t.address_ar),
+    hours: resolveBusinessHours(t.business_hours),
+  };
+}

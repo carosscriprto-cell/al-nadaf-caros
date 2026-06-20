@@ -76,6 +76,12 @@ const DICT = {
       urlHint: 'Paste an image URL (https). External hosts are allowed.',
       hoursPlaceholder: 'e.g. 9:00 AM – 9:00 PM',
       secIdentity: 'Identity & contact', secBranding: 'Branding', secSeo: 'SEO', secHours: 'Business hours', secSocial: 'Social links',
+      secSections: 'Home sections', sectionsHint: 'Show, hide, and reorder the sections on your storefront home page.',
+      sectionLocked: 'Always shown', moveUp: 'Move up', moveDown: 'Move down', sectionHidden: 'Hidden',
+      sectionLabels: {
+        hero: 'Hero', brandShowcase: 'Brand showcase', featuredCars: 'Featured cars', whyChooseUs: 'Why choose us',
+        rentVsBuy: 'Rent vs. buy banner', testimonials: 'Testimonials', howItWorks: 'How it works', faq: 'FAQ', finalCta: 'Final call-to-action',
+      } as Record<string, string>,
       f: {
         name: 'Business name (EN)', name_ar: 'Business name (AR)', phone: 'Phone', whatsapp: 'WhatsApp number', email: 'Email',
         address_en: 'Address (EN)', address_ar: 'Address (AR)',
@@ -162,6 +168,12 @@ const DICT = {
       urlHint: 'ألصق رابط صورة (https). الروابط الخارجية مسموحة.',
       hoursPlaceholder: 'مثال: 9:00 ص – 9:00 م',
       secIdentity: 'الهوية والتواصل', secBranding: 'الهوية البصرية', secSeo: 'تحسين محركات البحث', secHours: 'ساعات العمل', secSocial: 'روابط التواصل',
+      secSections: 'أقسام الصفحة الرئيسية', sectionsHint: 'أظهر أو أخفِ أقسام صفحتك الرئيسية وأعد ترتيبها.',
+      sectionLocked: 'ظاهر دائماً', moveUp: 'تحريك لأعلى', moveDown: 'تحريك لأسفل', sectionHidden: 'مخفي',
+      sectionLabels: {
+        hero: 'الواجهة', brandShowcase: 'الماركات', featuredCars: 'سيارات مميزة', whyChooseUs: 'لماذا نحن',
+        rentVsBuy: 'لافتة إيجار أم شراء', testimonials: 'آراء العملاء', howItWorks: 'كيف يعمل', faq: 'الأسئلة الشائعة', finalCta: 'دعوة لاتخاذ إجراء',
+      } as Record<string, string>,
       f: {
         name: 'اسم النشاط (إنجليزي)', name_ar: 'اسم النشاط (عربي)', phone: 'الهاتف', whatsapp: 'رقم واتساب', email: 'البريد الإلكتروني',
         address_en: 'العنوان (إنجليزي)', address_ar: 'العنوان (عربي)',

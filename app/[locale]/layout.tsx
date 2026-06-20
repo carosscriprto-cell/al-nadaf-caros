@@ -10,7 +10,8 @@ import { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import { seoConfig, siteConfig } from '@/config';
 import { getTenantConfig } from '@/lib/supabase/getTenant';
-import { resolveSocial } from '@/lib/tenant/branding';
+import { resolveSocial, resolveBusinessHours } from '@/lib/tenant/branding';
+import { getRequestOrigin } from '@/lib/seo/host';
 import WhatsAppFloatingButton from "@/components/WhatsappFloatingButton";
 
 const inter = Inter({
@@ -26,8 +27,8 @@ export async function generateMetadata({
   const { locale } = await params;
   const isAr = locale === 'ar';
 
-  // Per-tenant SEO + branding (P4) — resolved from the tenants row.
-  const tenant = await getTenantConfig();
+  // Per-tenant SEO + branding (P4/P6) — resolved from the tenants row + host.
+  const [tenant, origin] = await Promise.all([getTenantConfig(), getRequestOrigin()]);
 
   const title =
     (isAr ? tenant.seo_title_ar : tenant.seo_title_en) ??
@@ -42,12 +43,18 @@ export async function generateMetadata({
     description,
     keywords: seoConfig.keywords,
     authors: [{ name: tenant.name }],
-    metadataBase: new URL(siteConfig.urls.website),
+    // metadataBase = the tenant's OWN origin, so canonical/og/hreflang resolve
+    // to their domain — each tenant is independently indexable (P6).
+    metadataBase: new URL(origin),
+    alternates: {
+      canonical: `/${locale}`,
+      languages: { en: '/en', ar: '/ar' },
+    },
     icons: tenant.favicon_url ? { icon: tenant.favicon_url } : undefined,
     openGraph: {
       title,
       description,
-      url: siteConfig.urls.website,
+      url: `${origin}/${locale}`,
       siteName: tenant.name,
       images: [{ url: ogImage, width: 1200, height: 630, alt: title }],
       locale: isAr ? 'ar_SA' : 'en_US',
@@ -107,7 +114,16 @@ export default async function LocaleLayout({
                   <main className="flex-1">
                     {children}
                   </main>
-                  <Footer social={resolveSocial(tenant.social)} />
+                  <Footer
+                    social={resolveSocial(tenant.social)}
+                    contact={{
+                      phone: tenant.phone ?? undefined,
+                      email: tenant.email ?? undefined,
+                      addressEn: tenant.address_en ?? undefined,
+                      addressAr: tenant.address_ar ?? undefined,
+                      hours: resolveBusinessHours(tenant.business_hours),
+                    }}
+                  />
                   <WhatsAppFloatingButton />
                 </div>
               </ErrorBoundary>

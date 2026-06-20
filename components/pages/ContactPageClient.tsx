@@ -20,17 +20,27 @@ import MapSection from '@/components/map/MapSection';
 import PageHero from '@/components/PageHero';
 import { siteConfig } from '@/config';
 import { persistThenWhatsApp } from '@/lib/leads/persistThenWhatsApp';
+import type { StorefrontContact } from '@/lib/tenant/branding';
 
 type ContactPageClientProps = {
   locale: string;
+  contact?: StorefrontContact;
 };
 
 export default function ContactPageClient({
   locale,
+  contact,
 }: ContactPageClientProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const t = useTranslations('contact');
   const buttons = useTranslations('buttons');
+
+  // Tenant white-label (P6): tenant values win, with static/i18n fallbacks.
+  const phoneDisplay = contact?.phone ?? siteConfig.contact.phone.display;
+  const whatsappRaw = contact?.whatsapp ?? siteConfig.contact.whatsapp.raw;
+  const emailPrimary = contact?.email ?? siteConfig.contact.email.primary;
+  const hoursWeekdays = contact?.hours?.weekdays ?? t('info_values.business_hours.weekdays');
+  const hoursWeekends = contact?.hours?.weekends ?? t('info_values.business_hours.weekends');
 
   const contactSchema = z.object({
     name: z.string().min(1, t('validation.name_required')),
@@ -66,7 +76,7 @@ export default function ContactPageClient({
       `${t('whatsapp.labels.message')}: ${values.message}`,
     ].filter(Boolean);
 
-    const phone = siteConfig.contact.whatsapp.raw.replace(
+    const phone = whatsappRaw.replace(
       /[^0-9]/g,
       ''
     );
@@ -97,16 +107,15 @@ export default function ContactPageClient({
       icon: Phone,
       title: t('info_labels.phone'),
       details: [
-        siteConfig.contact.phone.display,
-        siteConfig.contact.phone.supportDisplay ||
-          siteConfig.contact.phone.display,
+        phoneDisplay,
+        siteConfig.contact.phone.supportDisplay || phoneDisplay,
       ],
     },
     {
       icon: MessageCircle,
       title: t('info_labels.whatsapp'),
       details: [
-        siteConfig.contact.phone.display,
+        phoneDisplay,
         t('info_values.whatsapp.helper'),
       ],
     },
@@ -114,9 +123,8 @@ export default function ContactPageClient({
       icon: Mail,
       title: t('info_labels.email'),
       details: [
-        siteConfig.contact.email.primary,
-        siteConfig.contact.email.support ||
-          siteConfig.contact.email.primary,
+        emailPrimary,
+        siteConfig.contact.email.support || emailPrimary,
       ],
     },
     {
@@ -130,10 +138,7 @@ export default function ContactPageClient({
     {
       icon: Clock,
       title: t('info_labels.business_hours'),
-      details: [
-        t('info_values.business_hours.weekdays'),
-        t('info_values.business_hours.weekends'),
-      ],
+      details: [hoursWeekdays, hoursWeekends],
     },
   ];
 
@@ -177,7 +182,7 @@ export default function ContactPageClient({
                   {t('info_labels.phone')}
                 </div>
                 <div className="text-lg font-semibold text-foreground">
-                  {siteConfig.contact.phone.display}
+                  {phoneDisplay}
                 </div>
               </div>
 
@@ -186,7 +191,7 @@ export default function ContactPageClient({
                   {t('info_labels.email')}
                 </div>
                 <div className="text-lg font-semibold text-foreground">
-                  {siteConfig.contact.email.primary}
+                  {emailPrimary}
                 </div>
               </div>
             </div>
@@ -389,7 +394,7 @@ export default function ContactPageClient({
                       {t('location_section.emergency_title')}
                     </div>
                     <div className="text-xl font-bold text-foreground">
-                      {siteConfig.contact.phone.display}
+                      {phoneDisplay}
                     </div>
                     <p className="mt-2 text-sm leading-6 text-muted-foreground">
                       {t('location_section.emergency_description')}
@@ -401,8 +406,7 @@ export default function ContactPageClient({
                       {t('location_section.support_title')}
                     </div>
                     <div className="text-xl font-bold text-foreground">
-                      {siteConfig.contact.email.support ||
-                        siteConfig.contact.email.primary}
+                      {siteConfig.contact.email.support || emailPrimary}
                     </div>
                     <p className="mt-2 text-sm leading-6 text-muted-foreground">
                       {t('location_section.support_description')}

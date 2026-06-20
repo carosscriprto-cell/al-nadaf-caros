@@ -470,6 +470,7 @@ export type Database = {
           og_image_url: string | null
           phone: string | null
           plan: Database["public"]["Enums"]["tenant_plan"]
+          sections: Json | null
           seo_desc_ar: string | null
           seo_desc_en: string | null
           seo_title_ar: string | null
@@ -501,6 +502,7 @@ export type Database = {
           og_image_url?: string | null
           phone?: string | null
           plan?: Database["public"]["Enums"]["tenant_plan"]
+          sections?: Json | null
           seo_desc_ar?: string | null
           seo_desc_en?: string | null
           seo_title_ar?: string | null
@@ -532,6 +534,7 @@ export type Database = {
           og_image_url?: string | null
           phone?: string | null
           plan?: Database["public"]["Enums"]["tenant_plan"]
+          sections?: Json | null
           seo_desc_ar?: string | null
           seo_desc_en?: string | null
           seo_title_ar?: string | null
@@ -554,6 +557,7 @@ export type Database = {
       my_tenant_id: { Args: never; Returns: string }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
+      tenant_is_active: { Args: { p_tenant_id: string }; Returns: boolean }
     }
     Enums: {
       car_category:

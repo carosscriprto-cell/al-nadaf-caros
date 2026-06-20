@@ -9,12 +9,16 @@ import { Car } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 
 import FleetDetailClient from '@/components/pages/FleetDetailClient';
+import JsonLd from '@/components/seo/JsonLd';
 import { siteConfig } from '@/config';
 import {
   getCarBySlug,
   getSimilarCars,
 } from '@/lib/supabase/queries.server';
 import { getCarTitleFallback } from '@/data/cars-content';
+import { getTenantConfig } from '@/lib/supabase/getTenant';
+import { getRequestOrigin } from '@/lib/seo/host';
+import { buildVehicleSchema } from '@/lib/seo/schema';
 
 type PageProps = {
   params: Promise<{ id: string; locale: string }>;
@@ -39,6 +43,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   }
 
+  const tenant        = await getTenantConfig();
+  const siteName      = (locale === 'ar' ? tenant.name_ar : tenant.name) || tenant.name;
   const content       = contentMap[car.slug];
   const title         = content?.title || getCarTitleFallback(car);
   const description   = getMetadataDescription(
@@ -47,7 +53,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const canonicalPath = `/${locale}/fleet/${car.slug}`;
 
   return {
-    title:       `${title} | ${siteConfig.brand.name}`,
+    title:       `${title} | ${siteName}`,
     description,
     alternates: {
       canonical: canonicalPath,
@@ -60,7 +66,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title,
       description,
       url:      canonicalPath,
-      siteName: siteConfig.brand.name,
+      siteName,
       images:   [{ url: car.thumbnail, width: 1200, height: 630, alt: title }],
       locale:   locale === 'ar' ? 'ar_SA' : 'en_US',
       type:     'website',
@@ -113,13 +119,20 @@ export default async function FleetDetailPage({ params }: PageProps) {
     content: similarContentMap[item.slug],
   }));
 
+  // Vehicle/Offer structured data (P6) — tenant as the seller.
+  const [tenant, origin] = await Promise.all([getTenantConfig(), getRequestOrigin()]);
+  const vehicleSchema = buildVehicleSchema(car, contentMap[car.slug], tenant, origin, locale);
+
   return (
-    <FleetDetailClient
-      car={car}
-      content={contentMap[car.slug]}
-      locale={locale}
-      similarCars={similarCars}
-    />
+    <>
+      <JsonLd data={vehicleSchema} />
+      <FleetDetailClient
+        car={car}
+        content={contentMap[car.slug]}
+        locale={locale}
+        similarCars={similarCars}
+      />
+    </>
   );
 }
 
