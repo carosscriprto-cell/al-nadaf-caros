@@ -8,9 +8,8 @@ export const HOME_SECTIONS = [
   'brandShowcase',
   'featuredCars',
   'whyChooseUs',
-  'rentVsBuy',
-  'testimonials',
   'howItWorks',
+  'featuredSpotlight',
   'faq',
   'finalCta',
 ] as const;
@@ -59,13 +58,12 @@ export function parseSections(raw: unknown): SectionConfig[] {
   return out;
 }
 
-// Render order for the storefront: enabled sections only, with feature gates.
-// rentVsBuy is a rent-vs-buy banner → only meaningful for hybrid tenants
-// (offers BOTH sale and rental); auto-hidden otherwise regardless of the toggle.
-export function resolveVisibleSections(raw: unknown, opts: { hybrid: boolean }): HomeSectionKey[] {
+// Render order for the storefront: enabled sections only. All current sections
+// (including featuredSpotlight) work for every tenant type, so no feature gate
+// is applied here — visibility is purely the per-tenant toggle.
+export function resolveVisibleSections(raw: unknown): HomeSectionKey[] {
   return parseSections(raw)
     .filter((s) => s.enabled)
-    .filter((s) => (s.key === 'rentVsBuy' ? opts.hybrid : true))
     .map((s) => s.key);
 }
 

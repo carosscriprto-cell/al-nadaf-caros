@@ -242,8 +242,8 @@ export default function FleetDetailClient({
   const includedServicesPreview =
     content?.includedServices?.slice(0, 3) ?? [];
 
-  const rentalLink = `/${locale}/rental`;
-  const salesLink = `/${locale}/sales`;
+  // Fleet is the single inventory page (rental/sales routes removed in P2.5-3a).
+  const fleetLink = `/${locale}/fleet`;
   const displayedImageSrc =
     galleryImages[displayedImage] || car.thumbnail;
 
@@ -344,7 +344,7 @@ export default function FleetDetailClient({
 
         <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <Link
-            href={isSale && !isRental ? salesLink : rentalLink}
+            href={fleetLink}
             className="mb-8 inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-accent"
           >
             <ArrowLeft className="h-4 w-4" />

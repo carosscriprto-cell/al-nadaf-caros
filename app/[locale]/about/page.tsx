@@ -7,7 +7,6 @@ import MapSection from '@/components/map/MapSection';
 import { motion } from 'framer-motion';
 import { useLocale, useTranslations } from 'next-intl';
 import PageHero from '@/components/PageHero';
-import { Star } from 'lucide-react';
 
 export default function AboutPage() {
   const locale = useLocale();
@@ -19,12 +18,6 @@ export default function AboutPage() {
     { number: '50+', label: t('stats.vehicles') },
     { number: '24/7', label: t('stats.support') },
   ];
-
-  const testimonials = t.raw('testimonials.items') as Array<{
-    name: string;
-    role: string;
-    text: string;
-  }>;
 
   return (
     <div className="min-h-screen bg-background overflow-hidden">
@@ -133,55 +126,6 @@ export default function AboutPage() {
                   </div>
                   <div className="text-sm text-muted-foreground">
                     {stat.label}
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-20">
-        <div className="mx-auto max-w-6xl px-4">
-          <HeadSection
-            title={t('testimonials.title')}
-            description={t('testimonials.description')}
-            divider
-          />
-
-          <div className="grid gap-6 md:grid-cols-3 mt-10">
-            {testimonials.map((testimonial, index) => (
-              <motion.div
-                key={`${testimonial.name}-${index}`}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="group relative overflow-hidden rounded-3xl border border-border/60 bg-card/80 p-6 backdrop-blur-xl hover:-translate-y-2 hover:shadow-2xl transition"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition" />
-
-                <div className="relative z-10">
-                  <div className="flex gap-1 mb-3 text-accent">
-                    {[...Array(5)].map((_, starIndex) => (
-                      <Star
-                        key={starIndex}
-                        className="h-4 w-4 fill-accent"
-                      />
-                    ))}
-                  </div>
-
-                  <p className="text-sm text-muted-foreground leading-7 mb-4">
-                    {testimonial.text}
-                  </p>
-
-                  <div>
-                    <p className="text-sm font-semibold text-foreground">
-                      {testimonial.name}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {testimonial.role}
-                    </p>
                   </div>
                 </div>
               </motion.div>

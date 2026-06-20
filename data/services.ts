@@ -15,14 +15,14 @@ export const services: ServiceItem[] = [
     icon: Car,
     titleKey: 'services.rentals.title',
     descriptionKey: 'services.rentals.description',
-    href: '/rental',
+    href: '/fleet',
     color: 'bg-accent',
   },
   {
     icon: DollarSign,
     titleKey: 'services.sales.title',
     descriptionKey: 'services.sales.description',
-    href: '/sales',
+    href: '/fleet',
     color: 'bg-accent',
   },
   {

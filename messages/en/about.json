@@ -32,27 +32,6 @@
       "title": "Proven by Numbers",
       "description": "Real impact, real trust"
     },
-    "testimonials": {
-      "title": "What Our Clients Say",
-      "description": "Real experiences from real customers",
-      "items": [
-        {
-          "name": "Michael Chen",
-          "role": "Business Owner",
-          "text": "Absolutely seamless experience. The quality and reliability exceeded expectations."
-        },
-        {
-          "name": "Sarah Williams",
-          "role": "Event Manager",
-          "text": "Professional service and premium vehicles. Our clients loved it."
-        },
-        {
-          "name": "David Kim",
-          "role": "Entrepreneur",
-          "text": "Reliable, fast, and incredibly smooth booking process."
-        }
-      ]
-    },
     "faq": {
       "badge": "FAQ",
       "title": "Questions Before You Book",

@@ -11,8 +11,7 @@ import HeroSection from '@/components/hero/HeroSection';
 import FeaturedCarsSection from '@/components/home/FeaturedCarsSection';
 import WhyChooseUs from '@/components/home/WhyChooseUs';
 import BrandShowcase from '@/components/home/BrandShowcase';
-import RentVsBuyBanner from '@/components/home/RentVsBuyBanner';
-import TestimonialsSection from '@/components/home/TestimonialsSection';
+import FeaturedSpotlight from '@/components/home/FeaturedSpotlight';
 import HowItWorks from '@/components/home/HowItWorks';
 import FAQSection from '@/components/home/FAQSection';
 import FinalCTA from '@/components/home/FinalCTA';
@@ -39,9 +38,8 @@ export default async function Home({
   ]);
   const hybrid = isHybridTenant(features);
 
-  // Per-tenant section show/hide + order (P6 white-label). rentVsBuy is
-  // auto-hidden for non-hybrid tenants regardless of the toggle.
-  const order = resolveVisibleSections(tenant.sections, { hybrid });
+  // Per-tenant section show/hide + order (P6 white-label).
+  const order = resolveVisibleSections(tenant.sections);
 
   // Each section keyed so the page can render them in the tenant's order.
   const sectionMap: Record<HomeSectionKey, React.ReactNode> = {
@@ -49,8 +47,7 @@ export default async function Home({
     brandShowcase: <BrandShowcase cars={cars} />,
     featuredCars: <FeaturedCarsSection locale={locale} />,
     whyChooseUs: <WhyChooseUs />,
-    rentVsBuy: <RentVsBuyBanner cars={cars} contentMap={contentMap} />,
-    testimonials: <TestimonialsSection />,
+    featuredSpotlight: <FeaturedSpotlight cars={cars} contentMap={contentMap} />,
     howItWorks: <HowItWorks />,
     faq: <FAQSection />,
     finalCta: <FinalCTA />,

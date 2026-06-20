@@ -41,7 +41,7 @@ export default function NotFound() {
             </Link>
             
             <Link
-              href="/rental"
+              href="/en/fleet"
               className="w-full border border-border text-foreground px-6 py-3 rounded-lg font-semibold hover:bg-muted transition-colors duration-200 flex items-center justify-center space-x-2"
             >
               <Search className="h-5 w-5" />

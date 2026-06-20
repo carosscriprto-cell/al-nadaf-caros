@@ -79,10 +79,12 @@ export default function Footer({
 
   const serviceLinks = [
     { href: `/${locale}/fleet`, label: t('footer.links.fleet') },
-    { href: `/${locale}/services`, label: t('footer.services.chauffeur') },
-    // Booking is the rental wizard — hide it for sale-only tenants.
+    // Services + booking are rental-tenant concepts — hidden for sale-only tenants.
     ...(features.enableRental
-      ? [{ href: `/${locale}/booking`, label: t('footer.services.booking') }]
+      ? [
+          { href: `/${locale}/services`, label: t('footer.services.chauffeur') },
+          { href: `/${locale}/booking`, label: t('footer.services.booking') },
+        ]
       : []),
   ];
 

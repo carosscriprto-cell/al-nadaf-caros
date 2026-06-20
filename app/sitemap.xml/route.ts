@@ -6,12 +6,14 @@
 import { headers } from 'next/headers';
 import { getRequestOrigin } from '@/lib/seo/host';
 import { createPublicServerClient } from '@/lib/supabase/client';
+import { getStorefrontFeatures } from '@/lib/supabase/getTenant';
 
 export const dynamic = 'force-dynamic';
 
 const LOCALES = ['en', 'ar'] as const;
-// Storefront pages every tenant has (relative to /{locale}).
-const STATIC_PATHS = ['', '/fleet', '/rental', '/sales', '/about', '/services', '/contact', '/faq', '/privacy', '/terms'];
+// Storefront pages every tenant has (relative to /{locale}). /services is added
+// conditionally (rental tenants only — see below); /rental & /sales were removed.
+const STATIC_PATHS = ['', '/fleet', '/about', '/contact', '/faq', '/privacy', '/terms'];
 
 function xmlEscape(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -24,9 +26,13 @@ export async function GET() {
   const h = await headers();
   const tenantId = h.get('x-tenant-id');
 
+  // /services only exists for rental/hybrid tenants (gated route, P2.5-3a).
+  const features = await getStorefrontFeatures();
+  const paths = features.enableRental ? [...STATIC_PATHS, '/services'] : STATIC_PATHS;
+
   const entries: Entry[] = [];
   for (const locale of LOCALES) {
-    for (const path of STATIC_PATHS) {
+    for (const path of paths) {
       entries.push({ loc: `${origin}/${locale}${path}` });
     }
   }

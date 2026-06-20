@@ -10,6 +10,7 @@ import { Car, Menu, Phone, X } from 'lucide-react';
 import LanguageSwitcher from './LanguageSwitcher';
 import ThemeSwitcher from './ThemeSwitcher';
 import { siteConfig } from '@/config';
+import { useTenantFeatures } from '@/components/providers/TenantFeaturesProvider';
 import { cn } from '@/components/ui/utils';
 
 type NavItem = {
@@ -45,17 +46,19 @@ export default function Navbar({ brandName, logoUrl }: NavbarProps) {
   const locale = useLocale();
   const pathname = usePathname();
   const t = useTranslations();
+  const features = useTenantFeatures();
   const [isOpen, setIsOpen] = useState(false);
 
+  // Services is shown only for rental/hybrid tenants (gated route, P2.5-3a).
   const navItems = useMemo<NavItem[]>(
     () => [
       { href: '', label: t('nav.home') },
       { href: '/fleet', label: t('nav.fleet') },
-      { href: '/services', label: t('nav.services') },
+      ...(features.enableRental ? [{ href: '/services', label: t('nav.services') }] : []),
       { href: '/about', label: t('nav.about') },
       { href: '/contact', label: t('nav.contact') },
     ],
-    [t]
+    [t, features.enableRental]
   );
 
   const displayBrand =
