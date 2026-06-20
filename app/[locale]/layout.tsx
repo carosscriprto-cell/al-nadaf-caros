@@ -10,9 +10,10 @@ import { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import { seoConfig, siteConfig } from '@/config';
 import { getTenantConfig, getStorefrontFeatures } from '@/lib/supabase/getTenant';
-import { resolveSocial, resolveBusinessHours } from '@/lib/tenant/branding';
+import { resolveSocial, resolveBusinessHours, resolveContact } from '@/lib/tenant/branding';
 import { getRequestOrigin } from '@/lib/seo/host';
 import { TenantFeaturesProvider } from '@/components/providers/TenantFeaturesProvider';
+import { TenantContactProvider } from '@/components/providers/TenantContactProvider';
 import WhatsAppFloatingButton from "@/components/WhatsappFloatingButton";
 
 const inter = Inter({
@@ -110,6 +111,7 @@ export default async function LocaleLayout({
           <NextIntlProvider locale={locale}>
             <UiLoadingProvider>
               <TenantFeaturesProvider value={features}>
+               <TenantContactProvider value={resolveContact(tenant)}>
                 <ErrorBoundary>
                   <div className={`${inter.variable} font-sans antialiased min-h-screen flex flex-col`}>
                     <Navbar brandName={brandName} logoUrl={tenant.logo_url} />
@@ -129,6 +131,7 @@ export default async function LocaleLayout({
                     <WhatsAppFloatingButton />
                   </div>
                 </ErrorBoundary>
+               </TenantContactProvider>
               </TenantFeaturesProvider>
             </UiLoadingProvider>
           </NextIntlProvider>

@@ -3,7 +3,7 @@
 
 import { z } from 'zod';
 
-export const LEAD_TYPES = ['inquiry', 'booking', 'purchase'] as const;
+export const LEAD_TYPES = ['inquiry', 'booking', 'purchase', 'availability', 'viewing'] as const;
 export type LeadType = (typeof LEAD_TYPES)[number];
 
 export const LEAD_STATUSES = ['new', 'contacted', 'closed'] as const;

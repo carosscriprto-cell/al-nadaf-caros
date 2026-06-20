@@ -31,9 +31,8 @@ import {
   Zap,
 } from 'lucide-react';
 
-import WhatsAppButton from '@/components/WhatsAppButton';
+import SmartLeadButtons from '@/components/leads/SmartLeadButtons';
 import VipDeliveryBadge from '@/components/VipDeliveryBadge';
-import { useTenantFeatures } from '@/components/providers/TenantFeaturesProvider';
 import type { Car } from '@/types/vehicles';
 import {
   getCarTitleFallback,
@@ -66,7 +65,6 @@ export default function FleetDetailClient({
   similarCars,
 }: FleetDetailClientProps) {
   const t = useTranslations('car');
-  const features = useTenantFeatures();
   const galleryImages = useMemo(
     () => (car.images.length ? car.images : [car.thumbnail]),
     [car.images, car.thumbnail]
@@ -675,25 +673,10 @@ export default function FleetDetailClient({
                         : 'Reserved'}
                     </div>
                   ) : (
-                    features.enableWhatsApp && (
-                      <WhatsAppButton
-                        car={car}
-                        content={content}
-                        source="detail"
-                        className="flex-1 flex items-center justify-center w-full gap-2 rounded-2xl
-                      bg-[#25D366] py-3 text-[14px] font-semibold text-white  truncate
-                      shadow-lg shadow-[#25D366]/20
-                      transition-all duration-300
-                      hover:scale-[1.02] hover:shadow-xl hover:shadow-[#25D366]/30"
-                      >
-                        {isRental
-                          ? t('actions.book_now')
-                          : isSale
-                          ? t('actions.buy_now')
-                          : t('actions.contact_now')}
-                        <Image src="/WhatsApp.png" alt="WhatsApp" width={24} height={24} loading="lazy" />
-                      </WhatsAppButton>
-                    )
+                    // Intent-driven capture buttons (availability / viewing /
+                    // purchase / booking) gated by features + listing type,
+                    // plus a direct WhatsApp button.
+                    <SmartLeadButtons car={car} content={content} source="detail" variant="detail" />
                   )}
 
                   <p className="text-sm leading-6 text-muted-foreground">

@@ -6,12 +6,12 @@ import { StepConfirm } from "@/components/booking/StepConfirm";
 import { StepDateTime } from "@/components/booking/StepDataTime";
 import { StepLocation } from "@/components/booking/StepLocation";
 import { Stepper } from "@/components/booking/Stepper"
-import { siteConfig } from "@/config";
 import { BookingExperienceProps } from "@/data/booking";
 import type { Car as CarType } from '@/types/vehicles';
 import { bookingReducer } from "@/lib/booking/bookingReducer";
 import { buildWhatsAppMessage } from "@/lib/booking/buildWhatsAppMessage";
 import { persistThenWhatsApp } from "@/lib/leads/persistThenWhatsApp";
+import { useTenantContact } from "@/components/providers/TenantContactProvider";
 import { initialState } from "@/lib/booking/initialState";
 import { prepareCarsForSearch } from "@/lib/search/buildIndex";
 import { createSearch } from "@/lib/search/createSearch";
@@ -117,9 +117,9 @@ export function BookingClientPage({
     return true;
   }, [state]);
   
-  const { raw: whatsappRaw } = siteConfig.contact.whatsapp;
-
-  const cleanNumber = whatsappRaw.replace(/\D/g, '');
+  // Tenant's own WhatsApp number (white-label) — not the platform's static one.
+  const contact = useTenantContact();
+  const cleanNumber = contact.whatsapp.replace(/\D/g, '');
 
     const handleSubmit = async () => {
       const msg = buildWhatsAppMessage(state, carTitle, locale);

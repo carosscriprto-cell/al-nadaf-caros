@@ -1,12 +1,12 @@
 'use client';
 
 import { useLocale, useTranslations } from 'next-intl';
-import { siteConfig } from '@/config';
 import type { Car } from '@/types/vehicles';
 import type { CarContentEntry } from '@/data/cars-content';
 import { buildWhatsAppMessage } from '@/lib/buildWhatsAppMessage';
 import { persistThenWhatsApp } from '@/lib/leads/persistThenWhatsApp';
 import { useTenantFeatures } from '@/components/providers/TenantFeaturesProvider';
+import { useTenantContact } from '@/components/providers/TenantContactProvider';
 import type { LeadType } from '@/lib/leads/schema';
 import Image from 'next/image';
 
@@ -42,6 +42,7 @@ export default function WhatsAppButton({
   const t = useTranslations();
   const locale = useLocale();
   const features = useTenantFeatures();
+  const contact = useTenantContact();
 
   if (!features.enableWhatsApp) {
     return null;
@@ -54,7 +55,7 @@ export default function WhatsAppButton({
     return message || t('car.messages.generic_interest');
   };
 
-  const whatsappUrl = `https://wa.me/${siteConfig.contact.whatsapp.raw.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(getDefaultMessage())}`;
+  const whatsappUrl = `https://wa.me/${contact.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(getDefaultMessage())}`;
 
   const sizeClasses = {
     sm: 'px-3 py-1.5 text-sm',

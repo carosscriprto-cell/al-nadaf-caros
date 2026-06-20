@@ -3,7 +3,6 @@ import { redirect } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getAllCarsForSearch } from '@/lib/supabase/queries.server';
 import { getStorefrontFeatures } from '@/lib/supabase/getTenant';
-import { siteConfig } from '@/config';
 import { BookingClientPage } from './BookingClientPage';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -43,7 +42,6 @@ export default async function BookingPage({
           contentMap={contentMap}
           contentAr={contentAr}
           contentEn={contentEn}
-          whatsappNumber={siteConfig.contact.whatsapp}
         />
   );
 }

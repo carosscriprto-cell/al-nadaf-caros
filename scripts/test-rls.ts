@@ -132,6 +132,13 @@ async function main(): Promise<void> {
         .eq('tenant_id', tenantBId).eq('source', 'rls-test');
       assert((landed ?? 0) === 1, 'the anon-inserted lead actually persisted (service-role count)');
 
+      // P2.5-2: the extended leads_type_check accepts the new 'availability' type
+      // (requires the 20260619 migration applied).
+      const { error: anonTypedErr } = await anonPublic
+        .from('leads')
+        .insert({ tenant_id: tenantBId, name: TAG, phone: '333333', type: 'availability', source: 'rls-test-type' });
+      assert(anonTypedErr === null, "anon CAN INSERT a lead with the new 'availability' type (P2.5-2)");
+
       // anon CANNOT INSERT a lead for a NON-EXISTENT tenant (tightened WITH CHECK).
       // No .select() so the only thing that can fail is the WITH CHECK gate itself.
       const { error: anonBadTenantErr } = await anonPublic

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import ImageWithFallback from '@/components/ui/ImageWithFallback';
 import Link from 'next/link';
 import {
@@ -13,7 +12,7 @@ import {
   Zap,
 } from 'lucide-react';
 
-import WhatsAppButton from '@/components/WhatsAppButton';
+import SmartLeadButtons from '@/components/leads/SmartLeadButtons';
 
 // Architecture doc § 3.1 — Car type from centralised types file
 import type { Car } from '@/types/vehicles';
@@ -308,31 +307,9 @@ export default function CarCard({
             </p>
           </div>
 
-          <div className="flex gap-2" dir="ltr">
-            <WhatsAppButton
-              car={car}
-              content={content}
-              source="card"
-              className="flex-1 flex items-center justify-center w-full gap-2 rounded-2xl
-              bg-[#25D366] py-3 text-[14px] font-semibold text-white truncate
-              shadow-lg shadow-[#25D366]/20 
-              transition-all duration-300 
-              hover:scale-[1.02] hover:shadow-xl hover:shadow-[#25D366]/30"
-            >
-              {isRent
-                ? t('actions.book_now')
-                : isSale
-                ? t('actions.buy_now')
-                : t('actions.contact_now')}
-              <Image
-                src="/WhatsApp.png"
-                alt="WhatsApp"
-                width={24}
-                height={24}
-                loading="lazy"
-              />
-            </WhatsAppButton>
-          </div>
+          {/* Smart capture buttons — intent-driven, gated by features + listing
+              type. Sold/reserved cars render nothing here (not inquirable). */}
+          <SmartLeadButtons car={car} content={content} source="card" variant="card" />
 
           <Link
             href={`/${locale}/fleet/${car.slug}`}

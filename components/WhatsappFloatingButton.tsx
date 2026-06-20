@@ -1,15 +1,16 @@
 'use client';
 
 import Image from 'next/image';
-import { siteConfig } from '@/config/site';
 import { persistThenWhatsApp } from '@/lib/leads/persistThenWhatsApp';
+import { useTenantContact } from '@/components/providers/TenantContactProvider';
 
 export default function WhatsAppFloatingButton({
   locale = 'en',
 }: {
   locale?: string;
 }) {
-  const phone = siteConfig.contact.whatsapp.raw.replace(/[^0-9]/g, '');
+  const contact = useTenantContact();
+  const phone = contact.whatsapp.replace(/[^0-9]/g, '');
 
   const message =
     locale === 'ar'
