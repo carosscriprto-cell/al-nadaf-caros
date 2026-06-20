@@ -33,7 +33,7 @@ import {
 
 import WhatsAppButton from '@/components/WhatsAppButton';
 import VipDeliveryBadge from '@/components/VipDeliveryBadge';
-import { clientConfig } from '@/config/client';
+import { useTenantFeatures } from '@/components/providers/TenantFeaturesProvider';
 import type { Car } from '@/types/vehicles';
 import {
   getCarTitleFallback,
@@ -66,6 +66,7 @@ export default function FleetDetailClient({
   similarCars,
 }: FleetDetailClientProps) {
   const t = useTranslations('car');
+  const features = useTenantFeatures();
   const galleryImages = useMemo(
     () => (car.images.length ? car.images : [car.thumbnail]),
     [car.images, car.thumbnail]
@@ -674,7 +675,7 @@ export default function FleetDetailClient({
                         : 'Reserved'}
                     </div>
                   ) : (
-                    clientConfig.features.enableWhatsApp && (
+                    features.enableWhatsApp && (
                       <WhatsAppButton
                         car={car}
                         content={content}

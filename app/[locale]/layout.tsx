@@ -9,9 +9,10 @@ import UiLoadingProvider from '@/components/providers/UiLoadingProvider';
 import { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import { seoConfig, siteConfig } from '@/config';
-import { getTenantConfig } from '@/lib/supabase/getTenant';
+import { getTenantConfig, getStorefrontFeatures } from '@/lib/supabase/getTenant';
 import { resolveSocial, resolveBusinessHours } from '@/lib/tenant/branding';
 import { getRequestOrigin } from '@/lib/seo/host';
+import { TenantFeaturesProvider } from '@/components/providers/TenantFeaturesProvider';
 import WhatsAppFloatingButton from "@/components/WhatsappFloatingButton";
 
 const inter = Inter({
@@ -86,7 +87,7 @@ export default async function LocaleLayout({
   setRequestLocale(locale);
 
   // ─── Per-tenant branding (P4) ────────────────────────────────
-  const tenant = await getTenantConfig();
+  const [tenant, features] = await Promise.all([getTenantConfig(), getStorefrontFeatures()]);
   const brandName =
     (locale === 'ar' ? tenant.name_ar : tenant.name) ?? tenant.name;
   // Inject tenant colors as CSS variables; Tailwind v4 utilities reference
@@ -108,25 +109,27 @@ export default async function LocaleLayout({
         >
           <NextIntlProvider locale={locale}>
             <UiLoadingProvider>
-              <ErrorBoundary>
-                <div className={`${inter.variable} font-sans antialiased min-h-screen flex flex-col`}>
-                  <Navbar brandName={brandName} logoUrl={tenant.logo_url} />
-                  <main className="flex-1">
-                    {children}
-                  </main>
-                  <Footer
-                    social={resolveSocial(tenant.social)}
-                    contact={{
-                      phone: tenant.phone ?? undefined,
-                      email: tenant.email ?? undefined,
-                      addressEn: tenant.address_en ?? undefined,
-                      addressAr: tenant.address_ar ?? undefined,
-                      hours: resolveBusinessHours(tenant.business_hours),
-                    }}
-                  />
-                  <WhatsAppFloatingButton />
-                </div>
-              </ErrorBoundary>
+              <TenantFeaturesProvider value={features}>
+                <ErrorBoundary>
+                  <div className={`${inter.variable} font-sans antialiased min-h-screen flex flex-col`}>
+                    <Navbar brandName={brandName} logoUrl={tenant.logo_url} />
+                    <main className="flex-1">
+                      {children}
+                    </main>
+                    <Footer
+                      social={resolveSocial(tenant.social)}
+                      contact={{
+                        phone: tenant.phone ?? undefined,
+                        email: tenant.email ?? undefined,
+                        addressEn: tenant.address_en ?? undefined,
+                        addressAr: tenant.address_ar ?? undefined,
+                        hours: resolveBusinessHours(tenant.business_hours),
+                      }}
+                    />
+                    <WhatsAppFloatingButton />
+                  </div>
+                </ErrorBoundary>
+              </TenantFeaturesProvider>
             </UiLoadingProvider>
           </NextIntlProvider>
         </ThemeProvider>

@@ -2,7 +2,7 @@
 
 import { Crown, Star } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { featureFlags } from '@/config';
+import { useTenantFeatures } from '@/components/providers/TenantFeaturesProvider';
 
 interface VipDeliveryBadgeProps {
   className?: string;
@@ -10,8 +10,9 @@ interface VipDeliveryBadgeProps {
 
 export default function VipDeliveryBadge({ className = "" }: VipDeliveryBadgeProps) {
   const t = useTranslations();
+  const features = useTenantFeatures();
 
-  if (!featureFlags.enableVipDelivery) {
+  if (!features.enableVipDelivery) {
     return null;
   }
 

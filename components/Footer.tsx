@@ -20,8 +20,9 @@ import {
   Twitter,
 } from 'lucide-react';
 
-import { featureFlags, siteConfig } from '@/config';
+import { siteConfig } from '@/config';
 import type { StorefrontSocial, StorefrontHours } from '@/lib/tenant/branding';
+import { useTenantFeatures } from '@/components/providers/TenantFeaturesProvider';
 import { useLocale, useTranslations } from 'next-intl';
 
 // Tenant contact, resolved server-side (P6 white-label). Each field falls back
@@ -50,6 +51,7 @@ export default function Footer({
 }) {
   const t = useTranslations();
   const locale = useLocale();
+  const features = useTenantFeatures();
   const localizedAddress =
     siteConfig.contact.address.localized[
       locale as keyof typeof siteConfig.contact.address.localized
@@ -78,7 +80,10 @@ export default function Footer({
   const serviceLinks = [
     { href: `/${locale}/fleet`, label: t('footer.links.fleet') },
     { href: `/${locale}/services`, label: t('footer.services.chauffeur') },
-    { href: `/${locale}/booking`, label: t('footer.services.booking') },
+    // Booking is the rental wizard — hide it for sale-only tenants.
+    ...(features.enableRental
+      ? [{ href: `/${locale}/booking`, label: t('footer.services.booking') }]
+      : []),
   ];
 
   const legalLinks = [
@@ -99,7 +104,7 @@ export default function Footer({
   ) as Array<[keyof typeof socialIcons, string]>;
 
   const contactItems = [
-    featureFlags.enablePhoneContact
+    features.enablePhoneContact
       ? {
           key: 'phone',
           icon: Phone,
@@ -108,7 +113,7 @@ export default function Footer({
           lines: [phoneDisplay],
         }
       : null,
-    featureFlags.enableEmailContact
+    features.enableEmailContact
       ? {
           key: 'email',
           icon: Mail,

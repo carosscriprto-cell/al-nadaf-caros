@@ -1,11 +1,12 @@
 'use client';
 
 import { useLocale, useTranslations } from 'next-intl';
-import { featureFlags, siteConfig } from '@/config';
+import { siteConfig } from '@/config';
 import type { Car } from '@/types/vehicles';
 import type { CarContentEntry } from '@/data/cars-content';
 import { buildWhatsAppMessage } from '@/lib/buildWhatsAppMessage';
 import { persistThenWhatsApp } from '@/lib/leads/persistThenWhatsApp';
+import { useTenantFeatures } from '@/components/providers/TenantFeaturesProvider';
 import type { LeadType } from '@/lib/leads/schema';
 import Image from 'next/image';
 
@@ -40,8 +41,9 @@ export default function WhatsAppButton({
 }: WhatsAppButtonProps) {
   const t = useTranslations();
   const locale = useLocale();
+  const features = useTenantFeatures();
 
-  if (!featureFlags.enableWhatsApp) {
+  if (!features.enableWhatsApp) {
     return null;
   }
 
