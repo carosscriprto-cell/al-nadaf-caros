@@ -11,6 +11,7 @@ import LanguageSwitcher from './LanguageSwitcher';
 import ThemeSwitcher from './ThemeSwitcher';
 import { siteConfig } from '@/config';
 import { useTenantFeatures } from '@/components/providers/TenantFeaturesProvider';
+import { useTenantPages } from '@/components/providers/TenantPagesProvider';
 import { cn } from '@/components/ui/utils';
 
 type NavItem = {
@@ -47,6 +48,7 @@ export default function Navbar({ brandName, logoUrl }: NavbarProps) {
   const pathname = usePathname();
   const t = useTranslations();
   const features = useTenantFeatures();
+  const pages = useTenantPages();
   const [isOpen, setIsOpen] = useState(false);
 
   // Services is shown only for rental/hybrid tenants (gated route, P2.5-3a).
@@ -57,10 +59,11 @@ export default function Navbar({ brandName, logoUrl }: NavbarProps) {
       ...(features.enableRental ? [{ href: '/services', label: t('nav.services') }] : []),
       // Financing is a Pro+ feature for sale tenants (gated route, P2.5-3b).
       ...(features.enableFinancing ? [{ href: '/financing', label: t('nav.financing') }] : []),
-      { href: '/about', label: t('nav.about') },
+      // About is optional per tenant (Site tab, P2.5-4b).
+      ...(pages.about ? [{ href: '/about', label: t('nav.about') }] : []),
       { href: '/contact', label: t('nav.contact') },
     ],
-    [t, features.enableRental, features.enableFinancing]
+    [t, features.enableRental, features.enableFinancing, pages.about]
   );
 
   const displayBrand =

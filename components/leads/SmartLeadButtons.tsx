@@ -14,6 +14,7 @@ import { useLocale } from 'next-intl';
 import type { Car } from '@/types/vehicles';
 import type { CarContentEntry } from '@/data/cars-content';
 import { useTenantFeatures } from '@/components/providers/TenantFeaturesProvider';
+import { useTenantPages } from '@/components/providers/TenantPagesProvider';
 import { intentsForCar, type LeadIntent } from '@/lib/leads/intents';
 import WhatsAppButton from '@/components/WhatsAppButton';
 import LeadCaptureDialog from './LeadCaptureDialog';
@@ -34,12 +35,6 @@ const primaryCls =
 const outlineCls =
   'flex flex-1 items-center justify-center gap-2 rounded-2xl border border-border bg-background py-3 text-sm font-semibold text-foreground transition hover:border-accent/40 hover:text-accent';
 
-// On a compact card we want the primary CTA to OPEN a capture form (not the
-// multi-step wizard), so prefer purchase → availability.
-function cardPrimaryIntent(intents: LeadIntent[]): LeadIntent {
-  return intents.includes('purchase') ? 'purchase' : 'availability';
-}
-
 export default function SmartLeadButtons({
   car,
   content,
@@ -53,31 +48,43 @@ export default function SmartLeadButtons({
 }) {
   const locale = useLocale();
   const features = useTenantFeatures();
+  const pages = useTenantPages();
   const cta = CTA[locale === 'ar' ? 'ar' : 'en'];
-  const intents = intentsForCar(car, features);
+
+  // Feature/listing gating, then per-tenant page toggles hide availability/viewing.
+  const intents = intentsForCar(car, features).filter((i) =>
+    i === 'availability' ? pages.leadAvailability : i === 'viewing' ? pages.leadViewing : true,
+  );
 
   // Sold/reserved cars aren't inquirable — caller already hides the CTA, but
   // guard anyway.
   if (car.status === 'sold' || car.status === 'reserved') return null;
 
+  // Capture-form intents that survived gating (booking is a route, not a form).
+  const formIntents = intents.filter((i): i is LeadIntent => i !== 'booking');
+  const hasBooking = intents.includes('booking');
+
   if (variant === 'card') {
-    const primary = cardPrimaryIntent(intents);
+    // Prefer purchase, else the first surviving form intent (may be none → only WhatsApp).
+    const primary = formIntents.includes('purchase') ? 'purchase' : formIntents[0];
     return (
       <div className="flex gap-2" dir="ltr">
-        <LeadCaptureDialog
-          car={car}
-          content={content}
-          intent={primary}
-          source={`${source}:${primary}`}
-          locale={locale}
-          trigger={<button type="button" className={primaryCls}>{cta[primary]}</button>}
-        />
+        {primary && (
+          <LeadCaptureDialog
+            car={car}
+            content={content}
+            intent={primary}
+            source={`${source}:${primary}`}
+            locale={locale}
+            trigger={<button type="button" className={primaryCls}>{cta[primary]}</button>}
+          />
+        )}
         {features.enableWhatsApp && (
           <WhatsAppButton
             car={car}
             content={content}
             source={`${source}:whatsapp`}
-            className="!w-12 shrink-0 justify-center !rounded-2xl !bg-[#25D366] !p-0"
+            className={primary ? '!w-12 shrink-0 justify-center !rounded-2xl !bg-[#25D366] !p-0' : 'flex-1 justify-center !rounded-2xl !bg-[#25D366]'}
           >
             <Image src="/WhatsApp.png" alt="WhatsApp" width={22} height={22} loading="lazy" />
           </WhatsAppButton>
@@ -87,8 +94,6 @@ export default function SmartLeadButtons({
   }
 
   // Detail: show the full applicable set.
-  const formIntents = intents.filter((i) => i !== 'booking');
-  const hasBooking = intents.includes('booking');
   return (
     <div className="flex flex-col gap-2.5">
       <div className="flex flex-wrap gap-2.5">

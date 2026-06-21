@@ -5,9 +5,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { Save, Lock, Palette, Building2, Search, Clock, Share2, LayoutList, ArrowUp, ArrowDown, Eye, EyeOff } from 'lucide-react';
+import { Save, Lock, Palette, Building2, Search, Clock, Share2 } from 'lucide-react';
 import { settingsSchema, type SettingsValues } from '@/lib/dashboard/settingsSchema';
-import { isSectionLocked, type HomeSectionKey } from '@/lib/tenant/sections';
 import { updateTenantSettings } from '@/app/dashboard/settings/actions';
 import { useDash } from '../DashboardI18n';
 
@@ -39,20 +38,6 @@ export default function SettingsForm({
   const accent = watch('color_accent');
   const primary = watch('color_primary');
   const secondary = watch('color_secondary');
-
-  // Home sections show/hide + reorder (P6). Stored as an ordered array on the form.
-  const sections = watch('sections') ?? [];
-  const setSections = (next: SettingsValues['sections']) =>
-    setValue('sections', next, { shouldDirty: true });
-  const moveSection = (i: number, dir: -1 | 1) => {
-    const j = i + dir;
-    if (j < 0 || j >= sections.length) return;
-    const next = [...sections];
-    [next[i], next[j]] = [next[j], next[i]];
-    setSections(next);
-  };
-  const toggleSection = (i: number) =>
-    setSections(sections.map((s, idx) => (idx === i ? { ...s, enabled: !s.enabled } : s)));
 
   const onSubmit = (values: SettingsValues) => {
     if (!canEdit) return;
@@ -206,68 +191,6 @@ export default function SettingsForm({
             <input {...register('social.linkedin')} disabled={disabled} dir="ltr" placeholder="https://linkedin.com/…" className={inp} />
           </Field>
         </Grid>
-      </Section>
-
-      {/* Home sections — show/hide + reorder */}
-      <Section icon={LayoutList} title={st.secSections}>
-        <p className="-mt-1 text-xs text-[#9aa0a8]">{st.sectionsHint}</p>
-        <div className="space-y-2">
-          {sections.map((s, i) => {
-            const locked = isSectionLocked(s.key as HomeSectionKey);
-            return (
-              <div
-                key={s.key}
-                className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 transition ${
-                  s.enabled ? 'border-[#ececec] bg-white' : 'border-[#f0f0f0] bg-[#fafbfc] opacity-70'
-                }`}
-              >
-                <div className="flex flex-col gap-0.5">
-                  <button
-                    type="button"
-                    onClick={() => moveSection(i, -1)}
-                    disabled={disabled || i === 0}
-                    aria-label={st.moveUp}
-                    className="rounded p-0.5 text-[#9aa0a8] transition hover:bg-[#f0f1f3] hover:text-[#1a1d21] disabled:opacity-30"
-                  >
-                    <ArrowUp size={14} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => moveSection(i, 1)}
-                    disabled={disabled || i === sections.length - 1}
-                    aria-label={st.moveDown}
-                    className="rounded p-0.5 text-[#9aa0a8] transition hover:bg-[#f0f1f3] hover:text-[#1a1d21] disabled:opacity-30"
-                  >
-                    <ArrowDown size={14} />
-                  </button>
-                </div>
-
-                <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#75ACE8]/10 text-[11px] font-bold text-[#3d7cc0]">
-                  {i + 1}
-                </span>
-
-                <span className="flex-1 text-sm font-medium">
-                  {st.sectionLabels[s.key] ?? s.key}
-                </span>
-
-                {locked ? (
-                  <span className="text-[11px] text-[#9aa0a8]">{st.sectionLocked}</span>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => toggleSection(i)}
-                    disabled={disabled}
-                    aria-pressed={s.enabled}
-                    className="flex items-center gap-1.5 rounded-lg border border-[#e7e8ea] bg-white px-2.5 py-1.5 text-xs font-semibold text-[#6b7178] transition hover:border-[#75ACE8]/40 disabled:opacity-50"
-                  >
-                    {s.enabled ? <Eye size={14} className="text-emerald-500" /> : <EyeOff size={14} className="text-[#b3b8bf]" />}
-                    {s.enabled ? '' : st.sectionHidden}
-                  </button>
-                )}
-              </div>
-            );
-          })}
-        </div>
       </Section>
 
       {/* Sticky-ish footer save (mirrors header) */}

@@ -468,6 +468,7 @@ export type Database = {
           name: string
           name_ar: string | null
           og_image_url: string | null
+          pages: Json | null
           phone: string | null
           plan: Database["public"]["Enums"]["tenant_plan"]
           sections: Json | null
@@ -500,6 +501,7 @@ export type Database = {
           name: string
           name_ar?: string | null
           og_image_url?: string | null
+          pages?: Json | null
           phone?: string | null
           plan?: Database["public"]["Enums"]["tenant_plan"]
           sections?: Json | null
@@ -532,6 +534,7 @@ export type Database = {
           name?: string
           name_ar?: string | null
           og_image_url?: string | null
+          pages?: Json | null
           phone?: string | null
           plan?: Database["public"]["Enums"]["tenant_plan"]
           sections?: Json | null

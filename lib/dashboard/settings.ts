@@ -6,7 +6,6 @@
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import type { Tables } from '@/lib/supabase/database.types';
 import type { SettingsValues } from './settingsSchema';
-import { parseSections } from '@/lib/tenant/sections';
 
 export type DashTenant = Tables<'tenants'>;
 export type TenantRole = 'owner' | 'admin' | 'editor';
@@ -63,7 +62,5 @@ export function tenantToFormValues(t: DashTenant): SettingsValues {
       twitter: str(so.twitter),
       linkedin: str(so.linkedin),
     },
-    // Normalized to the full canonical list (order preserved, missing appended).
-    sections: parseSections(t.sections),
   };
 }

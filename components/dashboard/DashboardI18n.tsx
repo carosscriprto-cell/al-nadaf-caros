@@ -47,7 +47,7 @@ const enums: Record<DashLang, EnumGroups> = {
 
 const DICT = {
   en: {
-    overview: 'Overview', inventory: 'Inventory', leads: 'Leads', settings: 'Settings', signOut: 'Sign out', dashboard: 'Dashboard', langToggle: 'العربية',
+    overview: 'Overview', inventory: 'Inventory', leads: 'Leads', site: 'Site', settings: 'Settings', signOut: 'Sign out', dashboard: 'Dashboard', langToggle: 'العربية',
     welcome: 'Welcome back', totalCars: 'Total vehicles', available: 'Available', hidden: 'Hidden', featured: 'Featured',
     newLeads: 'New leads', overviewLeadsHint: 'unhandled — review them in Leads.',
     overviewHint: 'Manage your inventory from the Inventory section.',
@@ -73,6 +73,15 @@ const DICT = {
       nearLimitText: 'Upgrade your plan to add more vehicles.',
       limitReachedTitle: "You've reached your vehicle limit",
       limitReachedText: 'Upgrade your plan to keep adding vehicles.',
+    },
+    si: {
+      title: 'Site management', subtitle: 'Control which pages and buttons appear on your storefront.',
+      secPages: 'Pages & buttons', pagesHint: 'Turn optional pages and lead buttons on or off.',
+      aboutPage: 'About page', aboutHint: 'Show the “About us” page and its nav link.',
+      leadAvailability: '“Check availability” button', leadAvailabilityHint: 'Show the availability capture button on cars.',
+      leadViewing: '“Book a viewing” button', leadViewingHint: 'Show the viewing capture button on cars.',
+      autoTitle: 'Automatic (depends on rental)', servicesPage: 'Services page', bookingFlow: 'Booking',
+      autoOn: 'Shown', autoOff: 'Hidden',
     },
     st: {
       title: 'Settings', subtitle: 'Your storefront identity, branding, and SEO.',
@@ -146,7 +155,7 @@ const DICT = {
     },
   },
   ar: {
-    overview: 'نظرة عامة', inventory: 'المخزون', leads: 'الطلبات', settings: 'الإعدادات', signOut: 'تسجيل الخروج', dashboard: 'لوحة التحكم', langToggle: 'English',
+    overview: 'نظرة عامة', inventory: 'المخزون', leads: 'الطلبات', site: 'الموقع', settings: 'الإعدادات', signOut: 'تسجيل الخروج', dashboard: 'لوحة التحكم', langToggle: 'English',
     welcome: 'مرحباً بعودتك', totalCars: 'إجمالي المركبات', available: 'متاحة', hidden: 'مخفية', featured: 'مميّزة',
     newLeads: 'طلبات جديدة', overviewLeadsHint: 'بانتظار المتابعة — راجعها في قسم الطلبات.',
     overviewHint: 'أدر مخزونك من قسم المخزون.',
@@ -172,6 +181,15 @@ const DICT = {
       nearLimitText: 'قم بترقية باقتك لإضافة المزيد من المركبات.',
       limitReachedTitle: 'وصلت إلى حدّ عدد المركبات',
       limitReachedText: 'قم بترقية باقتك لمواصلة إضافة المركبات.',
+    },
+    si: {
+      title: 'إدارة الموقع', subtitle: 'تحكّم في الصفحات والأزرار التي تظهر في متجرك.',
+      secPages: 'الصفحات والأزرار', pagesHint: 'فعّل أو عطّل الصفحات الاختيارية وأزرار الطلب.',
+      aboutPage: 'صفحة من نحن', aboutHint: 'إظهار صفحة «من نحن» ورابطها في القائمة.',
+      leadAvailability: 'زر «تأكّد من التوفّر»', leadAvailabilityHint: 'إظهار زر طلب التوفّر على السيارات.',
+      leadViewing: 'زر «احجز معاينة»', leadViewingHint: 'إظهار زر طلب المعاينة على السيارات.',
+      autoTitle: 'تلقائي (حسب التأجير)', servicesPage: 'صفحة الخدمات', bookingFlow: 'الحجز',
+      autoOn: 'ظاهر', autoOff: 'مخفي',
     },
     st: {
       title: 'الإعدادات', subtitle: 'هوية متجرك وهويته البصرية وتحسين محركات البحث.',

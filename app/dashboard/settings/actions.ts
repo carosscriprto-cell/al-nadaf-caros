@@ -66,8 +66,6 @@ export async function updateTenantSettings(values: SettingsValues): Promise<Acti
       twitter: orNull(d.social.twitter),
       linkedin: orNull(d.social.linkedin),
     },
-    // Ordered show/hide for storefront home sections (P6).
-    sections: d.sections ?? null,
     updated_at: new Date().toISOString(),
   };
 
