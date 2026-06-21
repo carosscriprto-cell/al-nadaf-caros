@@ -83,6 +83,14 @@ const DICT = {
       autoTitle: 'Automatic (depends on rental)', servicesPage: 'Services page', bookingFlow: 'Booking',
       autoOn: 'Shown', autoOff: 'Hidden',
     },
+    ci: {
+      heading: 'Section content', hint: 'Customize the text of these sections. Leave a field empty to use the default.',
+      secWhy: '“Why choose us” section', secHow: '“How it works” section', secAbout: 'About page',
+      langEn: 'English', langAr: 'العربية',
+      fHeading: 'Heading', fDescription: 'Sub-heading', fItem: 'Item', fStep: 'Step',
+      fItemTitle: 'Title', fItemText: 'Short text',
+      fBody: 'Body', bodyHint: 'Separate paragraphs with a blank line.',
+    },
     st: {
       title: 'Settings', subtitle: 'Your storefront identity, branding, and SEO.',
       save: 'Save changes', saving: 'Saving…', saved: 'Settings saved', saveFailed: 'Could not save',
@@ -190,6 +198,14 @@ const DICT = {
       leadViewing: 'زر «احجز معاينة»', leadViewingHint: 'إظهار زر طلب المعاينة على السيارات.',
       autoTitle: 'تلقائي (حسب التأجير)', servicesPage: 'صفحة الخدمات', bookingFlow: 'الحجز',
       autoOn: 'ظاهر', autoOff: 'مخفي',
+    },
+    ci: {
+      heading: 'محتوى الأقسام', hint: 'خصّص نصوص هذه الأقسام. اترك الحقل فارغاً لاستخدام النص الافتراضي.',
+      secWhy: 'قسم «لماذا نحن»', secHow: 'قسم «كيف يعمل»', secAbout: 'صفحة من نحن',
+      langEn: 'English', langAr: 'العربية',
+      fHeading: 'العنوان', fDescription: 'العنوان الفرعي', fItem: 'عنصر', fStep: 'خطوة',
+      fItemTitle: 'العنوان', fItemText: 'نص مختصر',
+      fBody: 'النص', bodyHint: 'افصل بين الفقرات بسطر فارغ.',
     },
     st: {
       title: 'الإعدادات', subtitle: 'هوية متجرك وهويته البصرية وتحسين محركات البحث.',

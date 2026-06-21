@@ -5,37 +5,26 @@ import { Search, Calendar, Car, CreditCard, ArrowRight } from 'lucide-react';
 import HeadSection from '../HeadSection';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
+import { useTenantContent } from '@/components/providers/TenantContentProvider';
+import { HOW_KEYS } from '@/lib/tenant/content';
+
+const STEP_ICONS = [Search, Calendar, Car, CreditCard];
 
 export const HowItWorks = () => {
   const locale = useLocale();
   const t = useTranslations('how_it_works');
-  
-  const steps = [
-    {
-      icon: Search,
-      title: t('steps.choose.title'),
-      description: t('steps.choose.description'),
-      step: '01',
-    },
-    {
-      icon: Calendar,
-      title: t('steps.book.title'),
-      description: t('steps.book.description'),
-      step: '02',
-    },
-    {
-      icon: Car,
-      title: t('steps.delivery.title'),
-      description: t('steps.delivery.description'),
-      step: '03',
-    },
-    {
-      icon: CreditCard,
-      title: t('steps.drive.title'),
-      description: t('steps.drive.description'),
-      step: '04',
-    },
-  ];
+  // Per-tenant text override; empty fields fall back to the static i18n.
+  const hw = useTenantContent().howItWorks[locale === 'ar' ? 'ar' : 'en'];
+
+  const heading = hw.title || t('title');
+  const subheading = hw.description || t('description');
+
+  const steps = HOW_KEYS.map((key, i) => ({
+    icon: STEP_ICONS[i],
+    title: hw.items?.[i]?.title || t(`steps.${key}.title`),
+    description: hw.items?.[i]?.text || t(`steps.${key}.description`),
+    step: `0${i + 1}`,
+  }));
 
   return (
     <section className="relative overflow-hidden bg-muted/30 py-20">
@@ -48,8 +37,8 @@ export const HowItWorks = () => {
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <HeadSection
-          title={t('title')}
-          description={t('description')}
+          title={heading}
+          description={subheading}
           divider
         />
 

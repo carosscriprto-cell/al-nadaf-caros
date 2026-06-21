@@ -457,6 +457,7 @@ export type Database = {
           color_accent: string
           color_primary: string
           color_secondary: string
+          content: Json | null
           created_at: string
           domain: string | null
           email: string | null
@@ -490,6 +491,7 @@ export type Database = {
           color_accent?: string
           color_primary?: string
           color_secondary?: string
+          content?: Json | null
           created_at?: string
           domain?: string | null
           email?: string | null
@@ -523,6 +525,7 @@ export type Database = {
           color_accent?: string
           color_primary?: string
           color_secondary?: string
+          content?: Json | null
           created_at?: string
           domain?: string | null
           email?: string | null

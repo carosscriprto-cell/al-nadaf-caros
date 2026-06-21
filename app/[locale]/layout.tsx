@@ -12,10 +12,12 @@ import { seoConfig, siteConfig } from '@/config';
 import { getTenantConfig, getStorefrontFeatures } from '@/lib/supabase/getTenant';
 import { resolveSocial, resolveBusinessHours, resolveContact } from '@/lib/tenant/branding';
 import { parseTenantPages } from '@/lib/tenant/pages';
+import { parseTenantContent } from '@/lib/tenant/content';
 import { getRequestOrigin } from '@/lib/seo/host';
 import { TenantFeaturesProvider } from '@/components/providers/TenantFeaturesProvider';
 import { TenantContactProvider } from '@/components/providers/TenantContactProvider';
 import { TenantPagesProvider } from '@/components/providers/TenantPagesProvider';
+import { TenantContentProvider } from '@/components/providers/TenantContentProvider';
 import WhatsAppFloatingButton from "@/components/WhatsappFloatingButton";
 
 const inter = Inter({
@@ -115,6 +117,7 @@ export default async function LocaleLayout({
               <TenantFeaturesProvider value={features}>
                <TenantContactProvider value={resolveContact(tenant)}>
                 <TenantPagesProvider value={parseTenantPages(tenant.pages)}>
+                <TenantContentProvider value={parseTenantContent(tenant.content)}>
                 <ErrorBoundary>
                   <div className={`${inter.variable} font-sans antialiased min-h-screen flex flex-col`}>
                     <Navbar brandName={brandName} logoUrl={tenant.logo_url} />
@@ -134,6 +137,7 @@ export default async function LocaleLayout({
                     <WhatsAppFloatingButton />
                   </div>
                 </ErrorBoundary>
+                </TenantContentProvider>
                 </TenantPagesProvider>
                </TenantContactProvider>
               </TenantFeaturesProvider>

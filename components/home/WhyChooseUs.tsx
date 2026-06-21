@@ -2,44 +2,28 @@
 
 import { motion } from 'framer-motion';
 import { Shield, Clock, Star, Car, Users, Award } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import HeadSection from '../HeadSection';
+import { useTenantContent } from '@/components/providers/TenantContentProvider';
+import { WHY_KEYS } from '@/lib/tenant/content';
+
+const ICONS = [Shield, Clock, Star, Car, Users, Award];
 
 const WhyChooseUs = () => {
   const t = useTranslations();
+  const locale = useLocale();
+  // Per-tenant text override; any empty field falls back to the static i18n.
+  const wc = useTenantContent().whyChooseUs[locale === 'ar' ? 'ar' : 'en'];
 
-  const benefits = [
-    {
-      icon: Shield,
-      title: t('why_choose_us.safe'),
-      description: t('why_choose_us.safe_desc'),
-    },
-    {
-      icon: Clock,
-      title: t('why_choose_us.service'),
-      description: t('why_choose_us.service_desc'),
-    },
-    {
-      icon: Star,
-      title: t('why_choose_us.quality'),
-      description: t('why_choose_us.quality_desc'),
-    },
-    {
-      icon: Car,
-      title: t('why_choose_us.selection'),
-      description: t('why_choose_us.selection_desc'),
-    },
-    {
-      icon: Users,
-      title: t('why_choose_us.drivers'),
-      description: t('why_choose_us.drivers_desc'),
-    },
-    {
-      icon: Award,
-      title: t('why_choose_us.awards'),
-      description: t('why_choose_us.awards_desc'),
-    },
-  ];
+  const heading = wc.title || t('why_choose_us.title');
+  const subheading = wc.description || t('why_choose_us.description');
+
+  const benefits = WHY_KEYS.map((key, i) => ({
+    key,
+    icon: ICONS[i],
+    title: wc.items?.[i]?.title || t(`why_choose_us.${key}`),
+    description: wc.items?.[i]?.text || t(`why_choose_us.${key}_desc`),
+  }));
 
   return (
     <section className="relative overflow-hidden bg-background py-24">
@@ -52,8 +36,8 @@ const WhyChooseUs = () => {
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <HeadSection
-          title={t('why_choose_us.title')}
-          description={t('why_choose_us.description')}
+          title={heading}
+          description={subheading}
           divider={true}
         />
 
@@ -64,7 +48,7 @@ const WhyChooseUs = () => {
 
             return (
               <motion.div
-                key={benefit.title}
+                key={benefit.key}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.55, delay: index * 0.07 }}

@@ -7,10 +7,18 @@ import MapSection from '@/components/map/MapSection';
 import { motion } from 'framer-motion';
 import { useLocale, useTranslations } from 'next-intl';
 import PageHero from '@/components/PageHero';
+import { useTenantContent } from '@/components/providers/TenantContentProvider';
 
 export default function AboutPageClient() {
   const locale = useLocale();
   const t = useTranslations('about');
+
+  // Per-tenant story override (heading + body paragraphs); empty → static i18n.
+  const ab = useTenantContent().about[locale === 'ar' ? 'ar' : 'en'];
+  const storyHeading = ab.heading || t('story.title');
+  const storyParagraphs = ab.body
+    ? ab.body.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean)
+    : [t('story.paragraph_one'), t('story.paragraph_two')];
 
   const stats = [
     { number: '10+', label: t('stats.years_experience') },
@@ -85,18 +93,16 @@ export default function AboutPageClient() {
       <section className="py-20">
         <div className="mx-auto max-w-4xl px-4 text-center">
           <HeadSection
-            title={t('story.title')}
+            title={storyHeading}
             description={t('story.description')}
             divider
           />
 
-          <p className="mt-6 text-lg leading-8 text-muted-foreground">
-            {t('story.paragraph_one')}
-          </p>
-
-          <p className="mt-4 text-lg leading-8 text-muted-foreground">
-            {t('story.paragraph_two')}
-          </p>
+          {storyParagraphs.map((paragraph, i) => (
+            <p key={i} className={`${i === 0 ? 'mt-6' : 'mt-4'} text-lg leading-8 text-muted-foreground`}>
+              {paragraph}
+            </p>
+          ))}
         </div>
       </section>
 
