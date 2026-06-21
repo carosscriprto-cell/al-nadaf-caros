@@ -1,10 +1,16 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Globe, LogOut, Car } from 'lucide-react';
+import { Globe, LogOut, Car, Crown } from 'lucide-react';
 import { createBrowserClient } from '@/lib/supabase/client';
 import type { Tables } from '@/lib/supabase/database.types';
 import { useDash } from './DashboardI18n';
+
+const PLAN_CHIP: Record<string, string> = {
+  starter: 'bg-[#f0f1f3] text-[#6b7178]',
+  pro: 'bg-[#75ACE8]/12 text-[#3d7cc0]',
+  enterprise: 'bg-violet-100 text-violet-700',
+};
 
 type Props = {
   tenant: Tables<'tenants'>;
@@ -23,6 +29,7 @@ export default function DashboardTopbar({ tenant, userEmail }: Props) {
   };
 
   const brandName = lang === 'ar' ? tenant.name_ar || tenant.name : tenant.name;
+  const planName = t.ov.plans[tenant.plan] ?? tenant.plan;
 
   return (
     <header className="flex h-16 shrink-0 items-center gap-3 border-b border-[#ececec] bg-white px-5 lg:px-8">
@@ -38,6 +45,13 @@ export default function DashboardTopbar({ tenant, userEmail }: Props) {
       </div>
 
       <div className="ms-auto flex items-center gap-2">
+        <span
+          className={`hidden items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold sm:inline-flex ${PLAN_CHIP[tenant.plan] ?? PLAN_CHIP.starter}`}
+          title={`${t.ov.plan}: ${planName}`}
+        >
+          <Crown size={13} /> {planName}
+        </span>
+
         <button
           onClick={toggle}
           className="flex items-center gap-1.5 rounded-full border border-[#ececec] px-3 py-1.5 text-xs font-medium text-[#6b7178] transition hover:border-[#75ACE8]/40 hover:text-[#1a1d21]"

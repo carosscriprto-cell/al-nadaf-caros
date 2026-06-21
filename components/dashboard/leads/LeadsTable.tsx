@@ -16,8 +16,12 @@ import { setLeadStatus, bulkSetLeadStatus } from '@/app/dashboard/leads/actions'
 
 const PAGE_SIZE = 12;
 type SortKey = 'date' | 'status';
-type TypeFilter = 'all' | 'inquiry' | 'booking' | 'purchase';
+type LeadTypeKey = 'availability' | 'viewing' | 'purchase' | 'booking' | 'inquiry';
+type TypeFilter = 'all' | LeadTypeKey;
 type StatusFilter = 'all' | LeadStatus;
+
+// All current lead types (P2.5-2 added availability/viewing) in filter order.
+const LEAD_TYPES: LeadTypeKey[] = ['availability', 'viewing', 'purchase', 'booking', 'inquiry'];
 
 const STATUS_STYLES: Record<string, string> = {
   new: 'bg-[#75ACE8]/12 text-[#3d7cc0] border-[#75ACE8]/30',
@@ -28,6 +32,8 @@ const TYPE_STYLES: Record<string, string> = {
   inquiry: 'bg-slate-50 text-slate-600 border-slate-200',
   booking: 'bg-violet-50 text-violet-700 border-violet-200',
   purchase: 'bg-rose-50 text-rose-700 border-rose-200',
+  availability: 'bg-sky-50 text-sky-700 border-sky-200',
+  viewing: 'bg-amber-50 text-amber-700 border-amber-200',
 };
 const STATUS_ORDER: Record<string, number> = { new: 0, contacted: 1, closed: 2 };
 const STATUSES: LeadStatus[] = ['new', 'contacted', 'closed'];
@@ -60,7 +66,7 @@ export default function LeadsTable({ leads, stats }: { leads: DashLead[]; stats:
     if (q) {
       rows = rows.filter((l) => {
         const car = l.car ? `${l.car.brand} ${l.car.model} ${l.car.year}` : '';
-        return `${l.name ?? ''} ${l.phone ?? ''} ${l.email ?? ''} ${car}`.toLowerCase().includes(q);
+        return `${l.name ?? ''} ${l.phone ?? ''} ${l.email ?? ''} ${l.message ?? ''} ${car}`.toLowerCase().includes(q);
       });
     }
     const dir = sort.dir === 'asc' ? 1 : -1;
@@ -141,19 +147,14 @@ export default function LeadsTable({ leads, stats }: { leads: DashLead[]; stats:
             className="w-full rounded-xl border border-[#e7e8ea] bg-white py-2.5 text-sm outline-none focus:border-[#75ACE8] focus:ring-4 focus:ring-[#75ACE8]/15 ltr:pl-9 ltr:pr-3 rtl:pr-9 rtl:pl-3"
           />
         </div>
-        <div className="flex gap-1 rounded-xl bg-[#f0f1f3] p-1">
-          {(['all', 'inquiry', 'booking', 'purchase'] as const).map((tf) => (
-            <button
-              key={tf}
-              onClick={() => { setTypeFilter(tf); setPage(0); }}
-              className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
-                typeFilter === tf ? 'bg-white text-[#1a1d21] shadow-sm' : 'text-[#8a9099] hover:text-[#1a1d21]'
-              }`}
-            >
-              {tf === 'all' ? ld.allTypes : el('lead_type', tf)}
-            </button>
-          ))}
-        </div>
+        <select
+          value={typeFilter}
+          onChange={(e) => { setTypeFilter(e.target.value as TypeFilter); setPage(0); }}
+          className="rounded-xl border border-[#e7e8ea] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#75ACE8]"
+        >
+          <option value="all">{ld.allTypes}</option>
+          {LEAD_TYPES.map((tf) => <option key={tf} value={tf}>{el('lead_type', tf)}</option>)}
+        </select>
         <select
           value={statusFilter}
           onChange={(e) => { setStatusFilter(e.target.value as StatusFilter); setPage(0); }}
@@ -215,10 +216,10 @@ export default function LeadsTable({ leads, stats }: { leads: DashLead[]; stats:
                 return (
                   <tr key={l.id} className="border-b border-[#f3f3f3] last:border-0 hover:bg-[#fafbfc]">
                     <td className="px-4 py-3"><Cb checked={selected.has(l.id)} onChange={() => toggleRow(l.id)} /></td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 max-w-[220px]">
                       <div className="font-semibold">{l.name?.trim() || <span className="text-[#9aa0a8] font-normal">{ld.general}</span>}</div>
-                      {l.pickup_location && (
-                        <div className="text-xs text-[#9aa0a8]">{l.pickup_location}</div>
+                      {l.message?.trim() && (
+                        <div className="truncate text-xs text-[#9aa0a8]" title={l.message}>{l.message}</div>
                       )}
                     </td>
                     <td className="px-4 py-3">
@@ -244,9 +245,15 @@ export default function LeadsTable({ leads, stats }: { leads: DashLead[]; stats:
                           <CalendarRange size={11} /> {fmtRange(l.rental_start, l.rental_end, dateFmt)}
                         </div>
                       )}
+                      {l.pickup_location && (
+                        <div className="mt-0.5 text-[11px] text-[#9aa0a8]">{l.pickup_location}</div>
+                      )}
                     </td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex rounded-full border px-2.5 py-0.5 text-xs font-semibold ${TYPE_STYLES[type] ?? 'border-[#e7e8ea] bg-[#f7f7f7] text-[#6b7178]'}`}>{el('lead_type', type)}</span>
+                      {l.source && (
+                        <div className="mt-1 text-[11px] text-[#b3b8bf]">{ld.via} {l.source}</div>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-[#6b7178]">{dateFmt.format(new Date(l.created_at))}</td>
                     <td className="px-4 py-3">

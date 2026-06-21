@@ -3,11 +3,18 @@
 import Link from 'next/link';
 import {
   Car, Eye, EyeOff, Star, ArrowRight, Inbox, Tag, Clock, CheckCircle2, ShoppingBag,
+  Crown, AlertTriangle,
 } from 'lucide-react';
 import { useDash } from './DashboardI18n';
-import type { CarStats } from '@/lib/dashboard/cars';
+import type { CarStats, TenantPlan } from '@/lib/dashboard/cars';
 
 type LeadStats = { total: number; new: number; contacted: number; closed: number; handled: number };
+
+const PLAN_BADGE: Record<string, string> = {
+  starter: 'bg-[#f0f1f3] text-[#6b7178]',
+  pro: 'bg-[#75ACE8]/12 text-[#3d7cc0]',
+  enterprise: 'bg-violet-100 text-violet-700',
+};
 type RecentLead = {
   id: string;
   name: string | null;
@@ -21,14 +28,28 @@ type RecentLead = {
 export default function OverviewClient({
   cars,
   leads,
+  plan,
+  maxCars,
   recentLeads,
 }: {
   cars: CarStats;
   leads: LeadStats;
+  plan: TenantPlan;
+  maxCars: number;
   recentLeads: RecentLead[];
 }) {
   const { t, el, lang } = useDash();
   const ov = t.ov;
+
+  // Plan & car-limit usage (display only — enforcement lives in P5a actions).
+  const planName = ov.plans[plan] ?? plan;
+  const limited = maxCars >= 0;
+  const used = cars.total;
+  const ratio = limited && maxCars > 0 ? used / maxCars : 0;
+  const atLimit = limited && used >= maxCars;
+  const nearLimit = limited && !atLimit && ratio >= 0.8;
+  const pct = Math.min(100, Math.round(ratio * 100));
+  const barColor = atLimit ? '#ef5350' : nearLimit ? '#f5a623' : '#75ACE8';
 
   const dateFmt = new Intl.DateTimeFormat(lang === 'ar' ? 'ar' : 'en', {
     day: 'numeric', month: 'short',
@@ -56,10 +77,47 @@ export default function OverviewClient({
 
   return (
     <div className="mx-auto max-w-6xl space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">{t.welcome}</h1>
-        <p className="mt-1 text-sm text-[#8a9099]">{ov.subtitle}</p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">{t.welcome}</h1>
+          <p className="mt-1 text-sm text-[#8a9099]">{ov.subtitle}</p>
+        </div>
+        <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold ${PLAN_BADGE[plan] ?? PLAN_BADGE.starter}`}>
+          <Crown size={13} /> {ov.plan}: {planName}
+        </span>
       </div>
+
+      {/* Plan & usage */}
+      <section className="space-y-3">
+        <h2 className="text-sm font-bold text-[#6b7178]">{ov.planHeading}</h2>
+        <div className="rounded-2xl border border-[#ececec] bg-white p-5 shadow-[0_2px_12px_rgba(15,23,42,0.03)]">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span className="text-sm font-semibold text-[#3a3f45]">{ov.vehiclesUsed}</span>
+            <span className="text-sm font-bold tracking-tight" dir="ltr">
+              {used} / {limited ? maxCars : ov.unlimited}
+            </span>
+          </div>
+          {limited && maxCars > 0 && (
+            <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-[#f0f1f3]">
+              <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: barColor }} />
+            </div>
+          )}
+        </div>
+
+        {(nearLimit || atLimit) && (
+          <div
+            className={`flex items-start gap-3 rounded-2xl border px-4 py-3 ${
+              atLimit ? 'border-red-200 bg-red-50 text-red-700' : 'border-amber-200 bg-amber-50 text-amber-800'
+            }`}
+          >
+            <AlertTriangle size={18} className="mt-0.5 shrink-0" />
+            <div className="min-w-0">
+              <p className="text-sm font-bold">{atLimit ? ov.limitReachedTitle : ov.nearLimitTitle}</p>
+              <p className="text-xs">{atLimit ? ov.limitReachedText : ov.nearLimitText}</p>
+            </div>
+          </div>
+        )}
+      </section>
 
       {/* Inventory stats */}
       <section className="space-y-3">

@@ -1,13 +1,19 @@
-import { getMyTenantCars, carStats } from '@/lib/dashboard/cars';
+import { getMyTenantCars, carStats, getMyTenantContext } from '@/lib/dashboard/cars';
 import { getMyTenantLeads, leadStats } from '@/lib/dashboard/leads';
 import OverviewClient from '@/components/dashboard/OverviewClient';
 
 export default async function DashboardOverviewPage() {
-  const [cars, leads] = await Promise.all([getMyTenantCars(), getMyTenantLeads()]);
+  const [cars, leads, ctx] = await Promise.all([
+    getMyTenantCars(),
+    getMyTenantLeads(),
+    getMyTenantContext(),
+  ]);
   return (
     <OverviewClient
       cars={carStats(cars)}
       leads={leadStats(leads)}
+      plan={ctx.plan}
+      maxCars={ctx.features.maxCars}
       recentLeads={leads.slice(0, 6).map((l) => ({
         id: l.id,
         name: l.name,

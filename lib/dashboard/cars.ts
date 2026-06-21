@@ -8,6 +8,8 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import type { Tables } from '@/lib/supabase/database.types';
 import { parseTenantFeatures, type TenantFeatures } from '@/lib/tenant/features';
 
+export type TenantPlan = Tables<'tenants'>['plan'];
+
 export type DashCar = Tables<'cars'>;
 export type DashCarContent = Tables<'car_content'>;
 export type DashCarWithContent = DashCar & { car_content: DashCarContent[] };
@@ -34,20 +36,29 @@ export async function getMyTenantFeatures(): Promise<TenantFeatures> {
   return (await getMyTenantContext()).features;
 }
 
-// Tenant id + parsed features for the logged-in user (the form needs the id to
-// build storage upload paths {tenant_id}/cars/{car_id}/).
-export async function getMyTenantContext(): Promise<{ tenantId: string | null; features: TenantFeatures }> {
+// Tenant id + parsed features (+ plan) for the logged-in user (the form needs
+// the id to build storage upload paths {tenant_id}/cars/{car_id}/; the overview
+// reads plan + features.maxCars to show plan/usage).
+export async function getMyTenantContext(): Promise<{
+  tenantId: string | null;
+  features: TenantFeatures;
+  plan: TenantPlan;
+}> {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { tenantId: null, features: parseTenantFeatures(null) };
+  if (!user) return { tenantId: null, features: parseTenantFeatures(null), plan: 'starter' };
   const { data } = await supabase
     .from('tenant_users')
-    .select('tenant_id, tenant:tenants(features)')
+    .select('tenant_id, tenant:tenants(features, plan)')
     .eq('user_id', user.id)
     .single();
-  return { tenantId: data?.tenant_id ?? null, features: parseTenantFeatures(data?.tenant?.features) };
+  return {
+    tenantId: data?.tenant_id ?? null,
+    features: parseTenantFeatures(data?.tenant?.features),
+    plan: (data?.tenant?.plan ?? 'starter') as TenantPlan,
+  };
 }
 
 export function carStats(cars: DashCar[]) {

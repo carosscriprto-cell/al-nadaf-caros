@@ -27,7 +27,7 @@ const enums: Record<DashLang, EnumGroups> = {
     drivetrain: { FWD: 'FWD', RWD: 'RWD', AWD: 'AWD', '4WD': '4WD' },
     status: { available: 'Available', sold: 'Sold', reserved: 'Reserved' },
     currency: { USD: 'USD', EUR: 'EUR', AED: 'AED' },
-    lead_type: { inquiry: 'Inquiry', booking: 'Booking', purchase: 'Purchase' },
+    lead_type: { inquiry: 'Inquiry', booking: 'Booking', purchase: 'Purchase', availability: 'Availability', viewing: 'Viewing' },
     lead_status: { new: 'New', contacted: 'Contacted', closed: 'Closed' },
   },
   ar: {
@@ -40,7 +40,7 @@ const enums: Record<DashLang, EnumGroups> = {
     drivetrain: { FWD: 'دفع أمامي', RWD: 'دفع خلفي', AWD: 'دفع كلي', '4WD': 'دفع رباعي' },
     status: { available: 'متاحة', sold: 'مُباعة', reserved: 'محجوزة' },
     currency: { USD: 'USD', EUR: 'EUR', AED: 'AED' },
-    lead_type: { inquiry: 'استفسار', booking: 'حجز', purchase: 'شراء' },
+    lead_type: { inquiry: 'استفسار', booking: 'حجز', purchase: 'شراء', availability: 'توفّر', viewing: 'معاينة' },
     lead_status: { new: 'جديد', contacted: 'تم التواصل', closed: 'مغلق' },
   },
 };
@@ -58,7 +58,7 @@ const DICT = {
       colWho: 'Who', colContact: 'Contact', colVehicle: 'Vehicle', colType: 'Type', colDate: 'Received', colStatus: 'Status',
       noLeads: 'No leads yet', noLeadsHint: 'Inquiries and bookings from your storefront will appear here.',
       selected: 'selected', changeStatus: 'Set status', markNew: 'New', markContacted: 'Contacted', markClosed: 'Closed',
-      leads: 'leads', general: 'General inquiry', noContact: 'No contact info', rentalWindow: 'Rental',
+      leads: 'leads', general: 'General inquiry', noContact: 'No contact info', rentalWindow: 'Rental', via: 'via',
     },
     ov: {
       subtitle: 'A snapshot of your inventory and incoming leads.',
@@ -66,6 +66,13 @@ const DICT = {
       newLeads: 'New', handled: 'Handled', totalLeads: 'Total leads',
       noRecent: 'No leads yet — they’ll show up here as they arrive.',
       anonLead: 'New lead', generalInquiry: 'General inquiry',
+      plan: 'Plan',
+      plans: { starter: 'Starter', pro: 'Pro', enterprise: 'Enterprise' } as Record<string, string>,
+      planHeading: 'Plan & usage', vehiclesUsed: 'Vehicles used', unlimited: 'Unlimited',
+      nearLimitTitle: "You're near your vehicle limit",
+      nearLimitText: 'Upgrade your plan to add more vehicles.',
+      limitReachedTitle: "You've reached your vehicle limit",
+      limitReachedText: 'Upgrade your plan to keep adding vehicles.',
     },
     st: {
       title: 'Settings', subtitle: 'Your storefront identity, branding, and SEO.',
@@ -150,7 +157,7 @@ const DICT = {
       colWho: 'العميل', colContact: 'التواصل', colVehicle: 'المركبة', colType: 'النوع', colDate: 'وردت', colStatus: 'الحالة',
       noLeads: 'لا توجد طلبات بعد', noLeadsHint: 'ستظهر هنا الاستفسارات والحجوزات الواردة من متجرك.',
       selected: 'محدد', changeStatus: 'تعيين الحالة', markNew: 'جديد', markContacted: 'تم التواصل', markClosed: 'مغلق',
-      leads: 'طلب', general: 'استفسار عام', noContact: 'لا توجد بيانات تواصل', rentalWindow: 'الإيجار',
+      leads: 'طلب', general: 'استفسار عام', noContact: 'لا توجد بيانات تواصل', rentalWindow: 'الإيجار', via: 'عبر',
     },
     ov: {
       subtitle: 'لمحة سريعة عن مخزونك والطلبات الواردة.',
@@ -158,6 +165,13 @@ const DICT = {
       newLeads: 'جديدة', handled: 'تمت المعالجة', totalLeads: 'إجمالي الطلبات',
       noRecent: 'لا توجد طلبات بعد — ستظهر هنا فور ورودها.',
       anonLead: 'طلب جديد', generalInquiry: 'استفسار عام',
+      plan: 'الباقة',
+      plans: { starter: 'المبتدئة', pro: 'الاحترافية', enterprise: 'المؤسسية' } as Record<string, string>,
+      planHeading: 'الباقة والاستخدام', vehiclesUsed: 'المركبات المستخدمة', unlimited: 'غير محدود',
+      nearLimitTitle: 'اقتربت من حدّ عدد المركبات',
+      nearLimitText: 'قم بترقية باقتك لإضافة المزيد من المركبات.',
+      limitReachedTitle: 'وصلت إلى حدّ عدد المركبات',
+      limitReachedText: 'قم بترقية باقتك لمواصلة إضافة المركبات.',
     },
     st: {
       title: 'الإعدادات', subtitle: 'هوية متجرك وهويته البصرية وتحسين محركات البحث.',
