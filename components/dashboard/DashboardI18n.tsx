@@ -80,7 +80,7 @@ const DICT = {
       sectionLocked: 'Always shown', moveUp: 'Move up', moveDown: 'Move down', sectionHidden: 'Hidden',
       sectionLabels: {
         hero: 'Hero', brandShowcase: 'Brand showcase', featuredCars: 'Featured cars', whyChooseUs: 'Why choose us',
-        featuredSpotlight: 'Featured spotlight', howItWorks: 'How it works', faq: 'FAQ', finalCta: 'Final call-to-action',
+        featuredSpotlight: 'Featured spotlight', financing: 'Financing banner', howItWorks: 'How it works', faq: 'FAQ', finalCta: 'Final call-to-action',
       } as Record<string, string>,
       f: {
         name: 'Business name (EN)', name_ar: 'Business name (AR)', phone: 'Phone', whatsapp: 'WhatsApp number', email: 'Email',
@@ -172,7 +172,7 @@ const DICT = {
       sectionLocked: 'ظاهر دائماً', moveUp: 'تحريك لأعلى', moveDown: 'تحريك لأسفل', sectionHidden: 'مخفي',
       sectionLabels: {
         hero: 'الواجهة', brandShowcase: 'الماركات', featuredCars: 'سيارات مميزة', whyChooseUs: 'لماذا نحن',
-        featuredSpotlight: 'السيارة المميزة', howItWorks: 'كيف يعمل', faq: 'الأسئلة الشائعة', finalCta: 'دعوة لاتخاذ إجراء',
+        featuredSpotlight: 'السيارة المميزة', financing: 'لافتة التقسيط', howItWorks: 'كيف يعمل', faq: 'الأسئلة الشائعة', finalCta: 'دعوة لاتخاذ إجراء',
       } as Record<string, string>,
       f: {
         name: 'اسم النشاط (إنجليزي)', name_ar: 'اسم النشاط (عربي)', phone: 'الهاتف', whatsapp: 'رقم واتساب', email: 'البريد الإلكتروني',

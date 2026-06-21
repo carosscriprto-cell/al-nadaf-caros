@@ -74,6 +74,10 @@ export default function Footer({
   const companyLinks = [
     { href: `/${locale}/about`, label: t('footer.links.about') },
     { href: `/${locale}/fleet`, label: t('footer.links.fleet') },
+    // Financing link only for tenants with financing enabled (gated route).
+    ...(features.enableFinancing
+      ? [{ href: `/${locale}/financing`, label: t('nav.financing') }]
+      : []),
     { href: `/${locale}/contact`, label: t('footer.links.contact') },
   ];
 

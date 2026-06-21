@@ -55,10 +55,12 @@ export default function Navbar({ brandName, logoUrl }: NavbarProps) {
       { href: '', label: t('nav.home') },
       { href: '/fleet', label: t('nav.fleet') },
       ...(features.enableRental ? [{ href: '/services', label: t('nav.services') }] : []),
+      // Financing is a Pro+ feature for sale tenants (gated route, P2.5-3b).
+      ...(features.enableFinancing ? [{ href: '/financing', label: t('nav.financing') }] : []),
       { href: '/about', label: t('nav.about') },
       { href: '/contact', label: t('nav.contact') },
     ],
-    [t, features.enableRental]
+    [t, features.enableRental, features.enableFinancing]
   );
 
   const displayBrand =

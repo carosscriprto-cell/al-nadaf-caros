@@ -10,6 +10,7 @@ export const HOME_SECTIONS = [
   'whyChooseUs',
   'howItWorks',
   'featuredSpotlight',
+  'financing',
   'faq',
   'finalCta',
 ] as const;
@@ -58,12 +59,17 @@ export function parseSections(raw: unknown): SectionConfig[] {
   return out;
 }
 
-// Render order for the storefront: enabled sections only. All current sections
-// (including featuredSpotlight) work for every tenant type, so no feature gate
-// is applied here — visibility is purely the per-tenant toggle.
-export function resolveVisibleSections(raw: unknown): HomeSectionKey[] {
+// Render order for the storefront: enabled sections only. Most sections work for
+// every tenant type, so visibility is purely the per-tenant toggle — except
+// 'financing', which is auto-hidden unless the tenant has financing enabled
+// (Pro+), regardless of the saved toggle.
+export function resolveVisibleSections(
+  raw: unknown,
+  opts: { enableFinancing: boolean },
+): HomeSectionKey[] {
   return parseSections(raw)
     .filter((s) => s.enabled)
+    .filter((s) => (s.key === 'financing' ? opts.enableFinancing : true))
     .map((s) => s.key);
 }
 

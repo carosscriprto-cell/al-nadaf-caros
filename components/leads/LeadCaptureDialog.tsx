@@ -15,11 +15,13 @@ import { z } from 'zod';
 import type { Car } from '@/types/vehicles';
 import { getCarTitleFallback, type CarContentEntry } from '@/data/cars-content';
 import { persistThenWhatsApp } from '@/lib/leads/persistThenWhatsApp';
-import { buildLeadMessage } from '@/lib/leads/buildLeadMessage';
+import { buildLeadMessage, type LeadMessageIntent } from '@/lib/leads/buildLeadMessage';
 import { useTenantContact } from '@/components/providers/TenantContactProvider';
-import type { LeadIntent } from '@/lib/leads/intents';
 
 type Locale = 'ar' | 'en';
+
+// car-based intents + a car-less general 'inquiry' (e.g. financing).
+type CaptureIntent = LeadMessageIntent;
 
 const COPY = {
   en: {
@@ -28,7 +30,8 @@ const COPY = {
       viewing: 'Book a viewing',
       purchase: 'Purchase request',
       booking: 'Book this car',
-    } as Record<LeadIntent, string>,
+      inquiry: 'Send an inquiry',
+    } as Record<CaptureIntent, string>,
     subtitle: "Leave your details — we'll continue on WhatsApp.",
     name: 'Name', namePh: 'Your name',
     phone: 'Phone', phonePh: 'e.g. +963 9xx xxx xxx',
@@ -44,7 +47,8 @@ const COPY = {
       viewing: 'احجز معاينة',
       purchase: 'طلب شراء',
       booking: 'احجز هذه السيارة',
-    } as Record<LeadIntent, string>,
+      inquiry: 'إرسال استفسار',
+    } as Record<CaptureIntent, string>,
     subtitle: 'اترك بياناتك وسنكمل عبر واتساب.',
     name: 'الاسم', namePh: 'اسمك',
     phone: 'الهاتف', phonePh: 'مثال: +963 9xx xxx xxx',
@@ -62,13 +66,17 @@ export default function LeadCaptureDialog({
   car,
   content,
   intent,
+  subject,
   source,
   locale,
   trigger,
 }: {
-  car: Car;
+  car?: Car;
   content?: CarContentEntry;
-  intent: LeadIntent;
+  intent: CaptureIntent;
+  // Topic label used when there is no car (e.g. 'financing'). Drives the
+  // WhatsApp headline + dialog context for general inquiries.
+  subject?: string;
   source: string;
   locale: string;
   trigger: React.ReactNode;
@@ -109,7 +117,7 @@ export default function LeadCaptureDialog({
     }
     setSubmitting(true);
 
-    const carTitle = content?.title || getCarTitleFallback(car);
+    const carTitle = content?.title || (car ? getCarTitleFallback(car) : subject) || '';
     const text = buildLeadMessage({ intent, carTitle, name, locale: l, message, preferredTime: time });
     const cleanNumber = contact.whatsapp.replace(/[^0-9]/g, '');
     const url = `https://wa.me/${cleanNumber}?text=${encodeURIComponent(text)}`;
@@ -125,7 +133,7 @@ export default function LeadCaptureDialog({
       {
         type: intent,
         source,
-        car_id: car.id != null ? String(car.id) : undefined,
+        car_id: car?.id != null ? String(car.id) : undefined,
         name: name.trim(),
         phone: phone.trim(),
         message: dbParts.length ? dbParts.join(' — ') : undefined,

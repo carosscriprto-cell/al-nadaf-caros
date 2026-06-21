@@ -12,6 +12,7 @@ import FeaturedCarsSection from '@/components/home/FeaturedCarsSection';
 import WhyChooseUs from '@/components/home/WhyChooseUs';
 import BrandShowcase from '@/components/home/BrandShowcase';
 import FeaturedSpotlight from '@/components/home/FeaturedSpotlight';
+import FinancingBanner from '@/components/home/FinancingBanner';
 import HowItWorks from '@/components/home/HowItWorks';
 import FAQSection from '@/components/home/FAQSection';
 import FinalCTA from '@/components/home/FinalCTA';
@@ -38,8 +39,9 @@ export default async function Home({
   ]);
   const hybrid = isHybridTenant(features);
 
-  // Per-tenant section show/hide + order (P6 white-label).
-  const order = resolveVisibleSections(tenant.sections);
+  // Per-tenant section show/hide + order (P6 white-label). financing is
+  // auto-hidden unless the tenant has financing enabled.
+  const order = resolveVisibleSections(tenant.sections, { enableFinancing: features.enableFinancing });
 
   // Each section keyed so the page can render them in the tenant's order.
   const sectionMap: Record<HomeSectionKey, React.ReactNode> = {
@@ -48,6 +50,7 @@ export default async function Home({
     featuredCars: <FeaturedCarsSection locale={locale} />,
     whyChooseUs: <WhyChooseUs />,
     featuredSpotlight: <FeaturedSpotlight cars={cars} contentMap={contentMap} />,
+    financing: <FinancingBanner />,
     howItWorks: <HowItWorks />,
     faq: <FAQSection />,
     finalCta: <FinalCTA />,

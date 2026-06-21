@@ -6,8 +6,12 @@ import type { LeadIntent } from './intents';
 
 type Locale = 'ar' | 'en';
 
+// The capture form also serves a car-less general inquiry (e.g. financing), so
+// the message builder accepts 'inquiry' too — `car` then carries the topic.
+export type LeadMessageIntent = LeadIntent | 'inquiry';
+
 export type BuildLeadMessageParams = {
-  intent: LeadIntent;
+  intent: LeadMessageIntent;
   carTitle: string;
   name: string;
   locale?: string;
@@ -19,14 +23,16 @@ function safe(locale?: string): Locale {
   return locale === 'ar' ? 'ar' : 'en';
 }
 
-// First line: the intent headline, with the car name interpolated.
-function headline(intent: LeadIntent, car: string, l: Locale): string {
+// First line: the intent headline, with the car/topic name interpolated.
+function headline(intent: LeadMessageIntent, car: string, l: Locale): string {
+  const topic = car.trim();
   if (l === 'ar') {
     switch (intent) {
       case 'availability': return `مرحباً، هل ${car} متوفّرة؟`;
       case 'viewing': return `مرحباً، أريد معاينة ${car}.`;
       case 'purchase': return `مرحباً، أنا مهتم بشراء ${car}.`;
       case 'booking': return `مرحباً، أريد حجز ${car}.`;
+      case 'inquiry': return topic ? `مرحباً، لديّ استفسار بخصوص ${car}.` : 'مرحباً، لديّ استفسار.';
     }
   }
   switch (intent) {
@@ -34,6 +40,7 @@ function headline(intent: LeadIntent, car: string, l: Locale): string {
     case 'viewing': return `Hello, I'd like to view ${car}.`;
     case 'purchase': return `Hello, I'm interested in buying ${car}.`;
     case 'booking': return `Hello, I'd like to book ${car}.`;
+    case 'inquiry': return topic ? `Hello, I have a question about ${car}.` : 'Hello, I have a question.';
   }
 }
 

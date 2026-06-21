@@ -4,11 +4,14 @@ import {
   useCallback,
   useEffect,
   useId,
+  useMemo,
   useRef,
-
+  useState,
 } from 'react';
 
-import { Search, X } from 'lucide-react';
+import * as Slider from '@radix-ui/react-slider';
+import { Search, X, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 
@@ -18,6 +21,8 @@ import HeroPopularSearches from './HeroPopularSearches';
 
 import { useHeroSearch } from '@/hooks/useHeroSearch';
 import { useHeroPlaceholder } from '@/hooks/useHeroPlaceholder';
+import { useTenantFeatures } from '@/components/providers/TenantFeaturesProvider';
+import { deriveVehicleOptions } from '@/lib/vehicles/options';
 import { FilterSelect } from './FilterSelecte';
 import HeroResultsDropdown from './HeroResultsDropdown';
 import { FuelType } from '@/types/vehicles';
@@ -38,6 +43,21 @@ export default function HeroSearchPanel({ cars, contentAr, contentEn, showTypeFi
   const router = useRouter();
   const locale = useLocale();
   const isRTL = locale === 'ar';
+  const features = useTenantFeatures();
+
+  // Quick price filter for sale-capable tenants; rental-only tenants get a fast
+  // "book by date" entry into the wizard instead.
+  const showPriceFilter = features.enableSellCar;
+  const rentalOnly = features.enableRental && !features.enableSellCar;
+  const priceCopy = isRTL
+    ? { label: 'السعر', min: 'الأدنى', max: 'الأعلى', book: 'احجز بالتاريخ' }
+    : { label: 'Price', min: 'Min', max: 'Max', book: 'Book by date' };
+
+  // Dual-handle price range. Bound to the inventory's max price (same derivation
+  // the fleet filters use); step keeps drags to ~100 increments.
+  const priceMax = useMemo(() => deriveVehicleOptions(cars, 'all').priceMax, [cars]);
+  const priceStep = Math.max(1, Math.round(priceMax / 100));
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, priceMax]);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -74,9 +94,12 @@ export default function HeroSearchPanel({ cars, contentAr, contentEn, showTypeFi
     if (filters.model) params.set('model', filters.model);
     if (filters.fuelType) params.set('fuelType', filters.fuelType);
     if (filters.listingType) params.set('type', filters.listingType);
+    // Only send bounds the user actually moved off the extremes.
+    if (priceRange[0] > 0) params.set('minPrice', String(priceRange[0]));
+    if (priceRange[1] < priceMax) params.set('maxPrice', String(priceRange[1]));
     const qs = params.toString();
     return `/${locale}/fleet${qs ? `?${qs}` : ''}`;
-  }, [filters, locale]);
+  }, [filters, locale, priceRange, priceMax]);
 
   const handleSearch = useCallback(() => {
     closeDropdown();
@@ -269,6 +292,56 @@ export default function HeroSearchPanel({ cars, contentAr, contentEn, showTypeFi
               />
             )}
           </div>
+
+          {/* Quick price filter (sale-capable tenants) — dual-handle range slider */}
+          {showPriceFilter && (
+            <div className="mt-3 px-2">
+              <div className="mb-2 flex items-center justify-between text-xs">
+                <span className="font-medium uppercase tracking-[0.14em] text-white/45">
+                  {priceCopy.label}
+                </span>
+                <span className="font-semibold text-white/80" dir="ltr">
+                  {priceRange[0].toLocaleString()} – {priceRange[1].toLocaleString()}
+                  {priceRange[1] >= priceMax ? '+' : ''}
+                </span>
+              </div>
+              <Slider.Root
+                min={0}
+                max={priceMax}
+                step={priceStep}
+                value={priceRange}
+                onValueChange={([min, max]) => setPriceRange([min, max])}
+                minStepsBetweenThumbs={1}
+                dir="ltr"
+                className="relative flex h-5 w-full touch-none select-none items-center"
+              >
+                <Slider.Track className="relative h-1.5 w-full grow overflow-hidden rounded-full bg-white/15">
+                  <Slider.Range className="absolute h-full bg-accent" />
+                </Slider.Track>
+                <Slider.Thumb
+                  aria-label={priceCopy.min}
+                  className="block h-4 w-4 rounded-full border-2 border-accent bg-background shadow-md shadow-accent/30 transition hover:scale-110 focus:outline-none focus:ring-2 focus:ring-accent/40"
+                />
+                <Slider.Thumb
+                  aria-label={priceCopy.max}
+                  className="block h-4 w-4 rounded-full border-2 border-accent bg-background shadow-md shadow-accent/30 transition hover:scale-110 focus:outline-none focus:ring-2 focus:ring-accent/40"
+                />
+              </Slider.Root>
+            </div>
+          )}
+
+          {/* Rental-only tenants: a fast entry into the booking wizard */}
+          {rentalOnly && (
+            <div className="mt-2 px-1">
+              <Link
+                href={`/${locale}/booking`}
+                className="inline-flex items-center gap-2 rounded-[14px] border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-semibold text-white transition hover:border-accent/40 hover:bg-accent/20"
+              >
+                {priceCopy.book}
+                <ArrowRight size={14} className="rtl:rotate-180" />
+              </Link>
+            </div>
+          )}
         </div>
 
         {/* Results dropdown — portals below the panel */}

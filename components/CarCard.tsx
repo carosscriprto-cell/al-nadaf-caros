@@ -148,8 +148,8 @@ export default function CarCard({
               </span>
             )}
 
-            {car.condition === 'new' && (
-              <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/90 backdrop-blur-md">
+            {car.isNewArrival && (
+              <span className="inline-flex items-center rounded-full border border-emerald-300/30 bg-emerald-500/85 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white backdrop-blur-md">
                 {t('card.new_arrival')}
               </span>
             )}
