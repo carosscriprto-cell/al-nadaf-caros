@@ -3,10 +3,11 @@
 import Link from 'next/link';
 import {
   Car, Eye, EyeOff, Star, ArrowRight, Inbox, Tag, Clock, CheckCircle2, ShoppingBag,
-  Crown, AlertTriangle,
+  Crown, AlertTriangle, Check, Minus,
 } from 'lucide-react';
 import { useDash } from './DashboardI18n';
 import type { CarStats, TenantPlan } from '@/lib/dashboard/cars';
+import { getPlanFeatures, getPlanCapabilities } from '@/lib/tenant/plans';
 
 type LeadStats = { total: number; new: number; contacted: number; closed: number; handled: number };
 
@@ -50,6 +51,21 @@ export default function OverviewClient({
   const nearLimit = limited && !atLimit && ratio >= 0.8;
   const pct = Math.min(100, Math.round(ratio * 100));
   const barColor = atLimit ? '#ef5350' : nearLimit ? '#f5a623' : '#75ACE8';
+
+  // Plan entitlements (reference only — from the canonical preset, NOT the
+  // tenant's editable features). Numeric tiers + boolean capabilities.
+  const preset = getPlanFeatures(plan);
+  const caps = getPlanCapabilities(plan);
+  const planMetrics = [
+    { label: ov.featVehicles, value: preset.maxCars === -1 ? ov.unlimited : String(preset.maxCars) },
+    { label: ov.featImages, value: String(preset.maxImagesPerCar) },
+  ];
+  const planFlags = [
+    { label: ov.featFinancing, on: preset.enableFinancing },
+    { label: ov.featVip, on: preset.enableVipDelivery },
+    { label: ov.featHybrid, on: caps.hybrid },
+    { label: ov.featCustomDomain, on: caps.customDomain },
+  ];
 
   const dateFmt = new Intl.DateTimeFormat(lang === 'ar' ? 'ar' : 'en', {
     day: 'numeric', month: 'short',
@@ -102,6 +118,33 @@ export default function OverviewClient({
               <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: barColor }} />
             </div>
           )}
+
+          {/* Plan entitlements — reference from the canonical preset */}
+          <div className="mt-5 border-t border-[#f0f1f3] pt-4">
+            <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#b3b8bf]">{ov.planIncludes}</p>
+            <div className="flex flex-wrap gap-2">
+              {planMetrics.map((m) => (
+                <span key={m.label} className="inline-flex items-center gap-1.5 rounded-lg bg-[#75ACE8]/10 px-3 py-1.5 text-xs font-semibold text-[#3d7cc0]">
+                  <span dir="ltr">{m.value}</span> {m.label}
+                </span>
+              ))}
+            </div>
+            <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {planFlags.map((f) => (
+                <div key={f.label} className="flex items-center gap-2 text-sm">
+                  {f.on ? (
+                    <Check size={15} className="shrink-0 text-emerald-500" />
+                  ) : (
+                    <Minus size={15} className="shrink-0 text-[#cbd0d6]" />
+                  )}
+                  <span className={f.on ? 'text-[#3a3f45]' : 'text-[#b3b8bf]'}>{f.label}</span>
+                </div>
+              ))}
+            </div>
+            {caps.expandable && (
+              <p className="mt-3 text-[11px] text-[#9aa0a8]">{ov.expandableNote}</p>
+            )}
+          </div>
         </div>
 
         {(nearLimit || atLimit) && (

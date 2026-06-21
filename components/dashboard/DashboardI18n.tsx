@@ -73,6 +73,10 @@ const DICT = {
       nearLimitText: 'Upgrade your plan to add more vehicles.',
       limitReachedTitle: "You've reached your vehicle limit",
       limitReachedText: 'Upgrade your plan to keep adding vehicles.',
+      planIncludes: 'Your plan includes',
+      featVehicles: 'Vehicles', featImages: 'Images / vehicle',
+      featFinancing: 'Financing', featVip: 'VIP delivery', featHybrid: 'Sale + rental', featCustomDomain: 'Custom domain',
+      expandableNote: 'Limits expandable on request',
     },
     si: {
       title: 'Site management', subtitle: 'Control which pages and buttons appear on your storefront.',
@@ -189,6 +193,10 @@ const DICT = {
       nearLimitText: 'قم بترقية باقتك لإضافة المزيد من المركبات.',
       limitReachedTitle: 'وصلت إلى حدّ عدد المركبات',
       limitReachedText: 'قم بترقية باقتك لمواصلة إضافة المركبات.',
+      planIncludes: 'تتضمن باقتك',
+      featVehicles: 'المركبات', featImages: 'الصور / مركبة',
+      featFinancing: 'التقسيط', featVip: 'توصيل VIP', featHybrid: 'بيع وإيجار', featCustomDomain: 'نطاق مخصص',
+      expandableNote: 'الحدود قابلة للتوسيع عند الطلب',
     },
     si: {
       title: 'إدارة الموقع', subtitle: 'تحكّم في الصفحات والأزرار التي تظهر في متجرك.',
