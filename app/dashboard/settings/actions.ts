@@ -38,6 +38,14 @@ export async function updateTenantSettings(values: SettingsValues): Promise<Acti
   if (membership.role !== 'owner') return { ok: false, error: 'ONLY_OWNER' };
 
   const d = parsed.data;
+  // Map center: both lat & lng must be finite numbers, else clear it (null).
+  const lat = Number(d.map_lat);
+  const lng = Number(d.map_lng);
+  const mapCenter =
+    d.map_lat?.trim() && d.map_lng?.trim() && Number.isFinite(lat) && Number.isFinite(lng)
+      ? { lat, lng }
+      : null;
+
   const row = {
     name: d.name.trim(),
     name_ar: orNull(d.name_ar),
@@ -46,6 +54,7 @@ export async function updateTenantSettings(values: SettingsValues): Promise<Acti
     email: orNull(d.email),
     address_en: orNull(d.address_en),
     address_ar: orNull(d.address_ar),
+    map_center: mapCenter,
     color_primary: d.color_primary,
     color_secondary: d.color_secondary,
     color_accent: d.color_accent,

@@ -9,6 +9,7 @@ import { Save, Lock, Palette, Building2, Search, Clock, Share2 } from 'lucide-re
 import { settingsSchema, type SettingsValues } from '@/lib/dashboard/settingsSchema';
 import { updateTenantSettings } from '@/app/dashboard/settings/actions';
 import { useDash } from '../DashboardI18n';
+import MapPicker from '../MapPicker';
 
 export default function SettingsForm({
   defaultValues,
@@ -106,6 +107,19 @@ export default function SettingsForm({
             <input {...register('address_ar')} disabled={disabled} dir="rtl" className={inp} />
           </Field>
         </Grid>
+        <Field label={st.mapLocation} hint={st.mapHint}>
+          <MapPicker
+            lat={watch('map_lat') ?? ''}
+            lng={watch('map_lng') ?? ''}
+            disabled={disabled}
+            searchPlaceholder={st.mapSearch}
+            searchLabel={st.mapSearch}
+            onChange={(la, ln) => {
+              setValue('map_lat', String(la), { shouldDirty: true });
+              setValue('map_lng', String(ln), { shouldDirty: true });
+            }}
+          />
+        </Field>
       </Section>
 
       {/* Branding */}

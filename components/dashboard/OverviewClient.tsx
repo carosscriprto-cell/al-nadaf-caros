@@ -7,7 +7,8 @@ import {
 } from 'lucide-react';
 import { useDash } from './DashboardI18n';
 import type { CarStats, TenantPlan } from '@/lib/dashboard/cars';
-import { getPlanFeatures, getPlanCapabilities } from '@/lib/tenant/plans';
+import type { TenantFeatures } from '@/lib/tenant/features';
+import { getPlanCapabilities } from '@/lib/tenant/plans';
 
 type LeadStats = { total: number; new: number; contacted: number; closed: number; handled: number };
 
@@ -30,19 +31,22 @@ export default function OverviewClient({
   cars,
   leads,
   plan,
-  maxCars,
+  features,
   recentLeads,
 }: {
   cars: CarStats;
   leads: LeadStats;
   plan: TenantPlan;
-  maxCars: number;
+  features: TenantFeatures;
   recentLeads: RecentLead[];
 }) {
   const { t, el, lang } = useDash();
   const ov = t.ov;
 
   // Plan & car-limit usage (display only — enforcement lives in P5a actions).
+  // The car limit comes from the tenant's ACTUAL features (editable), not the
+  // plan preset — so the usage bar and the entitlements below stay consistent.
+  const maxCars = features.maxCars;
   const planName = ov.plans[plan] ?? plan;
   const limited = maxCars >= 0;
   const used = cars.total;
@@ -52,17 +56,18 @@ export default function OverviewClient({
   const pct = Math.min(100, Math.round(ratio * 100));
   const barColor = atLimit ? '#ef5350' : nearLimit ? '#f5a623' : '#75ACE8';
 
-  // Plan entitlements (reference only — from the canonical preset, NOT the
-  // tenant's editable features). Numeric tiers + boolean capabilities.
-  const preset = getPlanFeatures(plan);
+  // "Plan includes" — reflects the tenant's ACTUAL features (same source as the
+  // usage bar), NOT the getPlanFeatures preset (which is the onboarding default
+  // only). hybrid/custom-domain have no per-tenant override, so they stay from
+  // the plan capabilities.
   const caps = getPlanCapabilities(plan);
   const planMetrics = [
-    { label: ov.featVehicles, value: preset.maxCars === -1 ? ov.unlimited : String(preset.maxCars) },
-    { label: ov.featImages, value: String(preset.maxImagesPerCar) },
+    { label: ov.featVehicles, value: features.maxCars === -1 ? ov.unlimited : String(features.maxCars) },
+    { label: ov.featImages, value: String(features.maxImagesPerCar) },
   ];
   const planFlags = [
-    { label: ov.featFinancing, on: preset.enableFinancing },
-    { label: ov.featVip, on: preset.enableVipDelivery },
+    { label: ov.featFinancing, on: features.enableFinancing },
+    { label: ov.featVip, on: features.enableVipDelivery },
     { label: ov.featHybrid, on: caps.hybrid },
     { label: ov.featCustomDomain, on: caps.customDomain },
   ];

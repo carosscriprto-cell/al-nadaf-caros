@@ -34,6 +34,9 @@ export const settingsSchema = z.object({
   email: z.string().trim().email('Invalid email').max(160).optional().or(z.literal('')),
   address_en: optText(300),
   address_ar: optText(300),
+  // map center (storefront map) — free-text lat/lng, parsed in the action
+  map_lat: optText(40),
+  map_lng: optText(40),
   // branding
   color_primary: hexColor,
   color_secondary: hexColor,

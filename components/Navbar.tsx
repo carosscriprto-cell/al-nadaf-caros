@@ -12,6 +12,7 @@ import ThemeSwitcher from './ThemeSwitcher';
 import { siteConfig } from '@/config';
 import { useTenantFeatures } from '@/components/providers/TenantFeaturesProvider';
 import { useTenantPages } from '@/components/providers/TenantPagesProvider';
+import { useTenantContact } from '@/components/providers/TenantContactProvider';
 import { cn } from '@/components/ui/utils';
 
 type NavItem = {
@@ -49,6 +50,7 @@ export default function Navbar({ brandName, logoUrl }: NavbarProps) {
   const t = useTranslations();
   const features = useTenantFeatures();
   const pages = useTenantPages();
+  const contact = useTenantContact();
   const [isOpen, setIsOpen] = useState(false);
 
   // Services is shown only for rental/hybrid tenants (gated route, P2.5-3a).
@@ -134,7 +136,7 @@ export default function Navbar({ brandName, logoUrl }: NavbarProps) {
           <div className="hidden items-center gap-3 lg:flex">
             <div className="hidden xl:flex items-center gap-3 rounded-xl border border-border/60 bg-card/70 px-4 py-2 text-sm text-muted-foreground">
               <Phone className="h-4 w-4 text-accent" />
-              <span>{siteConfig.contact.phone.display}</span>
+              <span dir="ltr">{contact.phone}</span>
             </div>
 
             <ThemeSwitcher />
@@ -197,8 +199,8 @@ export default function Navbar({ brandName, logoUrl }: NavbarProps) {
 
               <div className="mt-4 grid gap-3 border-t border-border/60 pt-4">
                 <div className="flex items-center justify-between gap-3">
-                  <div className="rounded-xl border border-border/60 bg-background/80 px-4 py-3 text-sm text-muted-foreground">
-                    {siteConfig.contact.phone.display}
+                  <div className="rounded-xl border border-border/60 bg-background/80 px-4 py-3 text-sm text-muted-foreground" dir="ltr">
+                    {contact.phone}
                   </div>
                   <LanguageSwitcher direction="up" />
                 </div>

@@ -13,7 +13,7 @@ export default async function DashboardOverviewPage() {
       cars={carStats(cars)}
       leads={leadStats(leads)}
       plan={ctx.plan}
-      maxCars={ctx.features.maxCars}
+      features={ctx.features}
       recentLeads={leads.slice(0, 6).map((l) => ({
         id: l.id,
         name: l.name,

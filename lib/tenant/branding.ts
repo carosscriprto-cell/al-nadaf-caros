@@ -53,7 +53,24 @@ export type StorefrontContact = {
   addressEn?: string;
   addressAr?: string;
   hours: StorefrontHours;
+  mapCenter?: [number, number]; // tenant's map center; undefined → siteConfig default
 };
+
+// tenants.map_center jsonb → [lat, lng]. Accepts { lat, lng } / { latitude,
+// longitude } / [lat, lng]; anything else → undefined (caller falls back).
+export function resolveMapCenter(raw: unknown): [number, number] | undefined {
+  if (Array.isArray(raw) && typeof raw[0] === 'number' && typeof raw[1] === 'number') {
+    return [raw[0], raw[1]];
+  }
+  if (raw && typeof raw === 'object') {
+    const o = raw as Record<string, unknown>;
+    const lat = typeof o.lat === 'number' ? o.lat : typeof o.latitude === 'number' ? o.latitude : undefined;
+    const lng = typeof o.lng === 'number' ? o.lng : typeof o.lon === 'number' ? o.lon
+      : typeof o.longitude === 'number' ? o.longitude : undefined;
+    if (lat !== undefined && lng !== undefined) return [lat, lng];
+  }
+  return undefined;
+}
 
 export function resolveContact(t: {
   phone?: string | null;
@@ -62,6 +79,7 @@ export function resolveContact(t: {
   address_en?: string | null;
   address_ar?: string | null;
   business_hours?: unknown;
+  map_center?: unknown;
 }): StorefrontContact {
   return {
     phone: str(t.phone) ?? siteConfig.contact.phone.raw,
@@ -70,5 +88,6 @@ export function resolveContact(t: {
     addressEn: str(t.address_en),
     addressAr: str(t.address_ar),
     hours: resolveBusinessHours(t.business_hours),
+    mapCenter: resolveMapCenter(t.map_center),
   };
 }

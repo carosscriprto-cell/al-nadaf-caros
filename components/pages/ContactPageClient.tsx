@@ -41,6 +41,10 @@ export default function ContactPageClient({
   const emailPrimary = contact?.email ?? siteConfig.contact.email.primary;
   const hoursWeekdays = contact?.hours?.weekdays ?? t('info_values.business_hours.weekdays');
   const hoursWeekends = contact?.hours?.weekends ?? t('info_values.business_hours.weekends');
+  const tenantAddress = locale === 'ar' ? contact?.addressAr : contact?.addressEn;
+  const addressLines = tenantAddress
+    ? [tenantAddress]
+    : [t('info_values.address.line1'), t('info_values.address.line2')];
 
   const contactSchema = z.object({
     name: z.string().min(1, t('validation.name_required')),
@@ -106,34 +110,22 @@ export default function ContactPageClient({
     {
       icon: Phone,
       title: t('info_labels.phone'),
-      details: [
-        phoneDisplay,
-        siteConfig.contact.phone.supportDisplay || phoneDisplay,
-      ],
+      details: [phoneDisplay],
     },
     {
       icon: MessageCircle,
       title: t('info_labels.whatsapp'),
-      details: [
-        phoneDisplay,
-        t('info_values.whatsapp.helper'),
-      ],
+      details: [whatsappRaw, t('info_values.whatsapp.helper')],
     },
     {
       icon: Mail,
       title: t('info_labels.email'),
-      details: [
-        emailPrimary,
-        siteConfig.contact.email.support || emailPrimary,
-      ],
+      details: [emailPrimary],
     },
     {
       icon: MapPin,
       title: t('info_labels.address'),
-      details: [
-        t('info_values.address.line1'),
-        t('info_values.address.line2'),
-      ],
+      details: addressLines,
     },
     {
       icon: Clock,
@@ -151,7 +143,7 @@ export default function ContactPageClient({
         description={t('page_hero.description')}
         primaryButton={{
           label: buttons('call_now'),
-          href: `tel:${siteConfig.contact.phone.raw}`,
+          href: `tel:${phoneDisplay.replace(/[^0-9+]/g, '')}`,
         }}
         secondaryButton={{
           label: buttons('view_services'),
@@ -406,7 +398,7 @@ export default function ContactPageClient({
                       {t('location_section.support_title')}
                     </div>
                     <div className="text-xl font-bold text-foreground">
-                      {siteConfig.contact.email.support || emailPrimary}
+                      {emailPrimary}
                     </div>
                     <p className="mt-2 text-sm leading-6 text-muted-foreground">
                       {t('location_section.support_description')}

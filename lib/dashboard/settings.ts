@@ -6,6 +6,7 @@
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import type { Tables } from '@/lib/supabase/database.types';
 import type { SettingsValues } from './settingsSchema';
+import { resolveMapCenter } from '@/lib/tenant/branding';
 
 export type DashTenant = Tables<'tenants'>;
 export type TenantRole = 'owner' | 'admin' | 'editor';
@@ -37,6 +38,7 @@ export function tenantToFormValues(t: DashTenant): SettingsValues {
   const bh = (t.business_hours ?? {}) as Record<string, unknown>;
   const so = (t.social ?? {}) as Record<string, unknown>;
   const str = (v: unknown) => (typeof v === 'string' ? v : '');
+  const mc = resolveMapCenter(t.map_center);
   return {
     name: t.name ?? '',
     name_ar: t.name_ar ?? '',
@@ -45,6 +47,8 @@ export function tenantToFormValues(t: DashTenant): SettingsValues {
     email: t.email ?? '',
     address_en: t.address_en ?? '',
     address_ar: t.address_ar ?? '',
+    map_lat: mc ? String(mc[0]) : '',
+    map_lng: mc ? String(mc[1]) : '',
     color_primary: t.color_primary ?? '#000000',
     color_secondary: t.color_secondary ?? '#ffffff',
     color_accent: t.color_accent ?? '#3b82f6',

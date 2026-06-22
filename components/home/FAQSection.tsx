@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 
 import { faqGroups, type FaqGroup } from '@/data/faq';
-import { siteConfig } from '@/config';
+import { useTenantContact } from '@/components/providers/TenantContactProvider';
 
 type Props = {
   group?: FaqGroup;
@@ -19,6 +19,8 @@ const FAQSection = ({
 }: Props) => {
   const tFaq = useTranslations('faq');
   const tButtons = useTranslations('buttons');
+  const contact = useTenantContact();
+  const phoneDigits = contact.phone.replace(/[^0-9+]/g, '');
 
   const faqs = faqGroups[group].map((id) => ({
     id,
@@ -71,11 +73,11 @@ const FAQSection = ({
               {tFaq('cta.description')}
             </p>
             <Link
-              href={`tel:${siteConfig.contact.phone.raw}`}
+              href={`tel:${phoneDigits}`}
               className="inline-flex items-center justify-center gap-3 rounded-xl bg-accent px-8 py-4 font-semibold text-white shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl"
             >
               <span>
-                {tButtons('call_now')}: {siteConfig.contact.phone.display}
+                {tButtons('call_now')}: <span dir="ltr">{contact.phone}</span>
               </span>
               <PhoneCall className="h-5 w-5" />
             </Link>

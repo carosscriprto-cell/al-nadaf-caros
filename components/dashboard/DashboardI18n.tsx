@@ -103,6 +103,8 @@ const DICT = {
       previewButton: 'Primary button', previewOutline: 'Outline', unsavedColor: 'Unsaved',
       urlHint: 'Paste an image URL (https). External hosts are allowed.',
       hoursPlaceholder: 'e.g. 9:00 AM – 9:00 PM',
+      mapLocation: 'Location', mapSearch: 'Search for your address…',
+      mapHint: 'Search, click the map, or drag the pin to set your location.',
       secIdentity: 'Identity & contact', secBranding: 'Branding', secSeo: 'SEO', secHours: 'Business hours', secSocial: 'Social links',
       secSections: 'Home sections', sectionsHint: 'Show, hide, and reorder the sections on your storefront home page.',
       sectionLocked: 'Always shown', moveUp: 'Move up', moveDown: 'Move down', sectionHidden: 'Hidden',
@@ -113,6 +115,7 @@ const DICT = {
       f: {
         name: 'Business name (EN)', name_ar: 'Business name (AR)', phone: 'Phone', whatsapp: 'WhatsApp number', email: 'Email',
         address_en: 'Address (EN)', address_ar: 'Address (AR)',
+        map_lat: 'Map latitude', map_lng: 'Map longitude',
         color_primary: 'Primary color', color_secondary: 'Secondary color', color_accent: 'Accent color',
         logo_url: 'Logo URL', favicon_url: 'Favicon URL', og_image_url: 'Social share image (OG) URL',
         seo_title_en: 'SEO title (EN)', seo_title_ar: 'SEO title (AR)', seo_desc_en: 'SEO description (EN)', seo_desc_ar: 'SEO description (AR)',
@@ -223,6 +226,8 @@ const DICT = {
       previewButton: 'زر رئيسي', previewOutline: 'محدّد', unsavedColor: 'غير محفوظ',
       urlHint: 'ألصق رابط صورة (https). الروابط الخارجية مسموحة.',
       hoursPlaceholder: 'مثال: 9:00 ص – 9:00 م',
+      mapLocation: 'الموقع', mapSearch: 'ابحث عن عنوانك…',
+      mapHint: 'ابحث أو انقر على الخريطة أو اسحب المؤشر لتحديد موقعك.',
       secIdentity: 'الهوية والتواصل', secBranding: 'الهوية البصرية', secSeo: 'تحسين محركات البحث', secHours: 'ساعات العمل', secSocial: 'روابط التواصل',
       secSections: 'أقسام الصفحة الرئيسية', sectionsHint: 'أظهر أو أخفِ أقسام صفحتك الرئيسية وأعد ترتيبها.',
       sectionLocked: 'ظاهر دائماً', moveUp: 'تحريك لأعلى', moveDown: 'تحريك لأسفل', sectionHidden: 'مخفي',
@@ -233,6 +238,7 @@ const DICT = {
       f: {
         name: 'اسم النشاط (إنجليزي)', name_ar: 'اسم النشاط (عربي)', phone: 'الهاتف', whatsapp: 'رقم واتساب', email: 'البريد الإلكتروني',
         address_en: 'العنوان (إنجليزي)', address_ar: 'العنوان (عربي)',
+        map_lat: 'خط العرض', map_lng: 'خط الطول',
         color_primary: 'اللون الأساسي', color_secondary: 'اللون الثانوي', color_accent: 'لون التمييز',
         logo_url: 'رابط الشعار', favicon_url: 'رابط الأيقونة', og_image_url: 'رابط صورة المشاركة (OG)',
         seo_title_en: 'عنوان SEO (إنجليزي)', seo_title_ar: 'عنوان SEO (عربي)', seo_desc_en: 'وصف SEO (إنجليزي)', seo_desc_ar: 'وصف SEO (عربي)',
