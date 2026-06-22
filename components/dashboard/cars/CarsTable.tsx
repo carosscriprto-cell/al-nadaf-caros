@@ -5,17 +5,20 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ImageWithFallback from '@/components/ui/ImageWithFallback';
 import * as Checkbox from '@radix-ui/react-checkbox';
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { toast } from 'sonner';
 import {
   Plus, Search, Pencil, Trash2, Star, Eye, EyeOff, Check, Tag, SlidersHorizontal,
   ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Car as CarIcon,
 } from 'lucide-react';
 import type { DashCar, DashCarWithContent } from '@/lib/dashboard/cars';
+import type { CarStatus } from '@/types/vehicles';
+import { CAR_STATUSES } from '@/lib/dashboard/carSchema';
 import { useDash } from '../DashboardI18n';
 import Confirm from '../ui/Confirm';
 import { PriceEditDialog, BulkPriceDialog } from './PriceDialogs';
 import {
-  toggleAvailable, toggleFeatured, deleteCar,
+  toggleAvailable, toggleFeatured, deleteCar, setCarStatus,
   bulkSetAvailable, bulkSetFeatured, bulkDelete,
 } from '@/app/dashboard/cars/actions';
 
@@ -223,7 +226,12 @@ export default function CarsTable({ cars, showTypeFilter }: { cars: DashCarWithC
                       <span className={`inline-flex rounded-full border px-2.5 py-0.5 text-xs font-semibold ${LISTING_STYLES[c.listing_type] ?? 'border-[#e7e8ea] bg-[#f7f7f7] text-[#6b7178]'}`}>{el('listing_type', c.listing_type)}</span>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`inline-flex rounded-full border px-2.5 py-0.5 text-xs font-semibold ${STATUS_STYLES[status] ?? 'border-[#e7e8ea] bg-[#f7f7f7] text-[#6b7178]'}`}>{el('status', status)}</span>
+                      <StatusMenu
+                        current={status}
+                        label={(s) => el('status', s)}
+                        disabled={pending}
+                        onSelect={(s) => { if (s !== status) run('', async () => setCarStatus({ id: c.id, status: s })); }}
+                      />
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1.5">
@@ -293,4 +301,45 @@ function IconToggle({ active, onClick, on, off }: { active: boolean; onClick: ()
 }
 function BulkBtn({ children, onClick, disabled }: { children: React.ReactNode; onClick: () => void; disabled?: boolean }) {
   return <button onClick={onClick} disabled={disabled} className="flex items-center gap-1.5 rounded-lg border border-[#e7e8ea] bg-white px-3 py-1.5 text-xs font-semibold text-[#6b7178] transition hover:border-[#75ACE8]/40 hover:text-[#1a1d21] disabled:opacity-50">{children}</button>;
+}
+
+const STATUS_DOT: Record<string, string> = {
+  available: 'bg-emerald-400', sold: 'bg-red-400', reserved: 'bg-amber-400',
+};
+// Per-row status changer — set available / sold / reserved. setCarStatus also
+// flips visibility (sold/reserved → available=false), and the storefront shows a
+// status badge with no lead buttons.
+function StatusMenu({
+  current, label, disabled, onSelect,
+}: {
+  current: string;
+  label: (s: CarStatus) => string;
+  disabled: boolean;
+  onSelect: (s: CarStatus) => void;
+}) {
+  return (
+    <DropdownMenu.Root>
+      <DropdownMenu.Trigger asChild disabled={disabled}>
+        <button className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold transition disabled:opacity-50 ${STATUS_STYLES[current] ?? 'border-[#e7e8ea] bg-[#f7f7f7] text-[#6b7178]'}`}>
+          {label(current as CarStatus)}
+          <ChevronDown size={12} className="opacity-60" />
+        </button>
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Portal>
+        <DropdownMenu.Content align="end" sideOffset={6} className="z-50 min-w-[150px] rounded-xl border border-[#ececec] bg-white p-1 shadow-lg">
+          {CAR_STATUSES.map((s) => (
+            <DropdownMenu.Item
+              key={s}
+              onSelect={() => onSelect(s)}
+              className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm text-[#3a3f45] outline-none data-[highlighted]:bg-[#f0f1f3]"
+            >
+              <span className={`h-2 w-2 rounded-full ${STATUS_DOT[s] ?? 'bg-[#cbd0d6]'}`} />
+              {label(s)}
+              {current === s && <Check size={14} className="ms-auto text-[#75ACE8]" />}
+            </DropdownMenu.Item>
+          ))}
+        </DropdownMenu.Content>
+      </DropdownMenu.Portal>
+    </DropdownMenu.Root>
+  );
 }

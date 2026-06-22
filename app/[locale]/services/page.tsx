@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
 import { getStorefrontFeatures } from '@/lib/supabase/getTenant';
 import ServicesPageClient from '@/components/pages/ServicesPageClient';
@@ -13,10 +13,10 @@ export default async function ServicesPage({
   setRequestLocale(locale);
 
   // Services is a rental-agency concept — sale-only tenants don't offer it.
-  // Gate the route: redirect to the fleet listing when rental is disabled.
+  // No link points here for them; a manual URL is a real 404.
   const features = await getStorefrontFeatures();
   if (!features.enableRental) {
-    redirect(`/${locale}/fleet`);
+    notFound();
   }
 
   return <ServicesPageClient />;

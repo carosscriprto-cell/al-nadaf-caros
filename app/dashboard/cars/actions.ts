@@ -160,6 +160,9 @@ const idsSchema = z.array(z.string().uuid()).min(1).max(200);
 function revalidate() {
   revalidatePath('/dashboard/cars');
   revalidatePath('/dashboard');
+  // Storefront reads cars live (home, fleet, detail, sitemap) — revalidate every
+  // public route so add/edit/delete/status changes appear without a hard refresh.
+  revalidatePath('/', 'layout');
 }
 
 // ─── Toggle availability (single) ────────────────────────────────────────────

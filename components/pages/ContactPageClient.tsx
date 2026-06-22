@@ -20,6 +20,7 @@ import MapSection from '@/components/map/MapSection';
 import PageHero from '@/components/PageHero';
 import { siteConfig } from '@/config';
 import { persistThenWhatsApp } from '@/lib/leads/persistThenWhatsApp';
+import { useTenantFeatures } from '@/components/providers/TenantFeaturesProvider';
 import type { StorefrontContact } from '@/lib/tenant/branding';
 
 type ContactPageClientProps = {
@@ -34,6 +35,7 @@ export default function ContactPageClient({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const t = useTranslations('contact');
   const buttons = useTranslations('buttons');
+  const features = useTenantFeatures();
 
   // Tenant white-label (P6): tenant values win, with static/i18n fallbacks.
   const phoneDisplay = contact?.phone ?? siteConfig.contact.phone.display;
@@ -145,10 +147,11 @@ export default function ContactPageClient({
           label: buttons('call_now'),
           href: `tel:${phoneDisplay.replace(/[^0-9+]/g, '')}`,
         }}
-        secondaryButton={{
-          label: buttons('view_services'),
-          href: `/${locale}/services`,
-        }}
+        secondaryButton={
+          features.enableRental
+            ? { label: buttons('view_services'), href: `/${locale}/services` }
+            : { label: buttons('our_fleet'), href: `/${locale}/fleet` }
+        }
       >
         <div className="relative overflow-hidden rounded-[2rem] border border-border/60 bg-card/80 p-6 shadow-2xl backdrop-blur-xl">
           <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-accent/10 blur-3xl" />

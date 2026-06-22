@@ -45,10 +45,11 @@ export default function HeroSearchPanel({ cars, contentAr, contentEn, showTypeFi
   const isRTL = locale === 'ar';
   const features = useTenantFeatures();
 
-  // Quick price filter for sale-capable tenants; rental-only tenants get a fast
-  // "book by date" entry into the wizard instead.
+  // Sale-capable tenants get a quick price filter; rental tenants get a fast
+  // "book by date" entry into the wizard. Sale-only tenants never see booking
+  // (the route 404s and no link points to it).
   const showPriceFilter = features.enableSellCar;
-  const rentalOnly = features.enableRental && !features.enableSellCar;
+  const showBooking = features.enableRental;
   const priceCopy = isRTL
     ? { label: 'السعر', min: 'الأدنى', max: 'الأعلى', book: 'احجز بالتاريخ' }
     : { label: 'Price', min: 'Min', max: 'Max', book: 'Book by date' };
@@ -330,8 +331,8 @@ export default function HeroSearchPanel({ cars, contentAr, contentEn, showTypeFi
             </div>
           )}
 
-          {/* Rental-only tenants: a fast entry into the booking wizard */}
-          {rentalOnly && (
+          {/* Rental tenants: a fast entry into the booking wizard */}
+          {showBooking && (
             <div className="mt-2 px-1">
               <Link
                 href={`/${locale}/booking`}
