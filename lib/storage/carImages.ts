@@ -4,6 +4,7 @@
 // apply and uploads are small.
 
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { safeRandomUUID } from '@/lib/utils/uuid';
 
 export const CAR_IMAGES_BUCKET = 'car-images';
 export const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
@@ -53,7 +54,7 @@ export async function uploadCarImage(
   carId: string,
   blob: Blob,
 ): Promise<string> {
-  const filename = `${crypto.randomUUID()}.webp`;
+  const filename = `${safeRandomUUID()}.webp`;
   const objectPath = path(tenantId, carId, filename);
   const { error } = await client.storage
     .from(CAR_IMAGES_BUCKET)

@@ -11,6 +11,7 @@ import { ArrowLeft, Loader2, Tag, KeyRound, Layers } from 'lucide-react';
 import { Constants } from '@/lib/supabase/database.types';
 import { carFormSchema, type CarFormValues, type ContentLocaleValues } from '@/lib/dashboard/carSchema';
 import { type TenantFeatures, allowedListingTypes } from '@/lib/tenant/features';
+import { safeRandomUUID } from '@/lib/utils/uuid';
 import { createCar, updateCar } from '@/app/dashboard/cars/actions';
 import type { DashCarWithContent } from '@/lib/dashboard/cars';
 import { useDash } from '../DashboardI18n';
@@ -70,7 +71,8 @@ export default function CarFormPage({ car, features, tenantId }: { car?: DashCar
   const isEdit = !!car;
   // Stable car id for storage paths ({tenant}/cars/{carId}/). On create we mint
   // it client-side and pass it to createCar so the row uses the same id.
-  const [carId] = useState<string>(() => car?.id ?? crypto.randomUUID());
+  // safeRandomUUID works on HTTP (non-secure) where crypto.randomUUID is undefined.
+  const [carId] = useState<string>(() => car?.id ?? safeRandomUUID());
   const allowed = allowedListingTypes(features);
 
   // Resolved listing type: edit→existing; single-type tenant→that type; else chooser.
