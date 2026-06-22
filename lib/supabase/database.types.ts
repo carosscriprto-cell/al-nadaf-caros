@@ -317,6 +317,7 @@ export type Database = {
           status: string | null
           tenant_id: string
           type: string
+          whatsapp_opened: boolean
         }
         Insert: {
           car_id?: string | null
@@ -334,6 +335,7 @@ export type Database = {
           status?: string | null
           tenant_id: string
           type?: string
+          whatsapp_opened?: boolean
         }
         Update: {
           car_id?: string | null
@@ -351,6 +353,7 @@ export type Database = {
           status?: string | null
           tenant_id?: string
           type?: string
+          whatsapp_opened?: boolean
         }
         Relationships: [
           {
@@ -560,6 +563,7 @@ export type Database = {
     Functions: {
       get_tenant_id_by_domain: { Args: { p_domain: string }; Returns: string }
       get_tenant_id_by_slug: { Args: { p_slug: string }; Returns: string }
+      mark_latest_lead_whatsapp: { Args: { p_tenant_id: string; p_phone: string }; Returns: undefined }
       my_tenant_id: { Args: never; Returns: string }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }

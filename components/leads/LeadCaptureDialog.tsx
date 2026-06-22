@@ -1,20 +1,22 @@
 'use client';
 
 // components/leads/LeadCaptureDialog.tsx — short capture form (Radix Dialog).
-// Opens from a smart button on a car card/detail. On submit it persists a FULL
-// typed lead (write-only, no RETURNING) THEN opens WhatsApp with a message
-// tailored to the intent — reusing persistThenWhatsApp so the tab is pre-opened
-// inside the click gesture (no popup-block) and WhatsApp fires even if the DB
-// write fails. No internal chat; WhatsApp stays the channel.
+// Opens from a smart button on a car card/detail. Flow (QA 2b · 4.9):
+//   [Send] → persist the lead FIRST (write-only) → confirmation "Sent ✓" with
+//   [Yes, open WhatsApp] / [No, thanks]. The lead is ALWAYS saved; WhatsApp is a
+//   conscious choice AFTER, opened from a fresh click (no popup-block), using the
+//   TENANT's number. Choosing WhatsApp flips a whatsapp_opened flag on the lead.
 
 import { useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
-import { X } from 'lucide-react';
+import { X, Check } from 'lucide-react';
+import Image from 'next/image';
 import { z } from 'zod';
 
 import type { Car } from '@/types/vehicles';
 import { getCarTitleFallback, type CarContentEntry } from '@/data/cars-content';
-import { persistThenWhatsApp } from '@/lib/leads/persistThenWhatsApp';
+import { submitLead } from '@/lib/leads/submit';
+import { markLeadWhatsapp } from '@/lib/leads/markWhatsapp';
 import { buildLeadMessage, type LeadMessageIntent } from '@/lib/leads/buildLeadMessage';
 import { useTenantContact } from '@/components/providers/TenantContactProvider';
 
@@ -32,14 +34,18 @@ const COPY = {
       booking: 'Book this car',
       inquiry: 'Send an inquiry',
     } as Record<CaptureIntent, string>,
-    subtitle: "Leave your details — we'll continue on WhatsApp.",
+    subtitle: 'Leave your details and the dealer will get back to you.',
     name: 'Name', namePh: 'Your name',
     phone: 'Phone', phonePh: 'e.g. +963 9xx xxx xxx',
     time: 'Preferred time (optional)', timePh: 'e.g. tomorrow afternoon',
     note: 'Message (optional)', notePh: 'Anything else?',
-    submit: 'Continue on WhatsApp', cancel: 'Cancel',
+    send: 'Send', sending: 'Sending…',
+    sentTitle: 'Sent ✓',
+    sentSubtitle: 'Want to also send this on WhatsApp for faster follow-up?',
+    yesWa: 'Yes, open WhatsApp', noThanks: 'No, thanks',
     errName: 'Please enter your name',
     errPhone: 'Please enter a valid phone number',
+    sendFailed: 'Could not send. Please try again.',
   },
   ar: {
     titles: {
@@ -49,14 +55,18 @@ const COPY = {
       booking: 'احجز هذه السيارة',
       inquiry: 'إرسال استفسار',
     } as Record<CaptureIntent, string>,
-    subtitle: 'اترك بياناتك وسنكمل عبر واتساب.',
+    subtitle: 'اترك بياناتك وسيتواصل معك المعرض.',
     name: 'الاسم', namePh: 'اسمك',
     phone: 'الهاتف', phonePh: 'مثال: +963 9xx xxx xxx',
     time: 'الوقت المناسب (اختياري)', timePh: 'مثال: غداً بعد الظهر',
     note: 'رسالة (اختياري)', notePh: 'أي تفاصيل أخرى؟',
-    submit: 'المتابعة عبر واتساب', cancel: 'إلغاء',
+    send: 'إرسال', sending: 'جارٍ الإرسال…',
+    sentTitle: 'تم الإرسال ✓',
+    sentSubtitle: 'هل تريد أيضاً إرسالها عبر واتساب لمتابعة أسرع؟',
+    yesWa: 'افتح واتساب', noThanks: 'لا، شكراً',
     errName: 'يرجى إدخال اسمك',
     errPhone: 'يرجى إدخال رقم هاتف صحيح',
+    sendFailed: 'تعذّر الإرسال. حاول مرة أخرى.',
   },
 } as const;
 
@@ -86,12 +96,15 @@ export default function LeadCaptureDialog({
   const dir = l === 'ar' ? 'rtl' : 'ltr';
 
   const [open, setOpen] = useState(false);
+  const [phase, setPhase] = useState<'form' | 'sent'>('form');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [message, setMessage] = useState('');
   const [time, setTime] = useState('');
   const [errors, setErrors] = useState<{ name?: string; phone?: string }>({});
   const [submitting, setSubmitting] = useState(false);
+  const [sendError, setSendError] = useState(false);
+  const [waUrl, setWaUrl] = useState('');
   const contact = useTenantContact();
 
   const schema = z.object({
@@ -100,11 +113,17 @@ export default function LeadCaptureDialog({
   });
 
   const reset = () => {
-    setName(''); setPhone(''); setMessage(''); setTime(''); setErrors({}); setSubmitting(false);
+    setPhase('form');
+    setName(''); setPhone(''); setMessage(''); setTime('');
+    setErrors({}); setSubmitting(false); setSendError(false); setWaUrl('');
   };
 
-  const onSubmit = (e: React.FormEvent) => {
+  const closeAll = () => { setOpen(false); reset(); };
+
+  // [Send] — persist the lead FIRST, then show the confirmation.
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSendError(false);
     const parsed = schema.safeParse({ name, phone });
     if (!parsed.success) {
       const fe: { name?: string; phone?: string } = {};
@@ -120,30 +139,35 @@ export default function LeadCaptureDialog({
     const carTitle = content?.title || (car ? getCarTitleFallback(car) : subject) || '';
     const text = buildLeadMessage({ intent, carTitle, name, locale: l, message, preferredTime: time });
     const cleanNumber = contact.whatsapp.replace(/[^0-9]/g, '');
-    const url = `https://wa.me/${cleanNumber}?text=${encodeURIComponent(text)}`;
 
-    // Store the note + preferred time on the lead row so the dashboard sees them
-    // without parsing the WhatsApp text.
+    // Store the note + preferred time on the lead row so the dashboard sees them.
     const dbParts: string[] = [];
     if (intent === 'viewing' && time.trim()) dbParts.push(`${c.time}: ${time.trim()}`);
     if (message.trim()) dbParts.push(message.trim());
 
-    // Pre-opens the tab in this gesture, persists, then redirects to WhatsApp.
-    void persistThenWhatsApp(
-      {
-        type: intent,
-        source,
-        car_id: car?.id != null ? String(car.id) : undefined,
-        name: name.trim(),
-        phone: phone.trim(),
-        message: dbParts.length ? dbParts.join(' — ') : undefined,
-        locale: l,
-      },
-      url,
-    );
+    const res = await submitLead({
+      type: intent,
+      source,
+      car_id: car?.id != null ? String(car.id) : undefined,
+      name: name.trim(),
+      phone: phone.trim(),
+      message: dbParts.length ? dbParts.join(' — ') : undefined,
+      locale: l,
+    });
 
-    setOpen(false);
-    reset();
+    setSubmitting(false);
+    if (!res.ok) { setSendError(true); return; }
+
+    setWaUrl(`https://wa.me/${cleanNumber}?text=${encodeURIComponent(text)}`);
+    setPhase('sent');
+  };
+
+  // [Yes, open WhatsApp] — open from this fresh click (no popup-block), then
+  // flag the lead as whatsapp_opened (best-effort; the lead is already saved).
+  const onOpenWhatsapp = () => {
+    if (waUrl) window.open(waUrl, '_blank', 'noopener,noreferrer');
+    void markLeadWhatsapp(phone.trim());
+    closeAll();
   };
 
   return (
@@ -163,11 +187,16 @@ export default function LeadCaptureDialog({
         >
           <div className="mb-4 flex items-start justify-between gap-4">
             <div>
-              <Dialog.Title className="text-lg font-bold text-foreground">
-                {c.titles[intent]}
+              <Dialog.Title className="flex items-center gap-2 text-lg font-bold text-foreground">
+                {phase === 'sent' && (
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                    <Check size={14} />
+                  </span>
+                )}
+                {phase === 'sent' ? c.sentTitle : c.titles[intent]}
               </Dialog.Title>
               <Dialog.Description className="mt-1 text-sm text-muted-foreground">
-                {c.subtitle}
+                {phase === 'sent' ? c.sentSubtitle : c.subtitle}
               </Dialog.Description>
             </div>
             <Dialog.Close className="rounded-lg p-1.5 text-muted-foreground transition hover:bg-muted hover:text-foreground">
@@ -175,57 +204,79 @@ export default function LeadCaptureDialog({
             </Dialog.Close>
           </div>
 
-          <form onSubmit={onSubmit} className="space-y-3">
-            <Field label={c.name} error={errors.name}>
-              <input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder={c.namePh}
-                className={inputCls}
-                autoFocus
-              />
-            </Field>
-
-            <Field label={c.phone} error={errors.phone}>
-              <input
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder={c.phonePh}
-                inputMode="tel"
-                dir="ltr"
-                className={inputCls}
-              />
-            </Field>
-
-            {intent === 'viewing' && (
-              <Field label={c.time}>
+          {phase === 'form' ? (
+            <form onSubmit={onSubmit} className="space-y-3">
+              <Field label={c.name} error={errors.name}>
                 <input
-                  value={time}
-                  onChange={(e) => setTime(e.target.value)}
-                  placeholder={c.timePh}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder={c.namePh}
+                  className={inputCls}
+                  autoFocus
+                />
+              </Field>
+
+              <Field label={c.phone} error={errors.phone}>
+                <input
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder={c.phonePh}
+                  inputMode="tel"
+                  dir="ltr"
                   className={inputCls}
                 />
               </Field>
-            )}
 
-            <Field label={c.note}>
-              <textarea
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder={c.notePh}
-                rows={3}
-                className={inputCls}
-              />
-            </Field>
+              {intent === 'viewing' && (
+                <Field label={c.time}>
+                  <input
+                    value={time}
+                    onChange={(e) => setTime(e.target.value)}
+                    placeholder={c.timePh}
+                    className={inputCls}
+                  />
+                </Field>
+              )}
 
-            <button
-              type="submit"
-              disabled={submitting}
-              className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] py-3 text-sm font-bold text-white shadow-lg shadow-[#25D366]/25 transition hover:brightness-105 disabled:opacity-60"
-            >
-              {c.submit}
-            </button>
-          </form>
+              <Field label={c.note}>
+                <textarea
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder={c.notePh}
+                  rows={3}
+                  className={inputCls}
+                />
+              </Field>
+
+              {sendError && <p className="text-xs text-red-500">{c.sendFailed}</p>}
+
+              <button
+                type="submit"
+                disabled={submitting}
+                className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl bg-accent py-3 text-sm font-bold text-white shadow-lg shadow-accent/25 transition hover:brightness-105 disabled:opacity-60"
+              >
+                {submitting ? c.sending : c.send}
+              </button>
+            </form>
+          ) : (
+            <div className="space-y-2.5">
+              <button
+                type="button"
+                onClick={onOpenWhatsapp}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] py-3 text-sm font-bold text-white shadow-lg shadow-[#25D366]/25 transition hover:brightness-105"
+              >
+                <Image src="/WhatsApp.png" alt="" width={18} height={18} loading="lazy" />
+                {c.yesWa}
+              </button>
+              <button
+                type="button"
+                onClick={closeAll}
+                className="w-full rounded-xl border border-border bg-background py-3 text-sm font-semibold text-muted-foreground transition hover:bg-muted"
+              >
+                {c.noThanks}
+              </button>
+            </div>
+          )}
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>

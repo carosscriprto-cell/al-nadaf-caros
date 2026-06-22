@@ -86,6 +86,26 @@ export default function HeroSearchPanel({ cars, contentAr, contentEn, showTypeFi
     fuelTypeOptions,
   } = useHeroSearch(cars, 'all', contentAr, contentEn);
 
+  // ── Live price filter (F5) — applied to the hero results dropdown so the
+  //    visible results update as the user drags the slider (not only on Search).
+  const priceTouched = priceRange[0] > 0 || priceRange[1] < priceMax;
+  const inPriceRange = useCallback(
+    (car: Car) => {
+      // Same context price the fleet uses: total else daily.
+      const p = car.pricing.total ?? car.pricing.daily ?? 0;
+      return (priceRange[0] <= 0 || p >= priceRange[0]) && (priceRange[1] >= priceMax || p <= priceRange[1]);
+    },
+    [priceRange, priceMax],
+  );
+  const liveResults = useMemo(
+    () => (priceTouched ? results.filter(inPriceRange) : results),
+    [results, priceTouched, inPriceRange],
+  );
+  const liveAllCars = useMemo(
+    () => (priceTouched ? cars.filter(inPriceRange) : cars),
+    [cars, priceTouched, inPriceRange],
+  );
+
   // ── Navigation helper — preserves all filter context in URL ──────────
 
   const buildSearchURL = useCallback((): string => {
@@ -151,7 +171,7 @@ export default function HeroSearchPanel({ cars, contentAr, contentEn, showTypeFi
     [closeDropdown, handleSearch],
   );
 
-  const showDropdown = isOpen && (hasResults || hasQuery);
+  const showDropdown = isOpen && (hasResults || hasQuery || priceTouched);
 
   return (
     <div className="mx-auto max-w-5xl">
@@ -311,7 +331,7 @@ export default function HeroSearchPanel({ cars, contentAr, contentEn, showTypeFi
                 max={priceMax}
                 step={priceStep}
                 value={priceRange}
-                onValueChange={([min, max]) => setPriceRange([min, max])}
+                onValueChange={([min, max]) => { setPriceRange([min, max]); openDropdown(); }}
                 minStepsBetweenThumbs={1}
                 dir="ltr"
                 className="relative flex h-5 w-full touch-none select-none items-center"
@@ -363,8 +383,8 @@ export default function HeroSearchPanel({ cars, contentAr, contentEn, showTypeFi
             aria-label="Search results"
           >
             <HeroResultsDropdown
-              cars={results}
-              allCars={cars}
+              cars={liveResults}
+              allCars={liveAllCars}
               hasQuery={hasQuery}
               searchURL={buildSearchURL()}
               onClose={closeDropdown}
