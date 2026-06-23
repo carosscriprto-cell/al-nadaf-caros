@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
@@ -110,6 +111,18 @@ function getTopBrands(cars: Car[]) {
     .slice(0, MAX_BRANDS);
 }
 
+// Clean, never-blank fallback: a brand monogram in a styled chip. Used when the
+// brand has no bundled logo, OR when a bundled logo fails to load.
+function BrandMonogram({ brand }: { brand: string }) {
+  return (
+    <div className="flex h-20 w-full items-center justify-center overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-accent/10 via-card to-card">
+      <span className="text-2xl font-extrabold tracking-tight text-accent">
+        {getBrandFallback(brand)}
+      </span>
+    </div>
+  );
+}
+
 function BrandLogo({
   brand,
   priority,
@@ -118,15 +131,11 @@ function BrandLogo({
   priority: boolean;
 }) {
   const logo = BRAND_LOGOS[brand as BrandLogoKey];
+  const [errored, setErrored] = useState(false);
 
-  if (!logo) {
-    return (
-      <div className="flex h-20 w-full items-center justify-center rounded-2xl border border-dashed border-border/70 bg-muted/50">
-        <span className="text-lg font-semibold tracking-[0.3em] text-muted-foreground">
-          {getBrandFallback(brand)}
-        </span>
-      </div>
-    );
+  // No bundled logo, or it failed to load → clean monogram (never blank).
+  if (!logo || errored) {
+    return <BrandMonogram brand={brand} />;
   }
 
   return (
@@ -142,6 +151,7 @@ function BrandLogo({
         quality={80}
         placeholder="blur"
         blurDataURL={brandLogoBlurDataURL}
+        onError={() => setErrored(true)}
         className="relative z-10 h-auto max-h-12 w-auto object-contain transition duration-300 group-hover:scale-105 group-hover:grayscale-0"
       />
     </div>

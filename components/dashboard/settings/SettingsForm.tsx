@@ -10,13 +10,16 @@ import { settingsSchema, type SettingsValues } from '@/lib/dashboard/settingsSch
 import { updateTenantSettings } from '@/app/dashboard/settings/actions';
 import { useDash } from '../DashboardI18n';
 import MapPicker from '../MapPicker';
+import ImageUploadField from './ImageUploadField';
 
 export default function SettingsForm({
   defaultValues,
   canEdit,
+  tenantId,
 }: {
   defaultValues: SettingsValues;
   canEdit: boolean;
+  tenantId: string;
 }) {
   const { t } = useDash();
   const st = t.st;
@@ -145,12 +148,30 @@ export default function SettingsForm({
         </div>
 
         <Grid>
-          <Field label={st.f.logo_url} error={errors.logo_url?.message} hint={st.urlHint}>
-            <input {...register('logo_url')} disabled={disabled} dir="ltr" placeholder="https://…" className={inp} />
-          </Field>
-          <Field label={st.f.favicon_url} error={errors.favicon_url?.message} hint={st.urlHint}>
-            <input {...register('favicon_url')} disabled={disabled} dir="ltr" placeholder="https://…" className={inp} />
-          </Field>
+          <ImageUploadField
+            tenantId={tenantId}
+            kind="logo"
+            variant="logo"
+            value={watch('logo_url') ?? ''}
+            onChange={(url) => setValue('logo_url', url, { shouldDirty: true })}
+            label={st.f.logo_url}
+            hint={st.imageHint}
+            disabled={disabled}
+            copy={st.upload}
+          />
+          <ImageUploadField
+            tenantId={tenantId}
+            kind="favicon"
+            variant="icon"
+            value={watch('favicon_url') ?? ''}
+            onChange={(url) => setValue('favicon_url', url, { shouldDirty: true })}
+            label={st.f.favicon_url}
+            hint={st.imageHint}
+            disabled={disabled}
+            copy={st.upload}
+          />
+        </Grid>
+        <Grid>
           <Field label={st.f.og_image_url} error={errors.og_image_url?.message} hint={st.urlHint}>
             <input {...register('og_image_url')} disabled={disabled} dir="ltr" placeholder="https://…" className={inp} />
           </Field>

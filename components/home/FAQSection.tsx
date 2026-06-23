@@ -1,12 +1,13 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { PhoneCall } from 'lucide-react';
+import { PhoneCall, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 
 import { faqGroups, type FaqGroup } from '@/data/faq';
 import { useTenantContact } from '@/components/providers/TenantContactProvider';
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 
 type Props = {
   group?: FaqGroup;
@@ -41,25 +42,25 @@ const FAQSection = ({
           </p>
         </div>
 
-        <div className="space-y-6">
-          {faqs.map((faq, index) => (
-            <motion.div
+        {/* Accordion — click a question to expand/collapse. Native <details>
+            with a shared `name` so only one stays open at a time (cleaner UX). */}
+        <Accordion>
+          {faqs.map((faq) => (
+            <AccordionItem
               key={faq.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.08 }}
-              viewport={{ once: true }}
-              className="rounded-[2rem] border border-border/60 bg-card/80 p-8 backdrop-blur-xl transition-all duration-300 hover:border-accent/30"
+              name={`faq-${group}`}
+              className="group border-border/60 bg-card/80 shadow-none"
             >
-              <h3 className="mb-3 text-xl font-bold text-foreground">
-                {faq.question}
-              </h3>
-              <p className="leading-7 text-muted-foreground">
-                {faq.answer}
-              </p>
-            </motion.div>
+              <AccordionTrigger className="list-none px-6 py-5 text-base font-bold text-foreground md:text-lg [&::-webkit-details-marker]:hidden">
+                <span>{faq.question}</span>
+                <ChevronDown className="h-5 w-5 shrink-0 text-muted-foreground transition-transform duration-200 group-open:rotate-180" />
+              </AccordionTrigger>
+              <AccordionContent className="px-6 pb-5 pt-1">
+                <p className="leading-7 text-muted-foreground">{faq.answer}</p>
+              </AccordionContent>
+            </AccordionItem>
           ))}
-        </div>
+        </Accordion>
 
         {showContactCta && (
           <motion.div

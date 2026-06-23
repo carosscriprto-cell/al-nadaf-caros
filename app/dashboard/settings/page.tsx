@@ -10,6 +10,7 @@ export default async function DashboardSettingsPage() {
     <SettingsForm
       defaultValues={tenantToFormValues(tenant)}
       canEdit={role === 'owner'}
+      tenantId={tenant.id}
     />
   );
 }
