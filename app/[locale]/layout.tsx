@@ -1,4 +1,5 @@
 import { Inter } from "next/font/google";
+import { ibmPlexArabic } from "@/lib/fonts";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { dir } from 'i18next';
@@ -105,7 +106,10 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale} dir={dir(locale)} suppressHydrationWarning>
-      <body style={brandStyle}>
+      <body
+        className={`${inter.variable} ${ibmPlexArabic.variable}`}
+        style={brandStyle}
+      >
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -119,7 +123,7 @@ export default async function LocaleLayout({
                 <TenantPagesProvider value={parseTenantPages(tenant.pages)}>
                 <TenantContentProvider value={parseTenantContent(tenant.content)}>
                 <ErrorBoundary>
-                  <div className={`${inter.variable} font-sans antialiased min-h-screen flex flex-col`}>
+                  <div className="font-sans antialiased min-h-screen flex flex-col">
                     <Navbar brandName={brandName} logoUrl={tenant.logo_url} />
                     <main className="flex-1">
                       {children}

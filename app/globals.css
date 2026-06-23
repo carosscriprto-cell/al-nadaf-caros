@@ -1,19 +1,54 @@
 @import "tailwindcss";
 
+/* ════════════════════════════════════════════════════════════════════════
+   CAROS DESIGN TOKENS — Apple / SaaS direction (Linear · Vercel · Stripe)
+   ────────────────────────────────────────────────────────────────────────
+   ONE system: every color utility (bg-*, text-*, border-*) maps here to a
+   semantic CSS variable. The actual light/dark VALUES live in :root and
+   .dark below, so a single token name switches with the theme.
+
+   White-label: --color-primary / --color-secondary / --color-accent are
+   overridden at runtime per-tenant via an inline style on <body>
+   (see app/[locale]/layout.tsx). Because the utilities resolve var(--color-*)
+   at the element, that body-level override still wins. Keep these three names
+   stable — do not inline literal values for them.
+   ════════════════════════════════════════════════════════════════════════ */
+
 @theme {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-primary: #000000;
-  --color-primary-dark: #333333;
-  --color-secondary: #FFFFFF;
-  --color-accent: oklch(72.9% 0.105 251.813);
-  --color-accent-foreground: oklch(37.9% 0.146 265.522);
-  --color-bg-gradient-light: #F0F0F0;
-  --color-bg-gradient-dark: #111111;
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-brand: ui-serif, Georgia;
-  --font-body: 'IBM Plex Sans', ui-sans-serif, system-ui;
+  /* ── Surfaces ─────────────────────────────────────────────── */
+  --color-background: var(--background);          /* page background        */
+  --color-foreground: var(--foreground);          /* primary text           */
+  --color-foreground-tertiary: var(--foreground-tertiary); /* hint text     */
+
+  --color-card: var(--card);                      /* elevated surface       */
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  /* ── Brand (white-label, tenant-overridable) ──────────────── */
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);            /* subtle secondary surface */
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  /* ── Muted (secondary surface + muted text) ───────────────── */
+  --color-muted: var(--muted);                    /* section band / tint bg */
+  --color-muted-foreground: var(--muted-foreground); /* secondary text      */
+
+  /* ── Accent (the Caros blue — tenant-overridable) ─────────── */
+  --color-accent: var(--accent);                  /* light blue: tints, icons, text */
+  --color-accent-foreground: var(--accent-foreground); /* readable text on light-blue fill */
+  --color-accent-strong: var(--accent-strong);    /* darker blue: CTAs/buttons (white text) */
+  --color-accent-subtle: var(--accent-subtle);    /* very light blue: tint backgrounds */
+
+  --color-destructive: var(--destructive);
+
+  /* ── Lines ────────────────────────────────────────────────── */
+  --color-border: var(--border);                  /* hairline               */
+  --color-input: var(--input);                    /* field border           */
+  --color-ring: var(--ring);                      /* focus ring (accent)    */
+
+  /* ── Dashboard chrome (sidebar + charts) — unchanged ──────── */
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -27,44 +62,71 @@
   --color-chart-3: var(--chart-3);
   --color-chart-2: var(--chart-2);
   --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+
+  /* ── Typography ───────────────────────────────────────────────
+     Inter carries Latin; IBM Plex Sans Arabic carries Arabic. Inter has no
+     Arabic glyphs, so Arabic characters fall through to IBM Plex Arabic.
+     Both variables are attached to <body> in the locale layout.            */
+  --font-sans: var(--font-inter), var(--font-ibm-arabic), ui-sans-serif,
+    system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
+
+  /* ── Radius scale — 8 / 12 / 16 / 24 ──────────────────────── */
+  --radius-sm: 0.5rem;   /*  8px */
+  --radius-md: 0.75rem;  /* 12px */
+  --radius-lg: 1rem;     /* 16px */
+  --radius-xl: 1.5rem;   /* 24px */
+
+  /* ── Shadow scale — soft, near-flat (Apple depth) ─────────── */
+  --shadow-xs: 0 1px 2px 0 oklch(0 0 0 / 0.05);
+  --shadow-sm: 0 1px 2px 0 oklch(0 0 0 / 0.06), 0 1px 3px 0 oklch(0 0 0 / 0.04);
+  --shadow-md: 0 2px 4px -1px oklch(0 0 0 / 0.05), 0 4px 12px -2px oklch(0 0 0 / 0.08);
+  --shadow-lg: 0 4px 8px -2px oklch(0 0 0 / 0.06), 0 12px 32px -4px oklch(0 0 0 / 0.12);
+  --shadow-xl: 0 8px 16px -4px oklch(0 0 0 / 0.08), 0 24px 48px -8px oklch(0 0 0 / 0.16);
 }
 
+/* ════════════════════════════════════════════════════════════════════════
+   LIGHT THEME (default)
+   ════════════════════════════════════════════════════════════════════════ */
 :root {
-  --radius: 0.625rem;
-  --background: oklch(0.986 0 0);
-  --foreground: oklch(0.145 0 0);
+  --radius: 0.75rem; /* base radius for components that read var(--radius) */
+
+  /* Surfaces — crisp near-white page, pure-white elevated cards */
+  --background: oklch(0.985 0 0);
+  --foreground: oklch(0.205 0 0);            /* primary text   — high contrast */
+  --foreground-tertiary: oklch(0.62 0 0);    /* tertiary/hint                  */
+
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --text: oklch(0.92 0 0);
+  --card-foreground: oklch(0.205 0 0);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
+  --popover-foreground: oklch(0.205 0 0);
+
+  /* Brand */
   --primary: oklch(0.205 0 0);
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.92 0 0);
+  --secondary: oklch(0.96 0 0);
   --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.92 0 0);
-  --muted-foreground: oklch(0.356 0 0);
-  --accent: oklch(72.9% 0.105 251.813);
-  --accent-foreground: oklch(37.9% 0.146 265.522);
+
+  /* Muted */
+  --muted: oklch(0.96 0 0);                  /* section band / subtle surface  */
+  --muted-foreground: oklch(0.445 0 0);      /* secondary text — muted         */
+
+  /* Accent — the Caros blue (#75ACE8-family) */
+  --accent: oklch(0.729 0.105 251.813);
+  --accent-foreground: oklch(0.379 0.146 265.522); /* navy — readable on light blue */
+  /* Derived from whatever --color-accent resolves to (incl. tenant override),
+     so white-label stays intact. Strong = darker+punchier for CTAs on white. */
+  --accent-strong: oklch(from var(--color-accent) calc(l - 0.15) calc(c + 0.06) h);
+  --accent-subtle: oklch(from var(--color-accent) 0.95 0.04 h);
+
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+
+  /* Lines — refined hairlines (low-opacity black) */
+  --border: oklch(0 0 0 / 0.08);
+  --input: oklch(0 0 0 / 0.12);
+  --ring: var(--accent);
+
+  /* Dashboard chrome — unchanged */
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -80,26 +142,44 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
+/* ════════════════════════════════════════════════════════════════════════
+   DARK THEME
+   ════════════════════════════════════════════════════════════════════════ */
 .dark {
-  --background: oklch(0.145 0 0);
+  /* Surfaces — near-black page, slightly-lifted cards */
+  --background: oklch(0.15 0 0);
   --foreground: oklch(0.985 0 0);
+  --foreground-tertiary: oklch(0.556 0 0);
+
   --card: oklch(0.205 0 0);
   --card-foreground: oklch(0.985 0 0);
-  --text: oklch(0.80 0 0);
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
+
+  /* Brand */
   --primary: oklch(0.922 0 0);
   --primary-foreground: oklch(0.205 0 0);
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
+
+  /* Muted */
+  --muted: oklch(0.23 0 0);
   --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(46.902% 0.07997 251.566 / 0.959);
-  --accent-foreground: oklch(37.9% 0.146 265.522);
+
+  /* Accent — slightly brighter blue for legibility on dark */
+  --accent: oklch(0.745 0.11 251.8);
+  --accent-foreground: oklch(0.379 0.146 265.522);
+  --accent-strong: oklch(from var(--color-accent) calc(l - 0.06) calc(c + 0.04) h);
+  --accent-subtle: oklch(from var(--color-accent) 0.30 0.07 h);
+
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
+
+  /* Lines — low-opacity white hairlines */
+  --border: oklch(1 0 0 / 0.1);
+  --input: oklch(1 0 0 / 0.16);
+  --ring: var(--accent);
+
+  /* Dashboard chrome — unchanged */
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
@@ -115,12 +195,15 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+/* ════════════════════════════════════════════════════════════════════════
+   BASE + UTILITIES
+   ════════════════════════════════════════════════════════════════════════ */
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
   }
 }
 
