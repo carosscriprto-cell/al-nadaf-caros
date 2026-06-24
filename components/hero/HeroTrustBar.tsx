@@ -47,16 +47,16 @@ export default function HeroTrustBar() {
   return (
     <div
       className="
-        mx-auto flex max-w-5xl
+        mx-auto flex max-w-4xl
         items-center
         justify-center
         gap-0
         overflow-hidden
-        rounded-2xl
-        border border-white/8
-        bg-white/[0.04]
-        backdrop-blur-sm
-        divide-x divide-white/8
+        rounded-xl
+        border border-border
+        bg-card
+        shadow-xs
+        divide-x divide-border
       "
       role="list"
       aria-label="Showroom trust indicators"
@@ -76,18 +76,18 @@ export default function HeroTrustBar() {
               hidden shrink-0 sm:flex
               h-8 w-8 items-center justify-center
               rounded-full
-              border border-white/10
-              bg-white/6
+              border border-border
+              bg-accent-subtle
             "
             aria-hidden="true"
           >
-            <Icon size={14} className="text-accent/80" />
+            <Icon size={14} className="text-accent" />
           </div>
           <div className="min-w-0">
-            <p className="text-[11px] font-semibold text-white/85 sm:text-xs">
+            <p className="text-[11px] font-semibold text-foreground sm:text-xs">
               {t(labelKey, { defaultValue: defaultLabel })}
             </p>
-            <p className="hidden text-[10px] text-white/40 sm:block">
+            <p className="hidden text-[10px] text-muted-foreground sm:block">
               {t(sublabelKey, { defaultValue: defaultSublabel })}
             </p>
           </div>

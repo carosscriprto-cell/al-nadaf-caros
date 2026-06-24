@@ -19,7 +19,6 @@ import type { Car, CarContentMap, HeroFilterState } from '@/types/vehicles';
 
 import { useSearchIndex } from './useSearchIndex';
 
-const HERO_RESULT_LIMIT = 6;
 const MIN_QUERY_LENGTH = 2;
 
 const EMPTY_CONTENT: CarContentMap = {};
@@ -45,6 +44,8 @@ export function useHeroSearch(
     model: '',
     fuelType: '',
     listingType: pageType === 'all' ? '' : pageType,
+    condition: '',
+    category: '',
   });
 
   const [isOpen, setIsOpen] = useState(false);
@@ -72,37 +73,68 @@ export function useHeroSearch(
     !!filters.brand ||
     !!filters.model ||
     !!filters.fuelType ||
-    !!filters.listingType;
+    !!filters.listingType ||
+    !!filters.condition ||
+    !!filters.category;
 
   const shouldShowResults =
     debouncedQuery.trim().length >= MIN_QUERY_LENGTH || hasFilters;
 
+  // Single predicate for the structured filters (brand ∩ model ∩ fuel ∩ type).
+  // fuelType is compared case-insensitively so any casing drift in the stored
+  // value vs the derived option value can't silently break the match.
+  const passesStructuredFilters = useCallback(
+    (car: Car) => {
+      if (filters.brand && car.brand !== filters.brand) return false;
+      if (filters.model && car.model !== filters.model) return false;
+      if (
+        filters.fuelType &&
+        String(car.fuelType).toLowerCase() !== String(filters.fuelType).toLowerCase()
+      ) {
+        return false;
+      }
+      if (
+        filters.listingType &&
+        !matchesListingType(car, filters.listingType as PageListingType)
+      ) {
+        return false;
+      }
+      if (filters.condition && car.condition !== filters.condition) return false;
+      if (filters.category && car.category !== filters.category) return false;
+      return true;
+    },
+    [filters],
+  );
+
+  // The full inventory narrowed by the structured filters (no query, no price).
+  // Used both as the search candidate set AND as the dropdown's curated-fallback
+  // pool — so a zero-result filter (e.g. a fuel type) can never surface
+  // unrelated cars from the unfiltered inventory.
+  const filteredAllCars = useMemo(
+    () => searchableCars.filter(passesStructuredFilters),
+    [searchableCars, passesStructuredFilters],
+  );
+
   const results = useMemo(() => {
     if (!shouldShowResults) return [];
 
-    const preScopedCars = searchableCars.filter((car) => {
-      if (filters.brand && car.brand !== filters.brand) return false;
-      if (filters.model && car.model !== filters.model) return false;
-      if (filters.fuelType && car.fuelType !== filters.fuelType) return false;
-
-      if (filters.listingType) {
-        const type = filters.listingType as PageListingType;
-        if (!matchesListingType(car, type)) return false;
-      }
-
-      return true;
-    });
-
     if (debouncedQuery.trim().length < MIN_QUERY_LENGTH) {
-      return preScopedCars.slice(0, HERO_RESULT_LIMIT);
+      // No slice here: the panel applies the price filter on top, and the
+      // dropdown caps the final list. Slicing first would drop in-range cars
+      // ranked beyond the cap (the price/filter over-exclusion bug).
+      return filteredAllCars;
     }
 
+    // The Fuse index spans the FULL inventory, so searchVehicles ignores the
+    // pre-scoped subset when an index is passed. Re-apply the structured
+    // filters to the search output so the text query intersects with
+    // brand/model/fuel/type instead of bypassing them (BUG: filters not held).
     return searchVehicles({
-      cars: preScopedCars,
+      cars: filteredAllCars,
       query: debouncedQuery,
       search: searchIndex,
-    }).slice(0, HERO_RESULT_LIMIT);
-  }, [debouncedQuery, filters, searchIndex, shouldShowResults, searchableCars]);
+    }).filter(passesStructuredFilters);
+  }, [debouncedQuery, filteredAllCars, passesStructuredFilters, searchIndex, shouldShowResults]);
 
   const hasResults = results.length > 0;
 
@@ -141,6 +173,8 @@ export function useHeroSearch(
       model: '',
       fuelType: '',
       listingType: pageType === 'all' ? '' : pageType,
+      condition: '',
+      category: '',
     });
     setIsOpen(false);
   }, [pageType]);
@@ -149,6 +183,7 @@ export function useHeroSearch(
     filters,
     setFilter,
     results,
+    filteredAllCars,
     isOpen,
     setIsOpen,
     hasQuery,
@@ -163,5 +198,13 @@ export function useHeroSearch(
     brandOptions: allOptions.brandOptions,
     modelOptions,
     fuelTypeOptions: allOptions.fuelTypeOptions,
+    conditionOptions: allOptions.conditionOptions,
+    // Body-type options come from car_category. We exclude 'electric' because it
+    // is a fuel concept that leaked into the category enum and is pending the P3
+    // remap (see guardCategory in lib/supabase/mappers.ts) — once the data is
+    // remapped to a real fuel/category split this filter can be removed.
+    categoryOptions: allOptions.categoryOptions.filter(
+      (opt) => opt.value !== 'electric',
+    ),
   };
 }

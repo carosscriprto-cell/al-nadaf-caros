@@ -194,4 +194,8 @@ export type HeroFilterState = {
   model: string;
   fuelType: FuelType | '';
   listingType: PageListingType | ''; // '' means no filter selected
+  // 4th-slot filters — only one is ever surfaced per tenant type:
+  //   sale-only → condition, rental-only → body type (category). '' = unset.
+  condition: CarCondition | '';
+  category: CarCategory | '';
 };

@@ -44,7 +44,7 @@ export default function HeroPopularSearches({ onSelect }: Props) {
       className="flex flex-wrap items-center justify-center gap-2"
       aria-label={t('hero.popular_searches', { defaultValue: 'Popular searches' })}
     >
-      <div className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-white/30">
+      <div className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-foreground-tertiary">
         <TrendingUp size={10} aria-hidden="true" />
         {t('hero.trending', { defaultValue: 'Trending' })}
       </div>
@@ -57,14 +57,13 @@ export default function HeroPopularSearches({ onSelect }: Props) {
           aria-label={`Search for ${label}`}
           className="
             rounded-full
-            border border-white/10
-            bg-white/5
+            border border-border
+            bg-card
             px-3.5 py-1.5
-            text-xs text-white/65
-            backdrop-blur-xl
+            text-xs text-muted-foreground
             transition-all duration-200
-            hover:border-white/20 hover:bg-white/10 hover:text-white
-            focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/40
+            hover:border-accent/40 hover:bg-accent-subtle hover:text-foreground
+            focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent/40
             active:scale-[0.97]
           "
         >
