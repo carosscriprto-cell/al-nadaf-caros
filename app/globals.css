@@ -70,6 +70,9 @@
   --font-sans: var(--font-inter), var(--font-ibm-arabic), ui-sans-serif,
     system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
+  /* Display face for hero/headlines (Latin); Arabic falls back to IBM Plex. */
+  --font-heading: var(--font-space-grotesk), var(--font-ibm-arabic), ui-sans-serif,
+    system-ui, sans-serif;
 
   /* ── Radius scale — 8 / 12 / 16 / 24 ──────────────────────── */
   --radius-sm: 0.5rem;   /*  8px */

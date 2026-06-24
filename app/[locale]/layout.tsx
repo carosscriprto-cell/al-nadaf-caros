@@ -1,5 +1,5 @@
 import { Inter } from "next/font/google";
-import { ibmPlexArabic } from "@/lib/fonts";
+import { ibmPlexArabic, spaceGrotesk } from "@/lib/fonts";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { dir } from 'i18next';
@@ -107,7 +107,7 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} dir={dir(locale)} suppressHydrationWarning>
       <body
-        className={`${inter.variable} ${ibmPlexArabic.variable}`}
+        className={`${inter.variable} ${ibmPlexArabic.variable} ${spaceGrotesk.variable}`}
         style={brandStyle}
       >
         <ThemeProvider
