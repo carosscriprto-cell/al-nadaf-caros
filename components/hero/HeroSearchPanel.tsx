@@ -10,13 +10,14 @@ import {
 } from 'react';
 
 import * as Slider from '@radix-ui/react-slider';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { Search, X, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 
 
-import HeroPopularSearches from './HeroPopularSearches';
+import HeroQuickFilters, { type QuickChip } from './HeroQuickFilters';
 
 
 import { useHeroSearch } from '@/hooks/useHeroSearch';
@@ -89,9 +90,8 @@ export default function HeroSearchPanel({ cars, contentAr, contentEn, showTypeFi
     setFilter,
     results,
     isOpen,
+    setIsOpen,
     hasQuery,
-    hasResults,
-    openDropdown,
     closeDropdown,
     clearSearch,
     hasFilters,
@@ -182,6 +182,73 @@ export default function HeroSearchPanel({ cars, contentAr, contentEn, showTypeFi
     label: bodyTypeLabels[opt.value.toLowerCase()] ?? opt.label,
   }));
 
+  const prefersReduced = useReducedMotion();
+
+  // ── Quick-filter chips (carwow-style fast browse) ───────────────────────
+  // Derived from real inventory: the two most common body types in stock, plus
+  // electric/hybrid/new when present. Each chip toggles a real filter (apply on
+  // click, clear on second click), so they intersect through the same pipeline.
+  const chipFacets = useMemo(() => {
+    const categoryCounts = new Map<string, number>();
+    let hasElectric = false;
+    let hasHybrid = false;
+    let hasNew = false;
+    for (const car of cars) {
+      // Runtime can still carry 'electric' (pending P3 remap; see guardCategory
+      // in lib/supabase/mappers.ts) even though the type excludes it — compare
+      // as a string and skip it so it never becomes a body-type chip.
+      if (car.category && String(car.category) !== 'electric') {
+        categoryCounts.set(car.category, (categoryCounts.get(car.category) ?? 0) + 1);
+      }
+      const fuel = String(car.fuelType).toLowerCase();
+      if (fuel === 'electric') hasElectric = true;
+      if (fuel === 'hybrid') hasHybrid = true;
+      if (String(car.condition).toLowerCase() === 'new') hasNew = true;
+    }
+    const topCategories = [...categoryCounts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 2)
+      .map(([value]) => value);
+    return { topCategories, hasElectric, hasHybrid, hasNew };
+  }, [cars]);
+
+  const quickChips: QuickChip[] = [
+    ...chipFacets.topCategories.map((cat) => ({
+      id: `cat-${cat}`,
+      label: bodyTypeLabels[cat] ?? cat,
+      active: filters.category === cat,
+      onToggle: () =>
+        setFilter('category', filters.category === cat ? '' : (cat as CarCategory)),
+    })),
+    ...(chipFacets.hasElectric
+      ? [{
+          id: 'fuel-electric',
+          label: fuelLabels.electric,
+          active: filters.fuelType === 'electric',
+          onToggle: () =>
+            setFilter('fuelType', filters.fuelType === 'electric' ? '' : 'electric'),
+        }]
+      : []),
+    ...(chipFacets.hasHybrid
+      ? [{
+          id: 'fuel-hybrid',
+          label: fuelLabels.hybrid,
+          active: filters.fuelType === 'hybrid',
+          onToggle: () =>
+            setFilter('fuelType', filters.fuelType === 'hybrid' ? '' : 'hybrid'),
+        }]
+      : []),
+    ...(chipFacets.hasNew
+      ? [{
+          id: 'cond-new',
+          label: conditionLabels.new,
+          active: filters.condition === 'new',
+          onToggle: () =>
+            setFilter('condition', filters.condition === 'new' ? '' : 'new'),
+        }]
+      : []),
+  ];
+
   // ── Live price filter (F5) — applied to the hero results dropdown so the
   //    visible results update as the user drags the slider (not only on Search).
   const priceTouched = priceRange[0] > 0 || priceRange[1] < priceMax;
@@ -205,6 +272,15 @@ export default function HeroSearchPanel({ cars, contentAr, contentEn, showTypeFi
     () => (priceTouched ? filteredAllCars.filter(inPriceRange) : filteredAllCars),
     [filteredAllCars, priceTouched, inPriceRange],
   );
+
+  // Live count of matching cars — search results when a query is active, else
+  // the structured+price filtered inventory. Updates immediately as filters
+  // change, so the user sees each filter's effect (carwow feedback pattern).
+  const queryActive = filters.query.trim().length >= 2;
+  const matchCount = queryActive ? liveResults.length : liveAllCars.length;
+  const countLabel = isRTL
+    ? `${matchCount.toLocaleString()} سيارة`
+    : `${matchCount.toLocaleString()} ${matchCount === 1 ? 'car' : 'cars'}`;
 
   // ── Navigation helper — preserves all filter context in URL ──────────
 
@@ -271,7 +347,10 @@ export default function HeroSearchPanel({ cars, contentAr, contentEn, showTypeFi
     [closeDropdown, handleSearch],
   );
 
-  const showDropdown = isOpen && (hasResults || hasQuery || priceTouched);
+  // Suggestions appear on interaction only (focus, type, filter, price) — never
+  // by default. Once opened, the dropdown content decides curated vs results vs
+  // empty; outside-click / Escape close it.
+  const showDropdown = isOpen;
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -285,7 +364,7 @@ export default function HeroSearchPanel({ cars, contentAr, contentEn, showTypeFi
       >
         <div className="rounded-2xl border border-border bg-card p-4 shadow-md sm:p-6">
           {/* Search input row — the primary, prominent element */}
-          <div className="relative mb-5">
+          <div className="relative mb-4">
             <Search
               size={20}
               aria-hidden="true"
@@ -312,7 +391,7 @@ export default function HeroSearchPanel({ cars, contentAr, contentEn, showTypeFi
               autoComplete="off"
               spellCheck={false}
               value={filters.query}
-              onFocus={openDropdown}
+              onFocus={() => setIsOpen(true)}
               onChange={(e) => setFilter('query', e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={placeholder}
@@ -367,6 +446,20 @@ export default function HeroSearchPanel({ cars, contentAr, contentEn, showTypeFi
               <Search size={16} aria-hidden="true" />
               {t('hero.search')}
             </button>
+          </div>
+
+          {/* Quick chips + live result count — fast browse and immediate feedback */}
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+            <HeroQuickFilters
+              chips={quickChips}
+              label={isRTL ? 'فلاتر سريعة' : 'Quick filters'}
+            />
+            <span
+              aria-live="polite"
+              className="shrink-0 text-sm font-medium tabular-nums text-muted-foreground"
+            >
+              {countLabel}
+            </span>
           </div>
 
           {/* Filter row */}
@@ -444,7 +537,7 @@ export default function HeroSearchPanel({ cars, contentAr, contentEn, showTypeFi
                 max={priceMax}
                 step={priceStep}
                 value={priceRange}
-                onValueChange={([min, max]) => { setPriceRange([min, max]); openDropdown(); }}
+                onValueChange={([min, max]) => { setPriceRange([min, max]); setIsOpen(true); }}
                 minStepsBetweenThumbs={1}
                 dir="ltr"
                 className="relative flex h-5 w-full touch-none select-none items-center"
@@ -478,44 +571,40 @@ export default function HeroSearchPanel({ cars, contentAr, contentEn, showTypeFi
           )}
         </div>
 
-        {/* Results dropdown — portals below the panel */}
-        {showDropdown && (
-          <div
-            className="
-              absolute left-0 right-0 z-50
-              mt-2
-              overflow-hidden
-              rounded-xl
-              border border-border
-              bg-card
-              shadow-lg
-            "
-            id={listboxId}
-            role="listbox"
-            aria-label="Search results"
-          >
-            <HeroResultsDropdown
-              cars={liveResults}
-              allCars={liveAllCars}
-              hasQuery={hasQuery}
-              hasActiveFilters={hasFilters}
-              searchURL={buildSearchURL()}
-              onClose={closeDropdown}
-            />
-          </div>
-        )}
-      </div>
-
-      {/* ── Popular searches — always visible ────────────────────────── */}
-      <div className="mt-5">
-        <HeroPopularSearches
-          onSelect={(term) => {
-            setFilter('query', term);
-            openDropdown();
-            // Focus input on desktop so results appear
-            setTimeout(() => inputRef.current?.focus(), 0);
-          }}
-        />
+        {/* Results dropdown — appears on interaction, subtle reveal */}
+        <AnimatePresence>
+          {showDropdown && (
+            <motion.div
+              key="hero-suggestions"
+              initial={prefersReduced ? { opacity: 0 } : { opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={prefersReduced ? { opacity: 0 } : { opacity: 0, y: -8 }}
+              transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+              className="
+                absolute left-0 right-0 z-50
+                mt-2
+                overflow-hidden
+                rounded-xl
+                border border-border
+                bg-card
+                shadow-lg
+              "
+              id={listboxId}
+              role="listbox"
+              aria-label="Search results"
+            >
+              <HeroResultsDropdown
+                cars={liveResults}
+                allCars={liveAllCars}
+                hasQuery={hasQuery}
+                hasActiveFilters={hasFilters}
+                countLabel={countLabel}
+                searchURL={buildSearchURL()}
+                onClose={closeDropdown}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

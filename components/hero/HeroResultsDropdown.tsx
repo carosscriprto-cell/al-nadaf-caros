@@ -19,6 +19,8 @@ interface Props {
   hasQuery: boolean;
   /** Whether any structured filter (brand/model/fuel/type) is active */
   hasActiveFilters?: boolean;
+  /** Localised live count of all matching cars, e.g. "324 cars" */
+  countLabel?: string;
   /** Pre-built URL with all current filter params */
   searchURL: string;
   onClose?: () => void;
@@ -147,6 +149,7 @@ export default function HeroResultsDropdown({
   allCars,
   hasQuery,
   hasActiveFilters = false,
+  countLabel,
   searchURL,
   onClose,
 }: Props) {
@@ -167,27 +170,23 @@ export default function HeroResultsDropdown({
 
   return (
     <div>
-      {/* ── Header ─────────────────────────────────────────────────── */}
+      {/* ── Header — leads with the live count ─────────────────────── */}
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <div>
-          <h3 className="text-xs font-semibold text-foreground">
-            {isCurated
-              ? t('hero.curated_vehicles', { defaultValue: 'Curated for you' })
-              : t('hero.recommended_vehicles', { defaultValue: 'Matching vehicles' })}
+          <h3 className="text-sm font-semibold tabular-nums text-foreground">
+            {countLabel ?? `${displayCars.length}`}
           </h3>
           <p className="mt-0.5 text-[11px] text-muted-foreground">
             {isCurated
-              ? t('hero.curated_sub', { defaultValue: 'Our finest selection' })
-              : `${displayCars.length} ${t('hero.available_vehicles', { defaultValue: 'available' })}`}
+              ? t('hero.curated_sub', { defaultValue: 'Popular picks' })
+              : t('hero.recommended_vehicles', { defaultValue: 'Matching your search' })}
           </p>
         </div>
 
-        {!isEmpty && (
+        {isCurated && (
           <div className="flex items-center gap-1.5 rounded-full border border-border bg-muted px-3 py-1 text-[10px] text-muted-foreground">
             <Sparkles size={10} aria-hidden="true" />
-            {isCurated
-              ? t('hero.curated_badge', { defaultValue: 'Featured' })
-              : `${displayCars.length} ${t('hero.matches', { defaultValue: 'matches' })}`}
+            {t('hero.curated_badge', { defaultValue: 'Featured' })}
           </div>
         )}
       </div>
