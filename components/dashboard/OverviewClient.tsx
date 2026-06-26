@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { useDash } from './DashboardI18n';
 import type { CarStats, TenantPlan } from '@/lib/dashboard/cars';
-import type { TenantFeatures } from '@/lib/tenant/features';
+import { isHybridTenant, type TenantFeatures } from '@/lib/tenant/features';
 import { getPlanCapabilities } from '@/lib/tenant/plans';
 
 type LeadStats = { total: number; new: number; contacted: number; closed: number; handled: number };
@@ -32,12 +32,14 @@ export default function OverviewClient({
   leads,
   plan,
   features,
+  domain,
   recentLeads,
 }: {
   cars: CarStats;
   leads: LeadStats;
   plan: TenantPlan;
   features: TenantFeatures;
+  domain: string | null;
   recentLeads: RecentLead[];
 }) {
   const { t, el, lang } = useDash();
@@ -56,10 +58,13 @@ export default function OverviewClient({
   const pct = Math.min(100, Math.round(ratio * 100));
   const barColor = atLimit ? '#ef5350' : nearLimit ? '#f5a623' : '#75ACE8';
 
-  // "Plan includes" — reflects the tenant's ACTUAL features (same source as the
-  // usage bar), NOT the getPlanFeatures preset (which is the onboarding default
-  // only). hybrid/custom-domain have no per-tenant override, so they stay from
-  // the plan capabilities.
+  // "Plan includes" — every row reflects the tenant's ACTUAL runtime reality,
+  // never the plan preset, so the dashboard can't disagree with the storefront:
+  //   • numbers/flags ← tenants.features (editable authority)
+  //   • hybrid        ← isHybridTenant(features) — the SAME helper the storefront uses
+  //   • custom domain ← the real tenants.domain column (not a plan capability)
+  // `expandable` (below) is a true plan-only entitlement (can request higher
+  // limits) with no runtime equivalent, so it correctly stays plan-sourced.
   const caps = getPlanCapabilities(plan);
   const planMetrics = [
     { label: ov.featVehicles, value: features.maxCars === -1 ? ov.unlimited : String(features.maxCars) },
@@ -68,8 +73,8 @@ export default function OverviewClient({
   const planFlags = [
     { label: ov.featFinancing, on: features.enableFinancing },
     { label: ov.featVip, on: features.enableVipDelivery },
-    { label: ov.featHybrid, on: caps.hybrid },
-    { label: ov.featCustomDomain, on: caps.customDomain },
+    { label: ov.featHybrid, on: isHybridTenant(features) },
+    { label: ov.featCustomDomain, on: Boolean(domain) },
   ];
 
   const dateFmt = new Intl.DateTimeFormat(lang === 'ar' ? 'ar' : 'en', {

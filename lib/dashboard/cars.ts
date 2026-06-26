@@ -43,21 +43,24 @@ export async function getMyTenantContext(): Promise<{
   tenantId: string | null;
   features: TenantFeatures;
   plan: TenantPlan;
+  domain: string | null;
 }> {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { tenantId: null, features: parseTenantFeatures(null), plan: 'starter' };
+  if (!user) return { tenantId: null, features: parseTenantFeatures(null), plan: 'starter', domain: null };
   const { data } = await supabase
     .from('tenant_users')
-    .select('tenant_id, tenant:tenants(features, plan)')
+    .select('tenant_id, tenant:tenants(features, plan, domain)')
     .eq('user_id', user.id)
     .single();
   return {
     tenantId: data?.tenant_id ?? null,
     features: parseTenantFeatures(data?.tenant?.features),
     plan: (data?.tenant?.plan ?? 'starter') as TenantPlan,
+    // Real custom-domain reality (tenants.domain column), not the plan preset.
+    domain: data?.tenant?.domain ?? null,
   };
 }
 

@@ -14,6 +14,7 @@ export default async function DashboardOverviewPage() {
       leads={leadStats(leads)}
       plan={ctx.plan}
       features={ctx.features}
+      domain={ctx.domain}
       recentLeads={leads.slice(0, 6).map((l) => ({
         id: l.id,
         name: l.name,
