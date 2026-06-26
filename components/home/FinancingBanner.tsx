@@ -5,27 +5,22 @@
 // Brief "financing available" banner with a CTA to the financing page.
 
 import Link from 'next/link';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { ArrowRight, BadgePercent } from 'lucide-react';
-
-const COPY = {
-  en: {
-    eyebrow: 'Flexible payment',
-    title: 'Financing available',
-    description: 'Drive now and pay in installments. Ask us about monthly plans tailored to your budget.',
-    cta: 'Explore financing',
-  },
-  ar: {
-    eyebrow: 'دفع مرن',
-    title: 'التقسيط متاح',
-    description: 'استلم سيارتك الآن وادفع على أقساط. اسألنا عن خطط شهرية تناسب ميزانيتك.',
-    cta: 'تعرّف على التقسيط',
-  },
-} as const;
+import { useTenantContent } from '@/components/providers/TenantContentProvider';
 
 export default function FinancingBanner() {
   const locale = useLocale();
-  const c = COPY[locale === 'ar' ? 'ar' : 'en'];
+  const t = useTranslations('financing');
+  // Per-tenant override → i18n fallback. Partial overrides are fine: each field
+  // falls back independently. Eyebrow is not tenant-editable (i18n only).
+  const fc = useTenantContent().financing[locale === 'ar' ? 'ar' : 'en'];
+  const c = {
+    eyebrow: t('eyebrow'),
+    title: fc.title || t('title'),
+    description: fc.desc || t('description'),
+    cta: fc.cta || t('cta'),
+  };
 
   return (
     <section className="bg-background py-16">

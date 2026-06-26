@@ -3,10 +3,11 @@
 import { motion } from 'framer-motion';
 import { PhoneCall, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 import { faqGroups, type FaqGroup } from '@/data/faq';
 import { useTenantContact } from '@/components/providers/TenantContactProvider';
+import { useTenantContent } from '@/components/providers/TenantContentProvider';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 
 type Props = {
@@ -20,14 +21,29 @@ const FAQSection = ({
 }: Props) => {
   const tFaq = useTranslations('faq');
   const tButtons = useTranslations('buttons');
+  const locale = useLocale();
   const contact = useTenantContact();
+  const content = useTenantContent();
   const phoneDigits = contact.phone.replace(/[^0-9+]/g, '');
 
-  const faqs = faqGroups[group].map((id) => ({
-    id,
-    question: tFaq(`items.${id}.question`),
-    answer: tFaq(`items.${id}.answer`),
-  }));
+  // The tenant FAQ override applies to the HOME section only; other groups
+  // (about/contact pages) keep the static i18n set. Only rows with BOTH a
+  // question and answer count — if none qualify, fall back to the static list,
+  // so the storefront is unchanged when tenants.content.faq is empty/absent.
+  const overrideFaqs =
+    group === 'home'
+      ? content.faq[locale === 'ar' ? 'ar' : 'en'].filter(
+          (f): f is { q: string; a: string } => !!f.q && !!f.a,
+        )
+      : [];
+
+  const faqs = overrideFaqs.length
+    ? overrideFaqs.map((f, i) => ({ id: `custom-${i}`, question: f.q, answer: f.a }))
+    : faqGroups[group].map((id) => ({
+        id,
+        question: tFaq(`items.${id}.question`),
+        answer: tFaq(`items.${id}.answer`),
+      }));
 
   return (
     <section className="py-24">

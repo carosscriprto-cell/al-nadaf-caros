@@ -6,11 +6,19 @@ import { useLocale, useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
 import { getBlurDataURL } from '@/lib/image';
+import { useTenantContent } from '@/components/providers/TenantContentProvider';
 
 const FinalCTA = () => {
   const locale = useLocale();
   const tb = useTranslations('buttons')
   const t = useTranslations('');
+
+  // Per-tenant override → i18n fallback (each field independent). The secondary
+  // "contact" CTA stays i18n-only. Empty override = identical to before.
+  const fc = useTenantContent().finalCta[locale === 'ar' ? 'ar' : 'en'];
+  const title = fc.title || t('final_cta.title');
+  const description = fc.desc || t('final_cta.description');
+  const primaryCta = fc.cta || tb('start_your_journey');
 
   return (
     <section className="relative overflow-hidden py-20 mx-4 rounded-2xl text-white bg-transparent">
@@ -58,7 +66,7 @@ const FinalCTA = () => {
             transition={{ delay: 0.2 }}
             className="text-3xl font-bold md:text-5xl"
           >
-            {t('final_cta.title')}
+            {title}
           </motion.h2>
 
           {/* Sub */}
@@ -68,7 +76,7 @@ const FinalCTA = () => {
             transition={{ delay: 0.4 }}
             className="mx-auto mt-6 max-w-2xl text-white/70 text-lg"
           >
-            {t('final_cta.description')}
+            {description}
           </motion.p>
 
           {/* CTA */}
@@ -83,7 +91,7 @@ const FinalCTA = () => {
               href={`/${locale}/fleet`}
               className="inline-flex items-center justify-center gap-3 rounded-xl bg-accent px-8 py-4 font-semibold text-white shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl"
             >
-              {tb('start_your_journey')}
+              {primaryCta}
               <ArrowRight className="h-5 w-5" />
             </Link>
 

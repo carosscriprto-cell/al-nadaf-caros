@@ -1,9 +1,10 @@
 'use client';
 
 import { motion, useReducedMotion, type Variants } from 'framer-motion';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import HeroTrustStrip from './HeroTrustStrip';
 import HeroSearchPanel from './HeroSearchPanel';
+import { useTenantContent } from '@/components/providers/TenantContentProvider';
 import type { Car, CarContentMap } from '@/types/vehicles';
 
 // ─── Animation ──────────────────────────────────────────────────────────────
@@ -30,8 +31,16 @@ type HeroSectionProps = {
 
 export default function HeroSection({ cars, contentAr, contentEn, showTypeFilter = true }: HeroSectionProps) {
   const t = useTranslations();
+  const locale = useLocale();
   const prefersReduced = useReducedMotion();
   const initial = prefersReduced ? false : 'hidden';
+
+  // Per-tenant headline override → i18n fallback (each field independent). When
+  // `headline` is unset the original two-line i18n title (with accent on line 2)
+  // renders unchanged, so an empty tenants.content looks identical to before.
+  const hero = useTenantContent().hero[locale === 'ar' ? 'ar' : 'en'];
+  const badge = hero.badge || t('hero.badge');
+  const subheadline = hero.subheadline || t('hero.description');
 
   return (
     <section
@@ -67,7 +76,7 @@ export default function HeroSection({ cars, contentAr, contentEn, showTypeFilter
         >
           <span className="h-1.5 w-1.5 rounded-full bg-accent" aria-hidden="true" />
           <span className="text-xs font-medium uppercase tracking-[0.22em] text-muted-foreground">
-            {t('hero.badge')}
+            {badge}
           </span>
         </motion.div>
 
@@ -81,12 +90,18 @@ export default function HeroSection({ cars, contentAr, contentEn, showTypeFilter
           custom={0.08}
         >
           <h1 className="mx-auto max-w-4xl text-balance font-heading text-[clamp(2.75rem,8vw,5.75rem)] font-semibold leading-[1.0] tracking-[-0.02em] text-foreground">
-            {t('hero.title_line_1')}{' '}
-            <span className="text-accent-strong">{t('hero.title_line_2')}</span>
+            {hero.headline ? (
+              hero.headline
+            ) : (
+              <>
+                {t('hero.title_line_1')}{' '}
+                <span className="text-accent-strong">{t('hero.title_line_2')}</span>
+              </>
+            )}
           </h1>
 
           <p className="mx-auto mt-6 max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground">
-            {t('hero.description')}
+            {subheadline}
           </p>
         </motion.div>
 

@@ -61,6 +61,12 @@
       "support": "Support"
     }
   },
+  "financing": {
+    "eyebrow": "Flexible payment",
+    "title": "Financing available",
+    "description": "Drive now and pay in installments. Ask us about monthly plans tailored to your budget.",
+    "cta": "Explore financing"
+  },
   "brand-section": {
     "brand-title": "Discover Leading Brands",
     "brand-subtitle": "Find the finest automotive experiences with our carefully curated selection of premium brands."
