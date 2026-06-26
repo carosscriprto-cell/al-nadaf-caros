@@ -5,7 +5,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { X, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import type { DashCar } from '@/lib/dashboard/cars';
-import { updateCarPrice, bulkAdjustPrice } from '@/app/dashboard/cars/actions';
+import { updateCarPrice, bulkAdjustPrice } from '@/app/(system)/dashboard/cars/actions';
 import { useDash } from '../DashboardI18n';
 import Confirm from '../ui/Confirm';
 

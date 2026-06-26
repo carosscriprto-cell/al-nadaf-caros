@@ -20,7 +20,7 @@ import { PriceEditDialog, BulkPriceDialog } from './PriceDialogs';
 import {
   toggleAvailable, toggleFeatured, deleteCar, setCarStatus,
   bulkSetAvailable, bulkSetFeatured, bulkDelete,
-} from '@/app/dashboard/cars/actions';
+} from '@/app/(system)/dashboard/cars/actions';
 
 const PAGE_SIZE = 10;
 type SortKey = 'brand' | 'year' | 'price' | 'status';

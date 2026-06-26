@@ -10,7 +10,7 @@ import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { LEAD_STATUSES } from '@/lib/leads/schema';
-import type { ActionResult } from '@/app/dashboard/cars/types';
+import type { ActionResult } from '@/app/(system)/dashboard/cars/types';
 
 const idSchema = z.string().uuid();
 const idsSchema = z.array(z.string().uuid()).min(1).max(500);

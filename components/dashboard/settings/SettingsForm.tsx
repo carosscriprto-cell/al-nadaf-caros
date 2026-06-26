@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Save, Lock, Palette, Building2, Search, Clock, Share2 } from 'lucide-react';
 import { settingsSchema, type SettingsValues } from '@/lib/dashboard/settingsSchema';
-import { updateTenantSettings } from '@/app/dashboard/settings/actions';
+import { updateTenantSettings } from '@/app/(system)/dashboard/settings/actions';
 import { useDash } from '../DashboardI18n';
 import MapPicker from '../MapPicker';
 import ImageUploadField from './ImageUploadField';

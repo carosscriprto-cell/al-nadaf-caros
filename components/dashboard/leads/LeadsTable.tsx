@@ -12,7 +12,7 @@ import {
 import type { DashLead } from '@/lib/dashboard/leads';
 import type { LeadStatus } from '@/lib/leads/schema';
 import { useDash } from '../DashboardI18n';
-import { setLeadStatus, bulkSetLeadStatus } from '@/app/dashboard/leads/actions';
+import { setLeadStatus, bulkSetLeadStatus } from '@/app/(system)/dashboard/leads/actions';
 
 const PAGE_SIZE = 12;
 type SortKey = 'date' | 'status';

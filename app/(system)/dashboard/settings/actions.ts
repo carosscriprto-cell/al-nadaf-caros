@@ -12,7 +12,7 @@
 import { revalidatePath } from 'next/cache';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { settingsSchema, type SettingsValues } from '@/lib/dashboard/settingsSchema';
-import type { ActionResult } from '@/app/dashboard/cars/types';
+import type { ActionResult } from '@/app/(system)/dashboard/cars/types';
 
 const orNull = (v?: string) => {
   const s = v?.trim();

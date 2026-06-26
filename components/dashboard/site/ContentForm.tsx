@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 import { Save, Lock, FileEdit, ChevronDown } from 'lucide-react';
 import { contentSchema, type ContentValues } from '@/lib/dashboard/contentSchema';
 import { WHY_ITEMS, HOW_STEPS } from '@/lib/tenant/content';
-import { updateTenantContent } from '@/app/dashboard/site/contentActions';
+import { updateTenantContent } from '@/app/(system)/dashboard/site/contentActions';
 import { useDash } from '../DashboardI18n';
 
 type Reg = UseFormRegister<ContentValues>;

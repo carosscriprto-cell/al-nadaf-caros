@@ -85,7 +85,7 @@ values (
 
 The dealer logs in at `/auth/login` → `/dashboard` and completes setup themselves:
 - **Settings** (`/dashboard/settings`): logo, favicon, OG image, colors, contact, business hours, map center, SEO.
-- **Site** (`/dashboard/site`): toggle/reorder home **sections**, toggle optional **pages** & lead buttons, edit **content** (bilingual whyChooseUs / howItWorks / about).
+- **Site** (`/dashboard/site`): toggle/reorder home **sections**, toggle optional **pages** & lead buttons, edit **content** (bilingual hero / whyChooseUs / howItWorks / about / financing / finalCta / faq) — each field falls back to the static i18n copy when left blank.
 - **Inventory** (`/dashboard/cars`): add vehicles + per-locale content; images upload to Supabase Storage.
 - **Leads** (`/dashboard/leads`): the inbox for incoming leads.
 

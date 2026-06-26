@@ -12,7 +12,7 @@ import { Constants } from '@/lib/supabase/database.types';
 import { carFormSchema, type CarFormValues, type ContentLocaleValues } from '@/lib/dashboard/carSchema';
 import { type TenantFeatures, allowedListingTypes } from '@/lib/tenant/features';
 import { safeRandomUUID } from '@/lib/utils/uuid';
-import { createCar, updateCar } from '@/app/dashboard/cars/actions';
+import { createCar, updateCar } from '@/app/(system)/dashboard/cars/actions';
 import type { DashCarWithContent } from '@/lib/dashboard/cars';
 import { useDash } from '../DashboardI18n';
 import { Section, TextField, NumField, SelField, SwitchField, TextareaField, TagInput } from './fields';

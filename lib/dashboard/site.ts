@@ -3,10 +3,18 @@
 
 import type { DashTenant } from './settings';
 import type { SiteValues } from './siteSchema';
-import type { ContentValues, SectionValues } from './contentSchema';
+import type { ContentValues, SectionValues, HeroValues, CtaValues, FaqRowValues } from './contentSchema';
 import { parseTenantPages } from '@/lib/tenant/pages';
 import { parseSections } from '@/lib/tenant/sections';
-import { parseTenantContent, WHY_ITEMS, HOW_STEPS, type SectionLocale } from '@/lib/tenant/content';
+import {
+  parseTenantContent,
+  WHY_ITEMS,
+  HOW_STEPS,
+  type SectionLocale,
+  type HeroLocale,
+  type CtaLocale,
+  type FaqEntry,
+} from '@/lib/tenant/content';
 
 export function tenantToSiteValues(t: DashTenant): SiteValues {
   return {
@@ -29,6 +37,18 @@ function sectionToForm(s: SectionLocale, n: number): SectionValues {
   };
 }
 
+function heroToForm(h: HeroLocale): HeroValues {
+  return { badge: h.badge ?? '', headline: h.headline ?? '', subheadline: h.subheadline ?? '' };
+}
+
+function ctaToForm(c: CtaLocale): CtaValues {
+  return { title: c.title ?? '', desc: c.desc ?? '', cta: c.cta ?? '' };
+}
+
+function faqToForm(rows: FaqEntry[]): FaqRowValues[] {
+  return rows.map((r) => ({ q: r.q ?? '', a: r.a ?? '' }));
+}
+
 export function tenantToContentValues(t: DashTenant): ContentValues {
   const c = parseTenantContent(t.content);
   return {
@@ -38,5 +58,9 @@ export function tenantToContentValues(t: DashTenant): ContentValues {
       en: { heading: c.about.en.heading ?? '', body: c.about.en.body ?? '' },
       ar: { heading: c.about.ar.heading ?? '', body: c.about.ar.body ?? '' },
     },
+    hero: { en: heroToForm(c.hero.en), ar: heroToForm(c.hero.ar) },
+    financing: { en: ctaToForm(c.financing.en), ar: ctaToForm(c.financing.ar) },
+    finalCta: { en: ctaToForm(c.finalCta.en), ar: ctaToForm(c.finalCta.ar) },
+    faq: { en: faqToForm(c.faq.en), ar: faqToForm(c.faq.ar) },
   };
 }

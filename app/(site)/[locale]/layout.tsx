@@ -1,3 +1,5 @@
+import "../../globals.css";
+import 'leaflet/dist/leaflet.css';
 import { Inter } from "next/font/google";
 import { ibmPlexArabic, spaceGrotesk } from "@/lib/fonts";
 import Navbar from "@/components/Navbar";
@@ -105,6 +107,9 @@ export default async function LocaleLayout({
   } as React.CSSProperties;
 
   return (
+    // (site) group ROOT layout — owns the storefront's document-level <html>.
+    // lang/dir are locale-driven here (SEO + a11y correct for ar/en RTL/LTR).
+    // suppressHydrationWarning: next-themes mutates <html> class/color-scheme.
     <html lang={locale} dir={dir(locale)} suppressHydrationWarning>
       <body
         className={`${inter.variable} ${ibmPlexArabic.variable} ${spaceGrotesk.variable}`}

@@ -48,7 +48,7 @@ All tables live in `public`. Schema is version-controlled under `supabase/migrat
 | `features` | `{ maxCars, maxImagesPerCar, enableSellCar, enableRental, enableFinancing, enableWhatsApp, enableVipDelivery, enableEmailContact, enablePhoneContact }` | `parseTenantFeatures` → `DEFAULT_FEATURES` (all-on) for missing keys |
 | `sections` | ordered `[{ key, enabled }]` of home sections | `parseSections` → `DEFAULT_SECTIONS` (all on, canonical order); `hero` is always-on |
 | `pages` | `{ about, leadAvailability, leadViewing }` toggles | `parseTenantPages` → default **true** |
-| `content` | bilingual overrides for `whyChooseUs` / `howItWorks` / `about` (`{ en:{…}, ar:{…} }`) | `parseTenantContent` → falls back to static i18n |
+| `content` | bilingual section overrides, each `{ en, ar }`: `hero` `{badge, headline, subheadline}`, `whyChooseUs`/`howItWorks` `{title, description, items[]}`, `about` `{heading, body}`, `financing`/`finalCta` `{title, desc, cta}`, `faq` `[{q, a}]` | `parseTenantContent` → **per-field** fallback to static i18n (empty field = original copy) |
 | `business_hours`, `social`, `map_center` | tenant contact/map config | resolved in `lib/tenant/branding.ts` |
 
 ### Enums (current, after `extend_market_enums`)

@@ -8,7 +8,7 @@
 import { revalidatePath } from 'next/cache';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { contentSchema, hasAnyContent, type ContentValues } from '@/lib/dashboard/contentSchema';
-import type { ActionResult } from '@/app/dashboard/cars/types';
+import type { ActionResult } from '@/app/(system)/dashboard/cars/types';
 
 export async function updateTenantContent(values: ContentValues): Promise<ActionResult> {
   const parsed = contentSchema.safeParse(values);

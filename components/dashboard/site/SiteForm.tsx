@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { siteSchema, type SiteValues } from '@/lib/dashboard/siteSchema';
 import { isSectionLocked, type HomeSectionKey } from '@/lib/tenant/sections';
-import { updateTenantSite } from '@/app/dashboard/site/actions';
+import { updateTenantSite } from '@/app/(system)/dashboard/site/actions';
 import { useDash } from '../DashboardI18n';
 
 export default function SiteForm({

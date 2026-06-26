@@ -9,7 +9,7 @@
 import { revalidatePath } from 'next/cache';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { siteSchema, type SiteValues } from '@/lib/dashboard/siteSchema';
-import type { ActionResult } from '@/app/dashboard/cars/types';
+import type { ActionResult } from '@/app/(system)/dashboard/cars/types';
 
 export async function updateTenantSite(values: SiteValues): Promise<ActionResult> {
   const parsed = siteSchema.safeParse(values);
