@@ -6,6 +6,7 @@ import HeadSection from '../HeadSection';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { useTenantContent } from '@/components/providers/TenantContentProvider';
+import { useTenantFeatures } from '@/components/providers/TenantFeaturesProvider';
 import { HOW_KEYS } from '@/lib/tenant/content';
 
 const STEP_ICONS = [Search, Calendar, Car, CreditCard];
@@ -15,14 +16,27 @@ export const HowItWorks = () => {
   const t = useTranslations('how_it_works');
   // Per-tenant text override; empty fields fall back to the static i18n.
   const hw = useTenantContent().howItWorks[locale === 'ar' ? 'ar' : 'en'];
+  const features = useTenantFeatures();
+
+  // Type-aware DEFAULT step copy: sale-only → buying flow, rental-only → rental
+  // flow, hybrid (or neither) → the generic steps. Slot count, icons and order
+  // are unchanged — only which i18n default the steps read from. A tenant's
+  // content override (hw.items) always wins over this default below.
+  const variant =
+    features.enableSellCar && !features.enableRental
+      ? 'sale'
+      : features.enableRental && !features.enableSellCar
+        ? 'rental'
+        : null;
+  const stepPath = (key: string) => (variant ? `${variant}.steps.${key}` : `steps.${key}`);
 
   const heading = hw.title || t('title');
   const subheading = hw.description || t('description');
 
   const steps = HOW_KEYS.map((key, i) => ({
     icon: STEP_ICONS[i],
-    title: hw.items?.[i]?.title || t(`steps.${key}.title`),
-    description: hw.items?.[i]?.text || t(`steps.${key}.description`),
+    title: hw.items?.[i]?.title || t(`${stepPath(key)}.title`),
+    description: hw.items?.[i]?.text || t(`${stepPath(key)}.description`),
     step: `0${i + 1}`,
   }));
 

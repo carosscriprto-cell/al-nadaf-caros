@@ -129,6 +129,46 @@
         "description": "Secure payments, zero hassle, and full support anytime."
       }
     },
+    "sale": {
+      "steps": {
+        "choose": {
+          "title": "Choose Your Car",
+          "description": "Browse our curated inventory and find the model that fits you."
+        },
+        "book": {
+          "title": "Inspect & Test Drive",
+          "description": "Book a viewing or test drive at a time that suits you."
+        },
+        "delivery": {
+          "title": "Finance & Purchase",
+          "description": "Pick a payment or financing plan and complete the paperwork."
+        },
+        "drive": {
+          "title": "Drive It Home",
+          "description": "Take ownership and enjoy your new car with full support."
+        }
+      }
+    },
+    "rental": {
+      "steps": {
+        "choose": {
+          "title": "Choose Your Dates",
+          "description": "Select your pickup and return dates and the car you want."
+        },
+        "book": {
+          "title": "Book Instantly",
+          "description": "Reserve in seconds with a fast, seamless checkout."
+        },
+        "delivery": {
+          "title": "Pickup or Delivery",
+          "description": "Collect your car or have it delivered to your location."
+        },
+        "drive": {
+          "title": "Drive & Return",
+          "description": "Enjoy the drive, then return it with zero hassle."
+        }
+      }
+    },
     "cta_description": "Find your perfect car and start driving today",
     "cta": "Start Your Journey"
   },
