@@ -84,28 +84,31 @@ export default function Navbar({ brandName, logoUrl }: NavbarProps) {
             href={`/${locale}`}
             className="group flex min-w-0 items-center gap-3 rounded-xl transition-transform duration-300 hover:scale-[1.01]"
           >
-            <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-xl border border-border/70 bg-card/80 text-accent shadow-sm">
+            <div className="flex w-24 items-center justify-center overflow-hidden rounded-md  text-accent">
               {logoUrl ? (
                 <Image
                   src={logoUrl}
                   alt={displayBrand}
-                  width={44}
-                  height={44}
+                  width={64}
+                  height={64}
                   className="h-full w-full object-contain"
+                  quality={100}
                 />
               ) : (
                 <Car className="h-5 w-5" />
               )}
             </div>
-
-            <div className="min-w-0">
-              <div className="truncate text-base font-semibold tracking-tight text-foreground">
-                {displayBrand}
-              </div>
-              <div className="truncate text-xs uppercase tracking-[0.24em] text-muted-foreground">
-                {t('brand.name')}
-              </div>
-            </div>
+              {!logoUrl && (
+                <div className="min-w-0">
+                  <div className="truncate text-base font-semibold tracking-tight text-foreground">
+                    {displayBrand}
+                  </div>
+                  <div className="truncate text-xs uppercase tracking-[0.24em] text-muted-foreground">
+                    {t('brand.name')}
+                  </div>
+                </div>
+              )
+              }
           </Link>
 
           <nav className="hidden items-center gap-1 lg:flex">

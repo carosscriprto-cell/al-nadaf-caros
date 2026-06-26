@@ -1,5 +1,9 @@
 # Caros
 
+> ⚠️ **This README is outdated.** It describes the original static-data starter (no database/auth/dashboard). Caros is now a **multi-tenant SaaS** (Supabase Auth + Postgres + RLS, dealer dashboard, white-label storefront). **Start with [`docs/OVERVIEW.md`](docs/OVERVIEW.md)** and the rest of [`docs/`](docs/) for the current (V2.5) system.
+>
+> Docs index: [Overview](docs/OVERVIEW.md) · [Architecture](docs/ARCHITECTURE.md) · [Onboarding a tenant](docs/ONBOARDING_A_TENANT.md) · [Development](docs/DEVELOPMENT.md) · [Roadmap](docs/ROADMAP.md)
+
 Premium multilingual automotive storefront and lead-generation starter built with Next.js, TypeScript, and Tailwind CSS.
 
 Caros is designed for car rental businesses, vehicle marketplaces, luxury mobility brands, and agencies that want a polished frontend product they can launch, customize, or resell. It combines a marketing website, bilingual inventory system, advanced vehicle search, dynamic listing pages, and WhatsApp-first conversion flows in one cohesive codebase.
