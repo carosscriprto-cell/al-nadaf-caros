@@ -19,8 +19,10 @@ export const HOW_KEYS = ['choose', 'book', 'delivery', 'drive'] as const;
 export type ContentItem = { title?: string; text?: string };
 export type SectionLocale = { title?: string; description?: string; items?: ContentItem[] };
 export type AboutLocale = { heading?: string; body?: string };
-// Hero headline block — every field optional; storefront falls back to hero.* i18n.
-export type HeroLocale = { badge?: string; headline?: string; subheadline?: string };
+// Hero headline — two lines matching the storefront's i18n title (line2 = accent
+// line). Every field optional; the storefront falls back to hero.* i18n per line.
+export type HeroHeadline = { line1?: string; line2?: string };
+export type HeroLocale = { badge?: string; headline?: HeroHeadline; subheadline?: string };
 // Generic title + description + single CTA label (financing / finalCta banners).
 export type CtaLocale = { title?: string; desc?: string; cta?: string };
 // One FAQ row; only rendered when both q & a are present (else falls back to static).
@@ -59,9 +61,22 @@ function parseAbout(v: unknown): AboutLocale {
   return { heading: str(o.heading), body: str(o.body) };
 }
 
+// Headline: new shape is { line1, line2 }. Tolerate the OLD single-string headline
+// gracefully — a tenant that already saved a string is read as line1 (no migration).
+function parseHeadline(v: unknown): HeroHeadline | undefined {
+  if (typeof v === 'string') {
+    const line1 = str(v);
+    return line1 ? { line1 } : undefined;
+  }
+  const o = rec(v);
+  const line1 = str(o.line1);
+  const line2 = str(o.line2);
+  return line1 || line2 ? { line1, line2 } : undefined;
+}
+
 function parseHero(v: unknown): HeroLocale {
   const o = rec(v);
-  return { badge: str(o.badge), headline: str(o.headline), subheadline: str(o.subheadline) };
+  return { badge: str(o.badge), headline: parseHeadline(o.headline), subheadline: str(o.subheadline) };
 }
 
 function parseCta(v: unknown): CtaLocale {

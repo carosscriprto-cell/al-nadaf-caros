@@ -57,6 +57,11 @@ export default function HeroSection({ cars, contentAr, contentEn, showTypeFilter
   const subheadline =
     hero.subheadline || t(variant ? `hero.${variant}.description` : 'hero.description');
 
+  // Two-line headline: per-line override → i18n default. line2 is the accent line.
+  // An empty override renders the exact i18n two-line title as before.
+  const headlineLine1 = hero.headline?.line1 || t('hero.title_line_1');
+  const headlineLine2 = hero.headline?.line2 || t('hero.title_line_2');
+
   return (
     <section
       aria-label={t('hero.section_label', { defaultValue: 'Vehicle showroom' })}
@@ -93,14 +98,8 @@ export default function HeroSection({ cars, contentAr, contentEn, showTypeFilter
           custom={0.08}
         >
           <h1 className="mx-auto max-w-4xl text-balance font-heading text-[clamp(2.75rem,8vw,5.75rem)] font-semibold leading-[1.0] tracking-[-0.02em] text-foreground">
-            {hero.headline ? (
-              hero.headline
-            ) : (
-              <>
-                {t('hero.title_line_1')}{' '}
-                <span className="text-accent-strong">{t('hero.title_line_2')}</span>
-              </>
-            )}
+            {headlineLine1}{' '}
+            <span className="text-accent-strong">{headlineLine2}</span>
           </h1>
 
           <p className="mx-auto mt-7 max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground">

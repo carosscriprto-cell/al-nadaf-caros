@@ -26,7 +26,11 @@ const aboutSchema = z.object({
 // the static default"); parseTenantContent normalizes empties → undefined on read.
 const heroSchema = z.object({
   badge: z.string().max(80),
-  headline: z.string().max(160),
+  // Two-line headline matching the storefront (line2 = accent line). Both optional.
+  headline: z.object({
+    line1: z.string().max(160),
+    line2: z.string().max(160),
+  }),
   subheadline: z.string().max(400),
 });
 
@@ -71,7 +75,7 @@ export function hasAnyContent(d: ContentValues): boolean {
   }
   for (const loc of ['en', 'ar'] as const) {
     strs.push(d.about[loc].heading, d.about[loc].body);
-    strs.push(d.hero[loc].badge, d.hero[loc].headline, d.hero[loc].subheadline);
+    strs.push(d.hero[loc].badge, d.hero[loc].headline.line1, d.hero[loc].headline.line2, d.hero[loc].subheadline);
     strs.push(d.financing[loc].title, d.financing[loc].desc, d.financing[loc].cta);
     strs.push(d.finalCta[loc].title, d.finalCta[loc].desc, d.finalCta[loc].cta);
     for (const row of d.faq[loc]) strs.push(row.q, row.a);

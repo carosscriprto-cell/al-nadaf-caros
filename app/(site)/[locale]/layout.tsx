@@ -1,7 +1,5 @@
 import "../../globals.css";
 import 'leaflet/dist/leaflet.css';
-import { Inter } from "next/font/google";
-import { ibmPlexArabic, spaceGrotesk } from "@/lib/fonts";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { dir } from 'i18next';
@@ -22,11 +20,6 @@ import { TenantContactProvider } from '@/components/providers/TenantContactProvi
 import { TenantPagesProvider } from '@/components/providers/TenantPagesProvider';
 import { TenantContentProvider } from '@/components/providers/TenantContentProvider';
 import WhatsAppFloatingButton from "@/components/WhatsappFloatingButton";
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-});
 
 export async function generateMetadata({
   params,
@@ -111,10 +104,7 @@ export default async function LocaleLayout({
     // lang/dir are locale-driven here (SEO + a11y correct for ar/en RTL/LTR).
     // suppressHydrationWarning: next-themes mutates <html> class/color-scheme.
     <html lang={locale} dir={dir(locale)} suppressHydrationWarning>
-      <body
-        className={`${inter.variable} ${ibmPlexArabic.variable} ${spaceGrotesk.variable}`}
-        style={brandStyle}
-      >
+      <body style={brandStyle}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

@@ -18,8 +18,13 @@ export default async function DashboardSitePage() {
         defaultValues={tenantToSiteValues(tenant)}
         canEdit={canEdit}
         enableRental={features.enableRental}
+        enableFinancing={features.enableFinancing}
       />
-      <ContentForm defaultValues={tenantToContentValues(tenant)} canEdit={canEdit} />
+      <ContentForm
+        defaultValues={tenantToContentValues(tenant)}
+        canEdit={canEdit}
+        enableFinancing={features.enableFinancing}
+      />
     </>
   );
 }

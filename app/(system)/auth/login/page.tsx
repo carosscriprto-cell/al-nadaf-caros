@@ -7,7 +7,6 @@
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createBrowserClient } from '@/lib/supabase/client';
-import { cairo } from '@/lib/fonts';
 import { Lock, Mail, ArrowRight, Loader2 } from 'lucide-react';
 
 const i18n = {
@@ -80,7 +79,7 @@ export default function LoginPage() {
   return (
     <div
       dir={dir}
-      className={`${cairo.variable} flex min-h-screen items-center justify-center bg-[#F7F7F7] p-6 font-[family-name:var(--font-cairo)] text-[#1a1d21]`}
+      className="flex min-h-screen items-center justify-center bg-[#F7F7F7] p-6 font-[family-name:var(--font-cairo)] text-[#1a1d21]"
     >
       <button
         onClick={() => setLang((l) => (l === 'en' ? 'ar' : 'en'))}

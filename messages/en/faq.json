@@ -68,6 +68,46 @@
       "booking_cancellation": {
         "question": "What if I need to cancel my booking?",
         "answer": "Cancellations made at least 24 hours before the scheduled service are free of charge. Late cancellations may include a fee."
+      },
+      "sale_financing": {
+        "question": "Do you offer financing or installment plans?",
+        "answer": "Yes. We offer flexible financing and installment options through our partners. Tell us your budget and we'll tailor a monthly plan and handle the approval paperwork."
+      },
+      "sale_inspection": {
+        "question": "Are your cars inspected before sale?",
+        "answer": "Every vehicle passes a comprehensive multi-point inspection before listing, and we share the full condition report so you can buy with confidence."
+      },
+      "sale_warranty": {
+        "question": "Do the cars come with a warranty?",
+        "answer": "Many of our vehicles include a manufacturer or dealer warranty. We'll confirm the exact coverage for any car you're considering."
+      },
+      "sale_test_drive": {
+        "question": "Can I book a test drive before buying?",
+        "answer": "Absolutely. Book a viewing or test drive at a time that suits you, and our team will have the car ready."
+      },
+      "sale_trade_in": {
+        "question": "Can I trade in my current car?",
+        "answer": "Yes. We offer transparent trade-in valuations and can apply the value directly toward your purchase."
+      },
+      "sale_ownership": {
+        "question": "How does ownership transfer and paperwork work?",
+        "answer": "We handle the full transfer process — registration, documentation, and title — so ownership passes to you smoothly once payment is complete."
+      },
+      "generic_browse": {
+        "question": "How do I find the right car?",
+        "answer": "Browse our full inventory and filter by brand, price, fuel, and more. If you'd like help narrowing it down, our team is happy to guide you."
+      },
+      "generic_inspection": {
+        "question": "Can I view or inspect a car before deciding?",
+        "answer": "Yes. You're welcome to view any vehicle in person, and we share a detailed condition overview for every car."
+      },
+      "generic_visit": {
+        "question": "Where are you located and can I visit?",
+        "answer": "You can visit us at our showroom during business hours, or reach out and we'll arrange a convenient time."
+      },
+      "generic_contact": {
+        "question": "How can I get in touch with you?",
+        "answer": "Call, WhatsApp, or email us anytime — we usually reply within minutes and are happy to answer any question."
       }
     }
   }

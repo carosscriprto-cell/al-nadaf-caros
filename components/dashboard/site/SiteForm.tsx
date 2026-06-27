@@ -22,14 +22,24 @@ export default function SiteForm({
   defaultValues,
   canEdit,
   enableRental,
+  enableFinancing,
 }: {
   defaultValues: SiteValues;
   canEdit: boolean;
   enableRental: boolean;
+  enableFinancing: boolean;
 }) {
   const { t } = useDash();
   const st = t.st;
   const si = t.si;
+
+  // Sections whose storefront visibility is forced OFF by a missing plan feature
+  // (mirrors resolveVisibleSections). Generic: add entries as more sections become
+  // feature-gated. Returns the explanatory hint, or null when the section is free.
+  const gatedReason = (key: HomeSectionKey): string | null => {
+    if (key === 'financing' && !enableFinancing) return st.sectionGatedFinancing;
+    return null;
+  };
   const router = useRouter();
   const [pending, startTransition] = useTransition();
 
@@ -124,11 +134,13 @@ export default function SiteForm({
         <div className="space-y-2">
           {sections.map((s, i) => {
             const locked = isSectionLocked(s.key as HomeSectionKey);
+            const gated = gatedReason(s.key as HomeSectionKey);
+            const dimmed = !!gated || !s.enabled;
             return (
               <div
                 key={s.key}
                 className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 transition ${
-                  s.enabled ? 'border-[#ececec] bg-white' : 'border-[#f0f0f0] bg-[#fafbfc] opacity-70'
+                  dimmed ? 'border-[#f0f0f0] bg-[#fafbfc] opacity-70' : 'border-[#ececec] bg-white'
                 }`}
               >
                 <div className="flex flex-col gap-0.5">
@@ -146,10 +158,17 @@ export default function SiteForm({
                   {i + 1}
                 </span>
 
-                <span className="flex-1 text-sm font-medium">{st.sectionLabels[s.key] ?? s.key}</span>
+                <div className="min-w-0 flex-1">
+                  <span className="text-sm font-medium">{st.sectionLabels[s.key] ?? s.key}</span>
+                  {gated && <p className="mt-0.5 text-[11px] text-[#9aa0a8]">{gated}</p>}
+                </div>
 
                 {locked ? (
                   <span className="text-[11px] text-[#9aa0a8]">{st.sectionLocked}</span>
+                ) : gated ? (
+                  <span className="flex shrink-0 items-center gap-1.5 rounded-lg bg-[#f0f1f3] px-2.5 py-1.5 text-[11px] font-semibold text-[#9aa0a8]">
+                    <Lock size={13} /> {st.sectionUnavailable}
+                  </span>
                 ) : (
                   <button type="button" onClick={() => toggleSection(i)} disabled={disabled} aria-pressed={s.enabled}
                     className="flex items-center gap-1.5 rounded-lg border border-[#e7e8ea] bg-white px-2.5 py-1.5 text-xs font-semibold text-[#6b7178] transition hover:border-[#75ACE8]/40 disabled:opacity-50">

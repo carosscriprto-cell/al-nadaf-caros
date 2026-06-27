@@ -1,4 +1,15 @@
 @import "tailwindcss";
+@import "./fonts.css";
+
+/* Self-hosted font family vars — these replace the CSS variables that
+   next/font/google used to inject on <body>. The @font-face rules live in
+   fonts.css (vendored woff2, no build-time fetch). */
+:root {
+  --font-inter: 'Inter';
+  --font-ibm-arabic: 'IBM Plex Sans Arabic';
+  --font-space-grotesk: 'Space Grotesk';
+  --font-cairo: 'Cairo';
+}
 
 /* ════════════════════════════════════════════════════════════════════════
    CAROS DESIGN TOKENS — Apple / SaaS direction (Linear · Vercel · Stripe)

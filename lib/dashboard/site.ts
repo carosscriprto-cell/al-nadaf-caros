@@ -38,7 +38,11 @@ function sectionToForm(s: SectionLocale, n: number): SectionValues {
 }
 
 function heroToForm(h: HeroLocale): HeroValues {
-  return { badge: h.badge ?? '', headline: h.headline ?? '', subheadline: h.subheadline ?? '' };
+  return {
+    badge: h.badge ?? '',
+    headline: { line1: h.headline?.line1 ?? '', line2: h.headline?.line2 ?? '' },
+    subheadline: h.subheadline ?? '',
+  };
 }
 
 function ctaToForm(c: CtaLocale): CtaValues {

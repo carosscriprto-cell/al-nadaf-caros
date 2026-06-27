@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { cairo, ibmPlexArabic } from '@/lib/fonts';
 import DashboardShell from '@/components/dashboard/DashboardShell';
 import type { DashLang } from '@/components/dashboard/DashboardI18n';
 
@@ -37,9 +36,7 @@ export default async function DashboardLayout({
     cookieStore.get('caros_dash_lang')?.value === 'ar' ? 'ar' : 'en';
 
   return (
-    <div
-      className={`${cairo.variable} ${ibmPlexArabic.variable} font-[family-name:var(--font-cairo)]`}
-    >
+    <div className="font-[family-name:var(--font-cairo)]">
       <DashboardShell
         initialLang={initialLang}
         tenant={tenant}

@@ -5,9 +5,10 @@ import { PhoneCall, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 
-import { faqGroups, type FaqGroup } from '@/data/faq';
+import { faqIdsFor, type FaqGroup } from '@/data/faq';
 import { useTenantContact } from '@/components/providers/TenantContactProvider';
 import { useTenantContent } from '@/components/providers/TenantContentProvider';
+import { useTenantFeatures } from '@/components/providers/TenantFeaturesProvider';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 
 type Props = {
@@ -24,22 +25,33 @@ const FAQSection = ({
   const locale = useLocale();
   const contact = useTenantContact();
   const content = useTenantContent();
+  const features = useTenantFeatures();
   const phoneDigits = contact.phone.replace(/[^0-9+]/g, '');
 
-  // The tenant FAQ override applies to the HOME section only; other groups
-  // (about/contact pages) keep the static i18n set. Only rows with BOTH a
-  // question and answer count — if none qualify, fall back to the static list,
-  // so the storefront is unchanged when tenants.content.faq is empty/absent.
-  const overrideFaqs =
-    group === 'home'
-      ? content.faq[locale === 'ar' ? 'ar' : 'en'].filter(
-          (f): f is { q: string; a: string } => !!f.q && !!f.a,
-        )
-      : [];
+  // Type-aware DEFAULT FAQ set (same mechanism as HowItWorks / H2a): sale-only →
+  // sale questions, rental-only → rental questions, hybrid (or neither) → the
+  // neutral generic set. The HOME tenant override (B1) below still wins; the
+  // other groups have no override and use this default directly.
+  const variant =
+    features.enableSellCar && !features.enableRental
+      ? 'sale'
+      : features.enableRental && !features.enableSellCar
+        ? 'rental'
+        : 'generic';
+
+  // The tenant FAQ override is a single shared dealer set applied to EVERY group
+  // (home section, /faq page, about, contact) — a dealer who edits FAQ in the
+  // dashboard sees those questions everywhere FAQ appears. Only rows with BOTH a
+  // question and answer count (MAX_FAQ already capped in parseTenantContent); if
+  // none qualify, fall back to the H2b type-aware default for the group, so the
+  // storefront is unchanged when tenants.content.faq is empty/absent.
+  const overrideFaqs = content.faq[locale === 'ar' ? 'ar' : 'en'].filter(
+    (f): f is { q: string; a: string } => !!f.q && !!f.a,
+  );
 
   const faqs = overrideFaqs.length
     ? overrideFaqs.map((f, i) => ({ id: `custom-${i}`, question: f.q, answer: f.a }))
-    : faqGroups[group].map((id) => ({
+    : faqIdsFor(group, variant).map((id) => ({
         id,
         question: tFaq(`items.${id}.question`),
         answer: tFaq(`items.${id}.answer`),
