@@ -91,6 +91,17 @@ export default function FleetDetailClient({
   const currency = car.pricing.currency || 'USD';
   const title = content?.title || getCarTitleFallback(car);
   const localeKey = locale === 'ar' ? 'ar' : 'en-US';
+
+  // E4 — per-locale values resolved from car_content (AR→EN fallback baked into
+  // the content mapper), with the legacy cars.* column as an ultimate safety
+  // fallback for pre-backfill / content-less rows. country stays single (car.*).
+  const cityValue = content?.city || car.city;
+  const addressValue = content?.address || car.address;
+  const colorValue = content?.color || car.color;
+  const interiorColorValue = content?.interiorColor || car.interiorColor;
+  const pickupLocations = content?.pickupLocations?.length
+    ? content.pickupLocations
+    : car.pickupLocations;
   const saleSavings =
     car.pricing.oldPrice && car.pricing.total
       ? car.pricing.oldPrice - car.pricing.total
@@ -388,7 +399,7 @@ export default function FleetDetailClient({
 
                 <p className="mt-3 text-lg text-muted-foreground">
                   {car.trim ? `${car.trim} / ` : ''}
-                  {car.year} / {car.city}, {car.country}
+                  {car.year} / {cityValue}, {car.country}
                 </p>
 
                 {content?.shortDescription && (
@@ -790,13 +801,13 @@ export default function FleetDetailClient({
                 <Spec
                   icon={MapPin}
                   label={t('detail.labels.location')}
-                  value={`${car.city}, ${car.country}`}
+                  value={`${cityValue}, ${car.country}`}
                 />
-                {car.address && (
+                {addressValue && (
                   <Spec
                     icon={MapPin}
                     label={t('detail.labels.address')}
-                    value={car.address}
+                    value={addressValue}
                   />
                 )}
                 <Spec
@@ -894,14 +905,14 @@ export default function FleetDetailClient({
                   )}
                 </div>
 
-                {car.pickupLocations?.length ? (
+                {pickupLocations?.length ? (
                   <div className="mt-6">
                     <h4 className="mb-3 font-semibold text-foreground">
                       {t('detail.pickup_locations')}
                     </h4>
 
                     <div className="flex flex-wrap gap-3">
-                      {car.pickupLocations.map(
+                      {pickupLocations.map(
                         (location: string) => (
                           <span
                             key={location}
@@ -1131,11 +1142,11 @@ export default function FleetDetailClient({
                 />
                 <OverviewRow
                   label={t('detail.labels.color')}
-                  value={car.color || '-'}
+                  value={colorValue || '-'}
                 />
                 <OverviewRow
                   label={t('detail.labels.interior')}
-                  value={car.interiorColor || '-'}
+                  value={interiorColorValue || '-'}
                 />
 
                 {car.fuelConsumption?.city ? (

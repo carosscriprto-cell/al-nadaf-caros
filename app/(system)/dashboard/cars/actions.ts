@@ -34,7 +34,16 @@ function num(features: Record<string, unknown>, key: string, fallback: number) {
   return typeof v === 'number' ? v : fallback;
 }
 
+// E4: the 5 per-locale fields live in content.{en,ar}; the legacy cars.* columns
+// are kept as a denormalized AR-primary mirror (cars.city/country are NOT NULL and
+// other readers — car cards, similar cars, search — still map from cars.*). AR is
+// the primary entered language; fall back to EN if AR is empty.
+function mirrorText(d: CarFormValues, k: 'city' | 'address' | 'color' | 'interior_color') {
+  return d.content.ar[k]?.trim() || d.content.en[k]?.trim() || null;
+}
+
 function mapFormToRow(d: CarFormValues) {
+  const pickup = d.content.ar.pickup_locations.length ? d.content.ar.pickup_locations : d.content.en.pickup_locations;
   return {
     brand: d.brand, brand_slug: d.brand_slug || null, model: d.model, year: d.year, trim: d.trim || null,
     listing_type: d.listing_type, condition: d.condition, category: d.category, class: d.class,
@@ -56,15 +65,17 @@ function mapFormToRow(d: CarFormValues) {
     // specs
     transmission: d.transmission, fuel_type: d.fuel_type, drivetrain: d.drivetrain ?? null,
     seats: d.seats, doors: d.doors, mileage: d.mileage,
-    color: d.color || null, interior_color: d.interior_color || null,
+    // color / interior_color: AR-primary mirror of the per-locale content (E4).
+    color: mirrorText(d, 'color'), interior_color: mirrorText(d, 'interior_color'),
     engine: d.engine || null, cylinders: d.cylinders ?? null, horsepower: d.horsepower ?? null,
     torque: d.torque ?? null, top_speed: d.top_speed ?? null, acceleration: d.acceleration || null,
     fuel_tank_capacity: d.fuel_tank_capacity ?? null, electric_range: d.electric_range ?? null,
     fuel_city: d.fuel_city ?? null, fuel_highway: d.fuel_highway ?? null,
     fuel_combined: d.fuel_combined ?? null, fuel_per_20km: d.fuel_per_20km ?? null,
-    // location / logistics
-    city: d.city, country: d.country, address: d.address || null,
-    delivery_available: d.delivery_available, pickup_locations: d.pickup_locations,
+    // location / logistics — country stays single; city/address/pickup are an
+    // AR-primary mirror of the per-locale content (cars.city is NOT NULL) (E4).
+    city: mirrorText(d, 'city') ?? '', country: d.country, address: mirrorText(d, 'address'),
+    delivery_available: d.delivery_available, pickup_locations: pickup,
     // ownership (sale)
     owners_count: d.owners_count ?? null, accident_free: d.accident_free, service_history: d.service_history,
     // media — thumbnail falls back to the first gallery image, else null (the
@@ -84,6 +95,10 @@ function mapContentRow(carId: string, locale: 'en' | 'ar', c: CarFormValues['con
     entertainment_features: c.entertainment_features, requirements: c.requirements,
     included_services: c.included_services, ideal_for: c.ideal_for, pros: c.pros, cons: c.cons,
     warranty: c.warranty || null,
+    // E4 — per-locale location/appearance fields
+    city: c.city || null, address: c.address || null,
+    color: c.color || null, interior_color: c.interior_color || null,
+    pickup_locations: c.pickup_locations,
   };
 }
 

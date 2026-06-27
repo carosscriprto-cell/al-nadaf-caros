@@ -131,6 +131,13 @@ export type CarContentEntry = {
   requirements?: string[];
   includedServices?: string[];
   warranty?: string;
+  // E4 — per-locale (resolved from car_content with AR→EN fallback). country
+  // stays single on Car; these five are localized text.
+  city?: string;
+  address?: string;
+  color?: string;
+  interiorColor?: string;
+  pickupLocations?: string[];
 };
 
 export type CarContentMap = Record<string, CarContentEntry>;

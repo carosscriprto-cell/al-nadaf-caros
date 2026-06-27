@@ -140,8 +140,27 @@ export function mapDbCarToCar(row: DbCar): Car {
 }
 
 // ─── Content mapper ───────────────────────────────────────────
+// `fallback` is the AR row of the same car (passed only when the requested locale
+// ≠ ar). The 5 E4 per-locale fields resolve requested-locale → AR → undefined, so
+// /en shows the AR value whenever the EN field is empty (never blank, never break).
+// title/description keep their existing single-row behavior — only the E4 fields
+// fall back.
 
-export function mapDbContentToEntry(row: DbContent): CarContentEntry {
+const firstText = (...vals: (string | null | undefined)[]): string | undefined => {
+  for (const v of vals) {
+    const t = v?.trim();
+    if (t) return t;
+  }
+  return undefined;
+};
+const firstArr = (...vals: (string[] | null | undefined)[]): string[] | undefined => {
+  for (const v of vals) {
+    if (v?.length) return v;
+  }
+  return undefined;
+};
+
+export function mapDbContentToEntry(row: DbContent, fallback?: DbContent): CarContentEntry {
   return {
     title:            row.title,
     shortDescription: row.short_description ?? undefined,
@@ -162,6 +181,13 @@ export function mapDbContentToEntry(row: DbContent): CarContentEntry {
     requirements:           row.requirements ?? [],
     includedServices:       row.included_services ?? [],
     warranty:               row.warranty ?? undefined,
+
+    // E4 — per-locale, with AR→EN fallback
+    city:            firstText(row.city, fallback?.city),
+    address:         firstText(row.address, fallback?.address),
+    color:           firstText(row.color, fallback?.color),
+    interiorColor:   firstText(row.interior_color, fallback?.interior_color),
+    pickupLocations: firstArr(row.pickup_locations, fallback?.pickup_locations),
   };
 }
 
@@ -182,7 +208,12 @@ export function buildContentMap(
     const car = cars.find(c => c.id === row.car_id);
     if (!car) continue;
 
-    map[car.slug] = mapDbContentToEntry(row);
+    // AR fallback for the E4 per-locale fields (only when not already AR).
+    const fallback = locale === 'ar'
+      ? undefined
+      : contentRows.find(r => r.car_id === row.car_id && r.locale === 'ar');
+
+    map[car.slug] = mapDbContentToEntry(row, fallback);
   }
 
   return map;

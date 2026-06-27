@@ -43,7 +43,10 @@ export type Database = {
       }
       car_content: {
         Row: {
+          address: string | null
           car_id: string
+          city: string | null
+          color: string | null
           comfort_features: string[] | null
           cons: string[] | null
           created_at: string
@@ -53,7 +56,9 @@ export type Database = {
           id: string
           ideal_for: string[] | null
           included_services: string[] | null
+          interior_color: string | null
           locale: Database["public"]["Enums"]["content_locale"]
+          pickup_locations: string[] | null
           pros: string[] | null
           requirements: string[] | null
           safety_features: string[] | null
@@ -63,7 +68,10 @@ export type Database = {
           warranty: string | null
         }
         Insert: {
+          address?: string | null
           car_id: string
+          city?: string | null
+          color?: string | null
           comfort_features?: string[] | null
           cons?: string[] | null
           created_at?: string
@@ -73,7 +81,9 @@ export type Database = {
           id?: string
           ideal_for?: string[] | null
           included_services?: string[] | null
+          interior_color?: string | null
           locale: Database["public"]["Enums"]["content_locale"]
+          pickup_locations?: string[] | null
           pros?: string[] | null
           requirements?: string[] | null
           safety_features?: string[] | null
@@ -83,7 +93,10 @@ export type Database = {
           warranty?: string | null
         }
         Update: {
+          address?: string | null
           car_id?: string
+          city?: string | null
+          color?: string | null
           comfort_features?: string[] | null
           cons?: string[] | null
           created_at?: string
@@ -93,7 +106,9 @@ export type Database = {
           id?: string
           ideal_for?: string[] | null
           included_services?: string[] | null
+          interior_color?: string | null
           locale?: Database["public"]["Enums"]["content_locale"]
+          pickup_locations?: string[] | null
           pros?: string[] | null
           requirements?: string[] | null
           safety_features?: string[] | null

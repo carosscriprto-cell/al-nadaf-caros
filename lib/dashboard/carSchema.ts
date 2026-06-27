@@ -30,6 +30,13 @@ export const contentLocaleSchema = z.object({
   pros: strArr,
   cons: strArr,
   warranty: optStr,
+  // E4 — per-locale location/appearance fields (single → bilingual). All optional;
+  // the legacy cars.* columns are mirrored from these on write (mapFormToRow).
+  city: optStr,
+  address: optStr,
+  color: optStr,
+  interior_color: optStr,
+  pickup_locations: strArr,
 });
 export type ContentLocaleValues = z.output<typeof contentLocaleSchema>;
 
@@ -91,8 +98,7 @@ export const carFormSchema = z.object({
   seats: z.coerce.number().int().min(1).max(50),
   doors: z.coerce.number().int().min(1).max(10),
   mileage: z.coerce.number().int().nonnegative(),
-  color: z.string().trim().min(1, 'Required'),
-  interior_color: optStr,
+  // color / interior_color moved to content.{en,ar} (E4 — per-locale).
   engine: optStr,
   cylinders: optNum,
   horsepower: optNum,
@@ -107,11 +113,10 @@ export const carFormSchema = z.object({
   fuel_per_20km: optNum,
 
   // ── location / logistics ──
-  city: z.string().trim().min(1, 'Required'),
+  // city / address / pickup_locations moved to content.{en,ar} (E4 — per-locale).
+  // country stays SINGLE (E4 out of scope — controlled-list later).
   country: z.string().trim().min(1, 'Required'),
-  address: optStr,
   delivery_available: z.boolean().default(false),
-  pickup_locations: strArr,
 
   // ── ownership history (sale) ──
   owners_count: optNum,

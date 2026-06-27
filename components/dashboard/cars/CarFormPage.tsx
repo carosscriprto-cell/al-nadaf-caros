@@ -25,7 +25,7 @@ const STATUSES = ['available', 'sold', 'reserved'] as const;
 type Listing = 'sale' | 'rent' | 'both';
 
 function emptyContent(): ContentLocaleValues {
-  return { title: '', short_description: '', description: '', features: [], comfort_features: [], safety_features: [], entertainment_features: [], requirements: [], included_services: [], ideal_for: [], pros: [], cons: [], warranty: '' };
+  return { title: '', short_description: '', description: '', features: [], comfort_features: [], safety_features: [], entertainment_features: [], requirements: [], included_services: [], ideal_for: [], pros: [], cons: [], warranty: '', city: '', address: '', color: '', interior_color: '', pickup_locations: [] };
 }
 function contentFrom(car: DashCarWithContent | undefined, locale: 'en' | 'ar'): ContentLocaleValues {
   const r = car?.car_content?.find((c) => c.locale === locale);
@@ -35,6 +35,8 @@ function contentFrom(car: DashCarWithContent | undefined, locale: 'en' | 'ar'): 
     features: r.features ?? [], comfort_features: r.comfort_features ?? [], safety_features: r.safety_features ?? [],
     entertainment_features: r.entertainment_features ?? [], requirements: r.requirements ?? [], included_services: r.included_services ?? [],
     ideal_for: r.ideal_for ?? [], pros: r.pros ?? [], cons: r.cons ?? [], warranty: r.warranty ?? '',
+    // E4 — per-locale location/appearance fields
+    city: r.city ?? '', address: r.address ?? '', color: r.color ?? '', interior_color: r.interior_color ?? '', pickup_locations: r.pickup_locations ?? [],
   };
 }
 
@@ -52,14 +54,14 @@ function initial(car: DashCarWithContent | undefined, listing: Listing): CarForm
     price_hourly: car?.price_hourly ?? undefined, security_deposit: car?.security_deposit ?? undefined, min_rental_days: car?.min_rental_days ?? undefined,
     mileage_limit: car?.mileage_limit ?? undefined, insurance: car?.insurance ?? '',
     transmission: car?.transmission ?? 'automatic', fuel_type: car?.fuel_type ?? 'petrol', drivetrain: car?.drivetrain ?? undefined,
-    seats: car?.seats ?? 5, doors: car?.doors ?? 4, mileage: car?.mileage ?? 0, color: car?.color ?? '', interior_color: car?.interior_color ?? '',
+    seats: car?.seats ?? 5, doors: car?.doors ?? 4, mileage: car?.mileage ?? 0,
     engine: car?.engine ?? '', cylinders: car?.cylinders ?? undefined, horsepower: car?.horsepower ?? undefined, torque: car?.torque ?? undefined,
     top_speed: car?.top_speed ?? undefined, acceleration: car?.acceleration ?? '', fuel_tank_capacity: car?.fuel_tank_capacity ?? undefined,
     electric_range: car?.electric_range ?? undefined, fuel_city: car?.fuel_city ?? undefined, fuel_highway: car?.fuel_highway ?? undefined,
     fuel_combined: car?.fuel_combined ?? undefined, fuel_per_20km: car?.fuel_per_20km ?? undefined,
     thumbnail: car?.thumbnail ?? '', images: car?.images ?? [],
-    city: car?.city ?? '', country: car?.country ?? '', address: car?.address ?? '', delivery_available: car?.delivery_available ?? false,
-    pickup_locations: car?.pickup_locations ?? [],
+    // city/address/color/interior_color/pickup_locations are now per-locale (content.*); country stays single (E4).
+    country: car?.country ?? '', delivery_available: car?.delivery_available ?? false,
     owners_count: car?.owners_count ?? undefined, accident_free: car?.accident_free ?? false, service_history: car?.service_history ?? false,
     content: { en: contentFrom(car, 'en'), ar: contentFrom(car, 'ar') },
   };
@@ -252,8 +254,7 @@ export default function CarFormPage({ car, features, tenantId, brands }: { car?:
         <NumField label={cf.seats} value={v.seats} onChange={(x) => set('seats', x ?? 1)} err={errOf('seats')} placeholder={ph.seats} />
         <NumField label={cf.doors} value={v.doors} onChange={(x) => set('doors', x ?? 2)} err={errOf('doors')} placeholder={ph.doors} />
         <NumField label={cf.mileage} value={v.mileage} onChange={(x) => set('mileage', x ?? 0)} err={errOf('mileage')} placeholder={ph.mileage} />
-        <TextField label={cf.color} value={v.color ?? ''} onChange={(x) => set('color', x)} err={errOf('color')} placeholder={ph.color} />
-        <TextField label={cf.interior_color} value={v.interior_color ?? ''} onChange={(x) => set('interior_color', x)} placeholder={ph.interior_color} />
+        {/* color / interior_color moved to the bilingual Content section (E4 — per-locale) */}
         <TextField label={cf.engine} value={v.engine ?? ''} onChange={(x) => set('engine', x)} placeholder={ph.engine} />
         <NumField label={cf.cylinders} value={v.cylinders} onChange={(x) => set('cylinders', x)} placeholder={ph.cylinders} />
         <NumField label={cf.horsepower} value={v.horsepower} onChange={(x) => set('horsepower', x)} placeholder={ph.horsepower} />
@@ -272,13 +273,11 @@ export default function CarFormPage({ car, features, tenantId, brands }: { car?:
         <NumField label={cf.fuel_per20} value={v.fuel_per_20km} onChange={(x) => set('fuel_per_20km', x)} placeholder={ph.fuel_per20} />
       </Section>
 
-      {/* Location & delivery */}
+      {/* Location & delivery — country stays single; city/address/pickup are now
+          per-locale in the bilingual Content section (E4). */}
       <Section title={cf.secLocation}>
-        <TextField label={cf.city} value={v.city} onChange={(x) => set('city', x)} err={errOf('city')} placeholder={ph.city} />
         <TextField label={cf.country} value={v.country} onChange={(x) => set('country', x)} err={errOf('country')} placeholder={ph.country} />
-        <TextField label={cf.address} value={v.address ?? ''} onChange={(x) => set('address', x)} placeholder={ph.address} />
         <SwitchField label={cf.delivery} checked={v.delivery_available} onChange={(x) => set('delivery_available', x)} />
-        <TagInput label={cf.pickup_locations} values={v.pickup_locations} onChange={(x) => set('pickup_locations', x)} hint={cf.tagHint} />
       </Section>
 
       {/* Content (bilingual) */}
@@ -293,6 +292,12 @@ export default function CarFormPage({ car, features, tenantId, brands }: { car?:
         <TextField full label={cf.title} value={c.title} onChange={(x) => setC('title', x)} err={errOf(`content.${locale}.title`)} placeholder={ph.title} />
         <TextareaField label={cf.short_description} value={c.short_description ?? ''} onChange={(x) => setC('short_description', x)} err={errOf(`content.${locale}.short_description`)} placeholder={ph.short_description} />
         <TextareaField label={cf.description} value={c.description ?? ''} onChange={(x) => setC('description', x)} placeholder={ph.description} />
+        {/* E4 — per-locale location/appearance fields (one EN + one AR each) */}
+        <TextField label={cf.city} value={c.city ?? ''} onChange={(x) => setC('city', x)} placeholder={ph.city} />
+        <TextField label={cf.address} value={c.address ?? ''} onChange={(x) => setC('address', x)} placeholder={ph.address} />
+        <TextField label={cf.color} value={c.color ?? ''} onChange={(x) => setC('color', x)} placeholder={ph.color} />
+        <TextField label={cf.interior_color} value={c.interior_color ?? ''} onChange={(x) => setC('interior_color', x)} placeholder={ph.interior_color} />
+        <TagInput label={cf.pickup_locations} values={c.pickup_locations} onChange={(x) => setC('pickup_locations', x)} hint={cf.tagHint} />
         <TagInput label={cf.features} values={c.features} onChange={(x) => setC('features', x)} hint={cf.tagHint} />
         <TagInput label={cf.comfort} values={c.comfort_features} onChange={(x) => setC('comfort_features', x)} hint={cf.tagHint} />
         <TagInput label={cf.safety} values={c.safety_features} onChange={(x) => setC('safety_features', x)} hint={cf.tagHint} />

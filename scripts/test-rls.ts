@@ -175,6 +175,18 @@ async function main(): Promise<void> {
         .insert({ slug: `zzz-anon-brand-${Date.now().toString(36)}`, name_en: TAG, name_ar: TAG })
         .select('slug');
       assert(brandInsErr !== null, 'anon CANNOT INSERT a car_brand (write blocked by RLS)');
+
+      // ── car_content per-locale fields (E4) ────────────────────────────────
+      // The 5 fields (address/city/color/interior_color/pickup_locations) became
+      // columns on car_content. car_content is governed via its parent car (no new
+      // policy): anon reads content only for an ACTIVE tenant's car. This proves
+      // the new fields are reachable through that exact public access path.
+      const { error: e4ReadErr } = await anonPublic
+        .from('cars')
+        .select('id, car_content(locale, city, address, color, interior_color, pickup_locations)')
+        .eq('available', true)
+        .limit(5);
+      assert(e4ReadErr === null, 'anon CAN read per-locale car_content fields via parent car (E4 access path)');
       console.log('');
     }
 
