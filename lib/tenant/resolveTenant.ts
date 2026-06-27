@@ -17,9 +17,14 @@ const SUPABASE_URL =
   process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
 const ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-// Hostnames whose last N labels are the *base* domain (no tenant subdomain).
-// lvh.me → 2 labels; caros.com → 2 labels; localhost → 1. Anything with MORE
-// labels than its base has a tenant subdomain as the first label.
+// Configurable root domain (e.g. "caros.com" in prod). When set, the tenant
+// subdomain is the host with the root domain stripped off — so it works for any
+// base-domain label depth. Optional: when UNSET we degrade to the legacy
+// 2-label heuristic so local dev (dealer1.lvh.me) keeps working with no env.
+const ROOT_DOMAIN = (process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? '').toLowerCase().trim();
+
+// Legacy fallback: hostnames whose last N labels are the *base* domain (no tenant
+// subdomain). lvh.me → 2; localhost → 1. Only used when ROOT_DOMAIN is unset.
 const BASE_DOMAIN_LABELS = 2;
 
 export function extractSubdomain(host: string): string | null {
@@ -29,6 +34,28 @@ export function extractSubdomain(host: string): string | null {
   // Bare IP (e.g. 127.0.0.1) has no subdomain concept.
   if (/^\d{1,3}(\.\d{1,3}){3}$/.test(hostname)) return null;
 
+  // Platform host: ANY *.vercel.app (incl. multi-label preview hosts like
+  // project-git-branch-team.vercel.app) is NOT a tenant subdomain — the project
+  // name must not be read as a tenant. → null so the bare Vercel URL falls back
+  // to DEFAULT_TENANT_SLUG instead of 404.
+  if (hostname === 'vercel.app' || hostname.endsWith('.vercel.app')) return null;
+
+  // Configured root domain → subdomain = host minus the root domain.
+  if (ROOT_DOMAIN) {
+    // Apex and www → no tenant subdomain (domain match / DEFAULT fallback).
+    if (hostname === ROOT_DOMAIN || hostname === `www.${ROOT_DOMAIN}`) return null;
+    if (hostname.endsWith(`.${ROOT_DOMAIN}`)) {
+      // Strip ".<root>"; the leading label is the tenant subdomain.
+      const label = hostname.slice(0, -(ROOT_DOMAIN.length + 1)).split('.')[0];
+      if (!label || label === 'www') return null;
+      return label;
+    }
+    // Host is NOT under the root domain → a tenant custom domain. Treat as having
+    // no subdomain so resolution matches the FULL host via get_tenant_id_by_domain.
+    return null;
+  }
+
+  // Legacy label-count heuristic (ROOT_DOMAIN unset — local dev).
   const parts = hostname.split('.');
   if (parts.length <= BASE_DOMAIN_LABELS) return null; // apex (caros.com, lvh.me)
 
