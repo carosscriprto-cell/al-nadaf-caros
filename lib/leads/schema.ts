@@ -9,6 +9,26 @@ export type LeadType = (typeof LEAD_TYPES)[number];
 export const LEAD_STATUSES = ['new', 'contacted', 'closed'] as const;
 export type LeadStatus = (typeof LEAD_STATUSES)[number];
 
+// ─── Shared phone validation (E2) ───────────────────────────────────────────
+// Canonical value produced by the PhoneField: '+' country dial code (1–4 digits)
+// then 6–14 national digits → 7–18 digits total. This is the SAME rule used by
+// the lead capture form, contact form, and dashboard settings schema.
+export const PHONE_RE = /^\+\d{7,18}$/;
+export const PHONE_INVALID_MSG = 'Enter a valid phone number';
+
+// Optional phone: empty string (cleared) OR a valid canonical phone.
+export const phoneOptionalSchema = z
+  .string()
+  .trim()
+  .max(40)
+  .regex(PHONE_RE, PHONE_INVALID_MSG)
+  .optional()
+  .or(z.literal(''));
+
+// Required phone (e.g. lead capture). `msg` lets callers localize the message.
+export const requiredPhoneSchema = (msg: string = PHONE_INVALID_MSG) =>
+  z.string().trim().max(40).regex(PHONE_RE, msg);
+
 // Public submission payload. tenant_id is NOT accepted from the client — the
 // server resolves it from the request (x-tenant-id) so a visitor can't target
 // another dealer. Strings are trimmed/length-bounded to keep PII rows sane.
@@ -17,7 +37,7 @@ export const leadSubmitSchema = z.object({
   source: z.string().max(40).optional(),
   name: z.string().trim().max(120).optional(),
   email: z.string().trim().email().max(160).optional().or(z.literal('')),
-  phone: z.string().trim().max(40).optional(),
+  phone: phoneOptionalSchema,
   message: z.string().trim().max(2000).optional(),
   car_id: z.string().uuid().optional(),
   locale: z.enum(['ar', 'en']).optional(),

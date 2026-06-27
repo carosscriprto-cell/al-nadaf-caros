@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import PhoneField from '@/components/ui/PhoneField';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Save, Lock, Palette, Building2, Search, Clock, Share2 } from 'lucide-react';
@@ -21,7 +22,7 @@ export default function SettingsForm({
   canEdit: boolean;
   tenantId: string;
 }) {
-  const { t } = useDash();
+  const { t, lang } = useDash();
   const st = t.st;
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -33,6 +34,7 @@ export default function SettingsForm({
     watch,
     setValue,
     reset,
+    control,
     formState: { errors, isDirty },
   } = useForm<SettingsValues>({
     resolver: zodResolver(settingsSchema),
@@ -92,11 +94,23 @@ export default function SettingsForm({
           <Field label={st.f.name_ar}>
             <input {...register('name_ar')} disabled={disabled} dir="rtl" className={inp} />
           </Field>
-          <Field label={st.f.phone}>
-            <input {...register('phone')} disabled={disabled} dir="ltr" className={inp} />
+          <Field label={st.f.phone} error={errors.phone?.message}>
+            <Controller
+              name="phone"
+              control={control}
+              render={({ field }) => (
+                <PhoneField value={field.value ?? ''} onChange={field.onChange} locale={lang} disabled={disabled} invalid={!!errors.phone} />
+              )}
+            />
           </Field>
-          <Field label={st.f.whatsapp}>
-            <input {...register('whatsapp')} disabled={disabled} dir="ltr" placeholder="+9665…" className={inp} />
+          <Field label={st.f.whatsapp} error={errors.whatsapp?.message}>
+            <Controller
+              name="whatsapp"
+              control={control}
+              render={({ field }) => (
+                <PhoneField value={field.value ?? ''} onChange={field.onChange} locale={lang} disabled={disabled} invalid={!!errors.whatsapp} />
+              )}
+            />
           </Field>
           <Field label={st.f.email} error={errors.email?.message}>
             <input {...register('email')} disabled={disabled} dir="ltr" className={inp} />

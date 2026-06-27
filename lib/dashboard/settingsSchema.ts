@@ -2,6 +2,7 @@
 // tenant-settings form shape + validation. Shared by the form and the action.
 
 import { z } from 'zod';
+import { phoneOptionalSchema } from '@/lib/leads/schema';
 
 // #rgb / #rrggbb hex colors (the storefront injects these as CSS variables).
 const hexColor = z
@@ -29,8 +30,9 @@ export const settingsSchema = z.object({
   // identity
   name: z.string().trim().min(1, 'Required').max(120),
   name_ar: optText(120),
-  whatsapp: optText(40),
-  phone: optText(40),
+  // E2: canonical phone (PhoneField). Optional; if present must be +<dial><6–14 digits>.
+  whatsapp: phoneOptionalSchema,
+  phone: phoneOptionalSchema,
   email: z.string().trim().email('Invalid email').max(160).optional().or(z.literal('')),
   address_en: optText(300),
   address_ar: optText(300),

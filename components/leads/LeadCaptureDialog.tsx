@@ -18,7 +18,9 @@ import { getCarTitleFallback, type CarContentEntry } from '@/data/cars-content';
 import { submitLead } from '@/lib/leads/submit';
 import { markLeadWhatsapp } from '@/lib/leads/markWhatsapp';
 import { buildLeadMessage, type LeadMessageIntent } from '@/lib/leads/buildLeadMessage';
+import { PHONE_RE } from '@/lib/leads/schema';
 import { useTenantContact } from '@/components/providers/TenantContactProvider';
+import PhoneField from '@/components/ui/PhoneField';
 
 type Locale = 'ar' | 'en';
 
@@ -36,7 +38,7 @@ const COPY = {
     } as Record<CaptureIntent, string>,
     subtitle: 'Leave your details and the dealer will get back to you.',
     name: 'Name', namePh: 'Your name',
-    phone: 'Phone', phonePh: 'e.g. +963 9xx xxx xxx',
+    phone: 'Phone', phonePh: '9xx xxx xxx',
     time: 'Preferred time (optional)', timePh: 'e.g. tomorrow afternoon',
     note: 'Message (optional)', notePh: 'Anything else?',
     send: 'Send', sending: 'Sending…',
@@ -57,7 +59,7 @@ const COPY = {
     } as Record<CaptureIntent, string>,
     subtitle: 'اترك بياناتك وسيتواصل معك المعرض.',
     name: 'الاسم', namePh: 'اسمك',
-    phone: 'الهاتف', phonePh: 'مثال: +963 9xx xxx xxx',
+    phone: 'الهاتف', phonePh: '9xx xxx xxx',
     time: 'الوقت المناسب (اختياري)', timePh: 'مثال: غداً بعد الظهر',
     note: 'رسالة (اختياري)', notePh: 'أي تفاصيل أخرى؟',
     send: 'إرسال', sending: 'جارٍ الإرسال…',
@@ -69,8 +71,6 @@ const COPY = {
     sendFailed: 'تعذّر الإرسال. حاول مرة أخرى.',
   },
 } as const;
-
-const phoneRe = /^[+(]?[\d][\d\s()-]{5,}$/;
 
 export default function LeadCaptureDialog({
   car,
@@ -109,7 +109,7 @@ export default function LeadCaptureDialog({
 
   const schema = z.object({
     name: z.string().trim().min(1, c.errName),
-    phone: z.string().trim().regex(phoneRe, c.errPhone),
+    phone: z.string().trim().regex(PHONE_RE, c.errPhone),
   });
 
   const reset = () => {
@@ -217,13 +217,12 @@ export default function LeadCaptureDialog({
               </Field>
 
               <Field label={c.phone} error={errors.phone}>
-                <input
+                <PhoneField
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  onChange={setPhone}
+                  locale={l}
                   placeholder={c.phonePh}
-                  inputMode="tel"
-                  dir="ltr"
-                  className={inputCls}
+                  invalid={!!errors.phone}
                 />
               </Field>
 

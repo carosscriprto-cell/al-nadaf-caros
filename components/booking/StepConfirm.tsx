@@ -4,7 +4,8 @@ import { formatDate } from "@/lib/booking/formDate";
 import { Calendar, Clock, MapPin } from "lucide-react";
 import Image from "next/image";
 import { CarSummaryCard } from "./CarSummaryCard";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import PhoneField from "@/components/ui/PhoneField";
 
 export function StepConfirm({
   state,
@@ -28,6 +29,7 @@ export function StepConfirm({
   const total = state.selectedCar ? (state.selectedCar.pricing.daily ?? 0) * nights : 0;
   const deposit = state.selectedCar ? (state.selectedCar.pricing.securityDeposit ?? 0) : 0;
   const t = useTranslations('booking');
+  const locale = useLocale() === 'ar' ? 'ar' : 'en';
   const rows = [
     { label: t('pickup_location'), value: state.locationLabel || '—', icon: <MapPin size={14} /> },
     { label: t('pickup_date'), value: `${formatDate(state.dateFrom)} at ${state.pickupTime}`, icon: <Calendar size={14} /> },
@@ -110,12 +112,11 @@ export function StepConfirm({
             <label className="mb-1.5 block text-xs font-medium" style={{ color: 'var(--color-text-secondary)' }}>
               {t('phone')}
             </label>
-            <input
-              type="tel"
-              value={phone}
-              onChange={(e) => onPhoneChange?.(e.target.value)}
+            <PhoneField
+              value={phone ?? ''}
+              onChange={(v) => onPhoneChange?.(v)}
+              locale={locale}
               placeholder={t('phone_placeholder')}
-              className="w-full rounded-xl border border-border bg-muted px-4 py-3 text-sm text-foreground outline-none focus:border-accent"
             />
           </div>
         </div>

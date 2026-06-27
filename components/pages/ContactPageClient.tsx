@@ -1,9 +1,11 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import PhoneField from '@/components/ui/PhoneField';
+import { PHONE_RE } from '@/lib/leads/schema';
 import {
   Clock,
   Mail,
@@ -51,7 +53,7 @@ export default function ContactPageClient({
   const contactSchema = z.object({
     name: z.string().min(1, t('validation.name_required')),
     email: z.string().email(t('validation.email_invalid')),
-    phone: z.string().optional(),
+    phone: z.string().trim().regex(PHONE_RE, t('validation.phone_invalid')).optional().or(z.literal('')),
     subject: z.string().min(1, t('validation.subject_required')),
     message: z.string().min(10, t('validation.message_min')),
   });
@@ -61,6 +63,7 @@ export default function ContactPageClient({
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
     reset,
   } = useForm<ContactFormData>({
@@ -308,12 +311,22 @@ export default function ContactPageClient({
                     <label className="mb-2 block text-sm font-medium text-foreground">
                       {t('form.phone')}
                     </label>
-                    <input
-                      type="tel"
-                      placeholder={t('form.phone_placeholder')}
-                      {...register('phone')}
-                      className="w-full rounded-2xl border border-border/60 bg-background/70 px-5 py-4 text-foreground backdrop-blur-xl transition-all duration-300 placeholder:text-muted-foreground/60 focus:border-accent/40 focus:outline-none focus:ring-4 focus:ring-accent/10"
+                    <Controller
+                      name="phone"
+                      control={control}
+                      render={({ field }) => (
+                        <PhoneField
+                          value={field.value ?? ''}
+                          onChange={field.onChange}
+                          locale={locale === 'ar' ? 'ar' : 'en'}
+                          placeholder={t('form.phone_placeholder')}
+                          invalid={!!errors.phone}
+                        />
+                      )}
                     />
+                    {errors.phone && (
+                      <p className="mt-1 text-xs text-red-500">{errors.phone.message}</p>
+                    )}
                   </div>
 
                   <div>

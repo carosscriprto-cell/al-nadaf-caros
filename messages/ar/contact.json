@@ -77,6 +77,7 @@
     "validation": {
       "name_required": "الاسم مطلوب",
       "email_invalid": "يرجى إدخال بريد إلكتروني صالح",
+      "phone_invalid": "يرجى إدخال رقم هاتف صحيح",
       "subject_required": "الموضوع مطلوب",
       "message_min": "يجب أن تكون الرسالة 10 أحرف على الأقل"
     },
