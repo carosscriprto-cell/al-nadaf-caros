@@ -362,108 +362,85 @@ export default function HeroSearchPanel({ cars, contentAr, contentEn, showTypeFi
         role="search"
         aria-label={t('hero.search_label', { defaultValue: 'Search vehicles' })}
       >
-        <div className="rounded-2xl border border-border bg-card p-4 shadow-md sm:p-6">
-          {/* Search input row — the primary, prominent element */}
-          <div className="relative mb-4">
-            <Search
-              size={20}
-              aria-hidden="true"
-              className={`
-                absolute top-1/2 z-10
-                -translate-y-1/2
-                text-muted-foreground
-                ${isRTL ? 'right-5' : 'left-5'}
-              `}
-            />
+        <div className="rounded-2xl border border-border/60 bg-card p-4 shadow-2xl shadow-foreground/10 ring-1 ring-foreground/[0.04] sm:p-6">
+          {/* ── Row a — search bar: full-width input + primary Search + clear ──
+              Logical insets (start-/end-/ps-/pe-) auto-mirror under dir="rtl". */}
+          <div className="flex flex-col gap-2.5 sm:flex-row sm:items-stretch">
+            <div className="relative flex-1">
+              <Search
+                size={20}
+                aria-hidden="true"
+                className="absolute start-5 top-1/2 z-10 -translate-y-1/2 text-muted-foreground"
+              />
 
-            <label htmlFor={inputId} className="sr-only">
-              {t('hero.search_placeholder', { defaultValue: 'Search vehicles' })}
-            </label>
+              <label htmlFor={inputId} className="sr-only">
+                {t('hero.search_placeholder', { defaultValue: 'Search vehicles' })}
+              </label>
 
-            <input
-              id={inputId}
-              ref={inputRef}
-              role="combobox"
-              aria-expanded={showDropdown}
-              aria-haspopup="listbox"
-              aria-controls={showDropdown ? listboxId : undefined}
-              aria-autocomplete="list"
-              autoComplete="off"
-              spellCheck={false}
-              value={filters.query}
-              onFocus={() => setIsOpen(true)}
-              onChange={(e) => setFilter('query', e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={placeholder}
-              className={`
-                h-16 w-full
-                rounded-xl
-                border border-input
-                bg-background
-                text-lg text-foreground
-                outline-none
-                placeholder:text-muted-foreground
-                transition
-                focus:border-accent focus:ring-2 focus:ring-accent/20
-                ${isRTL ? 'pr-14 pl-36' : 'pl-14 pr-36'}
-              `}
-            />
-
-            {hasQuery && (
-              <button
-                onClick={() => {
-                  clearSearch();
-                  inputRef.current?.focus();
-                }}
-                aria-label={t('hero.clear_search', { defaultValue: 'Clear search' })}
+              <input
+                id={inputId}
+                ref={inputRef}
+                role="combobox"
+                aria-expanded={showDropdown}
+                aria-haspopup="listbox"
+                aria-controls={showDropdown ? listboxId : undefined}
+                aria-autocomplete="list"
+                autoComplete="off"
+                spellCheck={false}
+                value={filters.query}
+                onFocus={() => setIsOpen(true)}
+                onChange={(e) => setFilter('query', e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder={placeholder}
                 className={`
-                  absolute top-1/2 -translate-y-1/2
-                  text-muted-foreground transition hover:text-foreground
-                  focus-visible:outline focus-visible:outline-offset-1 focus-visible:outline-accent/40
-                  ${isRTL ? 'left-32' : 'right-32'}
+                  h-14 w-full
+                  rounded-xl
+                  border border-input
+                  bg-background
+                  text-base text-foreground sm:text-lg
+                  outline-none
+                  placeholder:text-muted-foreground
+                  transition
+                  focus:border-accent focus:ring-2 focus:ring-accent/20
+                  ps-12 ${hasQuery ? 'pe-11' : 'pe-4'}
                 `}
-              >
-                <X size={18} />
-              </button>
-            )}
+              />
+
+              {hasQuery && (
+                <button
+                  onClick={() => {
+                    clearSearch();
+                    inputRef.current?.focus();
+                  }}
+                  aria-label={t('hero.clear_search', { defaultValue: 'Clear search' })}
+                  className="absolute end-4 top-1/2 -translate-y-1/2 text-muted-foreground transition hover:text-foreground focus-visible:outline focus-visible:outline-offset-1 focus-visible:outline-accent/40"
+                >
+                  <X size={18} />
+                </button>
+              )}
+            </div>
 
             <button
               onClick={handleSearch}
               aria-label={t('hero.search', { defaultValue: 'Search' })}
-              className={`
-                absolute top-1/2 -translate-y-1/2
-                flex h-11 items-center gap-2
-                rounded-lg
+              className="
+                flex h-14 w-full items-center justify-center gap-2 sm:w-auto
+                rounded-xl
                 bg-accent-strong
-                px-5
+                px-7
                 text-sm font-semibold text-white
                 shadow-sm
                 transition-all hover:opacity-90
                 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent
-                ${isRTL ? 'left-2.5' : 'right-2.5'}
-              `}
+              "
             >
-              <Search size={16} aria-hidden="true" />
+              <Search size={18} aria-hidden="true" />
               {t('hero.search')}
             </button>
           </div>
 
-          {/* Quick chips + live result count — fast browse and immediate feedback */}
-          <div className="mb-5 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
-            <HeroQuickFilters
-              chips={quickChips}
-              label={isRTL ? 'فلاتر سريعة' : 'Quick filters'}
-            />
-            <span
-              aria-live="polite"
-              className="shrink-0 text-sm font-medium tabular-nums text-muted-foreground"
-            >
-              {countLabel}
-            </span>
-          </div>
-
-          {/* Filter row */}
-          <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
+          {/* ── Row b — filter row (existing filters; dynamic 4th slot) ──────── */}
+          <div className="mt-4 grid grid-cols-2 gap-2.5 lg:grid-cols-4">
             <FilterSelect
               value={filters.brand}
               onChange={(v) => setFilter('brand', v)}
@@ -557,18 +534,35 @@ export default function HeroSearchPanel({ cars, contentAr, contentEn, showTypeFi
             </div>
           )}
 
-          {/* Rental tenants: a fast entry into the booking wizard */}
-          {showBooking && (
-            <div className="mt-5 px-1">
+          {/* ── Row c — quick-filter chips (inventory-derived) + live count on
+              one side; the rental "pick by date" booking entry on the other.
+              Booking renders ONLY when enableRental (sale-only tenants never see
+              it). justify-between keeps the two sides apart; the row wraps and
+              the booking entry pushes to the end on its own line on mobile. */}
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+              <HeroQuickFilters
+                chips={quickChips}
+                label={isRTL ? 'فلاتر سريعة' : 'Quick filters'}
+              />
+              <span
+                aria-live="polite"
+                className="shrink-0 text-sm font-medium tabular-nums text-muted-foreground"
+              >
+                {countLabel}
+              </span>
+            </div>
+
+            {showBooking && (
               <Link
                 href={`/${locale}/booking`}
-                className="inline-flex items-center gap-2 rounded-md border border-border bg-background px-4 py-2 text-xs font-semibold text-foreground transition hover:border-accent/40 hover:bg-accent-subtle"
+                className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-4 py-2 text-xs font-semibold text-foreground transition hover:border-accent/40 hover:bg-accent-subtle"
               >
                 {priceCopy.book}
                 <ArrowRight size={14} className="rtl:rotate-180" />
               </Link>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Results dropdown — appears on interaction, subtle reveal */}

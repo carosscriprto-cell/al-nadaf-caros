@@ -26,7 +26,7 @@ const FinalCTA = () => {
       {/* 🔥 Background Image (Subtle) */}
       <div className="absolute inset-0">
         <Image
-          src="/hero/buy.png"
+          src="/hero/car-1.png"
           alt="fleet"
           fill
           sizes="100vw"

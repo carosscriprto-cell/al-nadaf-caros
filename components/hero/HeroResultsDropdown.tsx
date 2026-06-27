@@ -218,7 +218,7 @@ export default function HeroResultsDropdown({
 
       {/* ── Results — uniform rows, hairline dividers ───────────────── */}
       {!isEmpty && displayCars.length > 0 && (
-        <div className="max-h-[360px] overflow-y-auto">
+        <div className="max-h-[256px] overflow-y-auto">
           <div className="divide-y divide-border">
             {displayCars.map((car) => (
               <ResultRow key={car.id} car={car} onClose={onClose} />
