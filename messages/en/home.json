@@ -5,8 +5,13 @@
     "title_line_1": "A Curated Collection",
     "title_line_2": "Of Exceptional Vehicles",
 
-    "description": "Explore premium new and pre-owned vehicles carefully selected for quality, performance, and prestige.",
-    
+    "description": "Explore a premium collection of vehicles carefully selected for quality, performance, and prestige.",
+    "sale": {
+      "description": "Explore premium new and pre-owned vehicles carefully selected for quality, performance, and prestige."
+    },
+    "rental": {
+      "description": "Explore a premium fleet available to rent, carefully selected for quality, performance, and comfort."
+    },
 
     "section_label": "Vehicle showroom",
 
@@ -41,6 +46,8 @@
     "model": "Any Model",
     "fuel": "Any Fuel Type",
     "type": "Listing Type",
+    "condition": "Condition",
+    "body_type": "Body Type",
 
     "buy": "Buy",
     "rent": "Rent",
@@ -91,19 +98,49 @@
   },
   "why_choose_us": {
     "title": "Why Choose Caros?",
-    "description": "Premium service, dependable support, and a fleet designed to elevate every trip.",
+    "description": "Premium service, dependable support, and a lineup designed to elevate every journey.",
     "safe": "Safe & Secure",
-    "safe_desc": "All our vehicles are regularly maintained and insured for your peace of mind.",
-    "service": "24/7 Service",
-    "service_desc": "Round-the-clock availability for airport transfers and urgent bookings.",
+    "safe_desc": "Every vehicle is inspected and well-maintained for your complete peace of mind.",
+    "service": "24/7 Support",
+    "service_desc": "Round-the-clock assistance whenever you need us.",
     "quality": "Premium Quality",
-    "quality_desc": "Only the finest vehicles with top-tier amenities and support.",
-    "selection": "Wide Fleet Selection",
-    "selection_desc": "From economy to luxury, we have the right vehicle for every occasion.",
-    "drivers": "Professional Drivers",
-    "drivers_desc": "Experienced, licensed, and courteous drivers for a seamless journey.",
+    "quality_desc": "Only the finest vehicles, held to top-tier standards throughout.",
+    "selection": "Wide Selection",
+    "selection_desc": "From economy to luxury, the right vehicle for every need.",
+    "drivers": "Dedicated Team",
+    "drivers_desc": "An experienced, courteous team guiding you every step of the way.",
     "awards": "Award Winning",
-    "awards_desc": "Recognized for excellence in customer service and vehicle quality."
+    "awards_desc": "Recognized for excellence in customer service and vehicle quality.",
+    "sale": {
+      "description": "Premium vehicles, transparent pricing, and support that lasts beyond the sale.",
+      "safe": "Certified & Inspected",
+      "safe_desc": "Every car passes a comprehensive multi-point inspection before sale.",
+      "service": "Smooth, Fast Process",
+      "service_desc": "A transparent buying journey from first viewing to driving home.",
+      "quality": "Premium Quality",
+      "quality_desc": "Hand-picked vehicles held to the highest standards.",
+      "selection": "Wide Inventory",
+      "selection_desc": "From economy to luxury, find the right car to own.",
+      "drivers": "Expert Guidance",
+      "drivers_desc": "Knowledgeable advisors to help you choose and finance with confidence.",
+      "awards": "Award Winning",
+      "awards_desc": "Recognized for excellence in service and vehicle quality."
+    },
+    "rental": {
+      "description": "Premium service, dependable support, and a fleet designed to elevate every trip.",
+      "safe": "Safe & Secure",
+      "safe_desc": "All our vehicles are regularly maintained and insured for your peace of mind.",
+      "service": "24/7 Service",
+      "service_desc": "Round-the-clock availability for airport transfers and urgent bookings.",
+      "quality": "Premium Quality",
+      "quality_desc": "Only the finest vehicles with top-tier amenities and support.",
+      "selection": "Wide Fleet Selection",
+      "selection_desc": "From economy to luxury, we have the right vehicle for every occasion.",
+      "drivers": "Professional Drivers",
+      "drivers_desc": "Experienced, licensed, and courteous drivers for a seamless journey.",
+      "awards": "Award Winning",
+      "awards_desc": "Recognized for excellence in customer service and vehicle quality."
+    }
   },
   "rent_vs_buy": {
     "rent-title": "Drive the Moment",
@@ -204,6 +241,12 @@
   },
   "final_cta": {
     "title": "Your Next Drive Starts Now",
-    "description": "Whether you rent or own — step into a car that matches your ambition."
+    "description": "Whether you rent or own — step into a car that matches your ambition.",
+    "sale": {
+      "description": "Own the car that matches your ambition — your journey starts here."
+    },
+    "rental": {
+      "description": "Drive the car that matches your ambition — your journey starts here."
+    }
   }
 }

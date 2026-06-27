@@ -7,6 +7,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
 import { useTenantContent } from '@/components/providers/TenantContentProvider';
+import { useTenantFeatures } from '@/components/providers/TenantFeaturesProvider';
 
 // Accent-gradient banner. Every colour is derived from var(--color-accent) via
 // OKLCH relative colors (same technique as --accent-strong/--accent-subtle in
@@ -29,8 +30,21 @@ const FinalCTA = () => {
   // Per-tenant override → i18n fallback (each field independent). The secondary
   // "contact" CTA stays i18n-only. Empty override = identical to before.
   const fc = useTenantContent().finalCta[locale === 'ar' ? 'ar' : 'en'];
+  const features = useTenantFeatures();
+
+  // Type-aware DEFAULT description (same mechanism as HowItWorks): sale-only →
+  // sale framing, rental-only → rental framing, hybrid (or neither) → the
+  // generic both-types line. A tenant's content override (fc.desc) always wins.
+  const variant =
+    features.enableSellCar && !features.enableRental
+      ? 'sale'
+      : features.enableRental && !features.enableSellCar
+        ? 'rental'
+        : null;
+
   const title = fc.title || t('final_cta.title');
-  const description = fc.desc || t('final_cta.description');
+  const description =
+    fc.desc || t(variant ? `final_cta.${variant}.description` : 'final_cta.description');
   const primaryCta = fc.cta || tb('start_your_journey');
 
   // If the car asset is missing/broken, drop it — the banner still reads with

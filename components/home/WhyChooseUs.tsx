@@ -5,6 +5,7 @@ import { Shield, Clock, Star, Car, Users, Award } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import HeadSection from '../HeadSection';
 import { useTenantContent } from '@/components/providers/TenantContentProvider';
+import { useTenantFeatures } from '@/components/providers/TenantFeaturesProvider';
 import { WHY_KEYS } from '@/lib/tenant/content';
 
 const ICONS = [Shield, Clock, Star, Car, Users, Award];
@@ -14,15 +15,29 @@ const WhyChooseUs = () => {
   const locale = useLocale();
   // Per-tenant text override; any empty field falls back to the static i18n.
   const wc = useTenantContent().whyChooseUs[locale === 'ar' ? 'ar' : 'en'];
+  const features = useTenantFeatures();
+
+  // Type-aware DEFAULT copy (same mechanism as HowItWorks): sale-only → sale
+  // framing, rental-only → rental framing, hybrid (or neither) → the generic
+  // neutral copy. Slot count, icons and order are unchanged — only which i18n
+  // default each item reads from. A tenant's content override (wc.*) always wins.
+  const variant =
+    features.enableSellCar && !features.enableRental
+      ? 'sale'
+      : features.enableRental && !features.enableSellCar
+        ? 'rental'
+        : null;
+  const whyPath = (seg: string) =>
+    variant ? `why_choose_us.${variant}.${seg}` : `why_choose_us.${seg}`;
 
   const heading = wc.title || t('why_choose_us.title');
-  const subheading = wc.description || t('why_choose_us.description');
+  const subheading = wc.description || t(whyPath('description'));
 
   const benefits = WHY_KEYS.map((key, i) => ({
     key,
     icon: ICONS[i],
-    title: wc.items?.[i]?.title || t(`why_choose_us.${key}`),
-    description: wc.items?.[i]?.text || t(`why_choose_us.${key}_desc`),
+    title: wc.items?.[i]?.title || t(whyPath(key)),
+    description: wc.items?.[i]?.text || t(whyPath(`${key}_desc`)),
   }));
 
   return (

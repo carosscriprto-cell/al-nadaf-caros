@@ -6,6 +6,7 @@ import HeroTrustStrip from './HeroTrustStrip';
 import HeroSearchPanel from './HeroSearchPanel';
 import HeroBackgroundCars from './HeroBackgroundCars';
 import { useTenantContent } from '@/components/providers/TenantContentProvider';
+import { useTenantFeatures } from '@/components/providers/TenantFeaturesProvider';
 import type { Car, CarContentMap } from '@/types/vehicles';
 
 // ─── Animation ──────────────────────────────────────────────────────────────
@@ -40,8 +41,21 @@ export default function HeroSection({ cars, contentAr, contentEn, showTypeFilter
   // `headline` is unset the original two-line i18n title (with accent on line 2)
   // renders unchanged, so an empty tenants.content looks identical to before.
   const hero = useTenantContent().hero[locale === 'ar' ? 'ar' : 'en'];
+  const features = useTenantFeatures();
+
+  // Type-aware DEFAULT subheadline (same mechanism as HowItWorks): sale-only →
+  // sale framing, rental-only → rental framing, hybrid (or neither) → generic.
+  // A tenant's content override (hero.subheadline) always wins.
+  const variant =
+    features.enableSellCar && !features.enableRental
+      ? 'sale'
+      : features.enableRental && !features.enableSellCar
+        ? 'rental'
+        : null;
+
   const badge = hero.badge || t('hero.badge');
-  const subheadline = hero.subheadline || t('hero.description');
+  const subheadline =
+    hero.subheadline || t(variant ? `hero.${variant}.description` : 'hero.description');
 
   return (
     <section
