@@ -158,6 +158,23 @@ async function main(): Promise<void> {
         fuel_type: 'petrol', transmission: 'automatic', listing_type: 'sale',
       }).select('id');
       assert(anonInsErr !== null, 'anon CANNOT INSERT a car (write blocked by RLS)');
+
+      // ── car_brands: GLOBAL reference data (E1) ────────────────────────────
+      // anon CAN read the global brand list (storefront BrandShowcase). Requires
+      // the 20260627 migration applied (table + seed).
+      const { data: brandsRead, error: brandsReadErr } = await anonPublic
+        .from('car_brands').select('slug').limit(5);
+      assert(
+        brandsReadErr === null && (brandsRead?.length ?? 0) > 0,
+        'anon CAN read car_brands (global reference data, seeded)',
+      );
+
+      // anon CANNOT INSERT a brand — writes are owner/admin only (no anon policy).
+      const { error: brandInsErr } = await anonPublic
+        .from('car_brands')
+        .insert({ slug: `zzz-anon-brand-${Date.now().toString(36)}`, name_en: TAG, name_ar: TAG })
+        .select('slug');
+      assert(brandInsErr !== null, 'anon CANNOT INSERT a car_brand (write blocked by RLS)');
       console.log('');
     }
 

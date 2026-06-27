@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      car_brands: {
+        Row: {
+          created_at: string
+          id: string
+          logo_url: string | null
+          name_ar: string
+          name_en: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          name_ar: string
+          name_en: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          name_ar?: string
+          name_en?: string
+          slug?: string
+        }
+        Relationships: []
+      }
       car_content: {
         Row: {
           car_id: string
@@ -92,6 +119,7 @@ export type Database = {
           address: string | null
           available: boolean
           brand: string
+          brand_slug: string | null
           category: Database["public"]["Enums"]["car_category"]
           city: string
           class: Database["public"]["Enums"]["car_class"]
@@ -160,6 +188,7 @@ export type Database = {
           address?: string | null
           available?: boolean
           brand: string
+          brand_slug?: string | null
           category: Database["public"]["Enums"]["car_category"]
           city: string
           class: Database["public"]["Enums"]["car_class"]
@@ -228,6 +257,7 @@ export type Database = {
           address?: string | null
           available?: boolean
           brand?: string
+          brand_slug?: string | null
           category?: Database["public"]["Enums"]["car_category"]
           city?: string
           class?: Database["public"]["Enums"]["car_class"]
@@ -291,6 +321,13 @@ export type Database = {
           year?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "cars_brand_slug_fkey"
+            columns: ["brand_slug"]
+            isOneToOne: false
+            referencedRelation: "car_brands"
+            referencedColumns: ["slug"]
+          },
           {
             foreignKeyName: "cars_tenant_id_fkey"
             columns: ["tenant_id"]
@@ -563,7 +600,10 @@ export type Database = {
     Functions: {
       get_tenant_id_by_domain: { Args: { p_domain: string }; Returns: string }
       get_tenant_id_by_slug: { Args: { p_slug: string }; Returns: string }
-      mark_latest_lead_whatsapp: { Args: { p_tenant_id: string; p_phone: string }; Returns: undefined }
+      mark_latest_lead_whatsapp: {
+        Args: { p_phone: string; p_tenant_id: string }
+        Returns: undefined
+      }
       my_tenant_id: { Args: never; Returns: string }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }

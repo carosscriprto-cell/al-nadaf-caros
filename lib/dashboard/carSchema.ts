@@ -35,7 +35,12 @@ export type ContentLocaleValues = z.output<typeof contentLocaleSchema>;
 
 export const carFormSchema = z.object({
   // ── identity / classification ──
+  // brand = display name (kept for the slug + legacy readability); brand_slug =
+  // canonical car_brands reference (E1). Both are set by the brand picker.
+  // brand_slug is OPTIONAL in the base schema so editing a legacy car (brand_slug
+  // = null) is never blocked; it is REQUIRED only via carCreateSchema (new cars).
   brand: z.string().trim().min(1, 'Required'),
+  brand_slug: z.string().trim().default(''),
   model: z.string().trim().min(1, 'Required'),
   year: z.coerce.number().int().min(1950).max(2100),
   trim: optStr,
@@ -129,6 +134,13 @@ export const carFormSchema = z.object({
 });
 
 export type CarFormValues = z.output<typeof carFormSchema>;
+
+// Create-only schema: a brand pick is mandatory for NEW cars (kills free-text).
+// Edits use carFormSchema, so a pre-existing row with brand_slug = null can still
+// be saved without forcing a pick — the picker is offered, not blocking.
+export const carCreateSchema = carFormSchema.superRefine((d, ctx) => {
+  if (!d.brand_slug.trim()) ctx.addIssue({ code: 'custom', path: ['brand_slug'], message: 'Required' });
+});
 
 export function slugify(brand: string, model: string, year: number) {
   return `${brand}-${model}-${year}`

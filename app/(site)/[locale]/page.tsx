@@ -1,6 +1,7 @@
 import { Fragment } from 'react';
 import { setRequestLocale } from 'next-intl/server';
 import { getAllCarsForSearch } from '@/lib/supabase/queries.server';
+import { getCarBrands } from '@/lib/supabase/brands.server';
 import { getStorefrontFeatures, getTenantConfig } from '@/lib/supabase/getTenant';
 import { isHybridTenant } from '@/lib/tenant/features';
 import { resolveVisibleSections, type HomeSectionKey } from '@/lib/tenant/sections';
@@ -31,8 +32,9 @@ export default async function Home({
 
   // Single source: Supabase. Fetch once on the server, drill into the client
   // hero/brand/banner components (which previously imported static data/cars.ts).
-  const [{ cars, contentMap, contentAr, contentEn }, features, tenant, origin] = await Promise.all([
+  const [{ cars, contentMap, contentAr, contentEn }, brands, features, tenant, origin] = await Promise.all([
     getAllCarsForSearch(locale),
+    getCarBrands(),
     getStorefrontFeatures(),
     getTenantConfig(),
     getRequestOrigin(),
@@ -46,7 +48,7 @@ export default async function Home({
   // Each section keyed so the page can render them in the tenant's order.
   const sectionMap: Record<HomeSectionKey, React.ReactNode> = {
     hero: <HeroSection cars={cars} contentAr={contentAr} contentEn={contentEn} showTypeFilter={hybrid} />,
-    brandShowcase: <BrandShowcase cars={cars} />,
+    brandShowcase: <BrandShowcase cars={cars} brands={brands} />,
     featuredCars: <FeaturedCarsSection locale={locale} />,
     whyChooseUs: <WhyChooseUs />,
     featuredSpotlight: <FeaturedSpotlight cars={cars} contentMap={contentMap} />,

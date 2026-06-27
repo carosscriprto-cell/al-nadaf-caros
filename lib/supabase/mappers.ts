@@ -53,6 +53,7 @@ export function mapDbCarToCar(row: DbCar): Car {
     id:            row.id,
     slug:          row.slug,
     brand:         row.brand,
+    brandSlug:     row.brand_slug ?? undefined,
     model:         row.model,
     trim:          row.trim ?? undefined,
     year:          row.year,

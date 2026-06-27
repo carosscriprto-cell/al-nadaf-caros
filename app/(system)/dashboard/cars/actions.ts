@@ -8,8 +8,9 @@
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { carFormSchema, slugify, CAR_STATUSES, type CarFormValues } from '@/lib/dashboard/carSchema';
+import { carFormSchema, carCreateSchema, slugify, CAR_STATUSES, type CarFormValues } from '@/lib/dashboard/carSchema';
 import type { CarStatus } from '@/types/vehicles';
+import type { Tables } from '@/lib/supabase/database.types';
 import type { ActionResult } from './types';
 
 // Resolve the logged-in user's tenant + features (RLS-scoped read).
@@ -35,7 +36,7 @@ function num(features: Record<string, unknown>, key: string, fallback: number) {
 
 function mapFormToRow(d: CarFormValues) {
   return {
-    brand: d.brand, model: d.model, year: d.year, trim: d.trim || null,
+    brand: d.brand, brand_slug: d.brand_slug || null, model: d.model, year: d.year, trim: d.trim || null,
     listing_type: d.listing_type, condition: d.condition, category: d.category, class: d.class,
     status: d.status,
     // available is an INDEPENDENT switch: a sold/reserved car can still be shown.
@@ -99,7 +100,7 @@ async function upsertContent(
 
 // ─── Create car (enforces features.maxCars — Layer 2 server guard) ───────────
 export async function createCar(values: CarFormValues): Promise<ActionResult & { id?: string }> {
-  const parsed = carFormSchema.safeParse(values);
+  const parsed = carCreateSchema.safeParse(values);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? 'Invalid input' };
 
   const supabase = await createSupabaseServerClient();
@@ -131,6 +132,46 @@ export async function createCar(values: CarFormValues): Promise<ActionResult & {
   await upsertContent(supabase, ins.data.id, d);
   revalidate();
   return { ok: true, id: ins.data.id };
+}
+
+// ─── Add a global car brand (E1) ───────────────────────────────────────────────
+// car_brands is GLOBAL reference data; RLS restricts INSERT to owner/admin, so a
+// non-privileged user's call is rejected server-side. slug is derived from the
+// English name (the source of truth). If the brand already exists we return it,
+// so the picker can just select it.
+export async function createBrand(input: {
+  name_en: string;
+  name_ar?: string;
+}): Promise<ActionResult & { brand?: Tables<'car_brands'> }> {
+  const parsed = z
+    .object({ name_en: z.string().trim().min(1).max(60), name_ar: z.string().trim().max(60).optional() })
+    .safeParse(input);
+  if (!parsed.success) return { ok: false, error: 'Invalid input' };
+
+  const slug = parsed.data.name_en
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  if (!slug) return { ok: false, error: 'Invalid brand name' };
+
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from('car_brands')
+    .insert({ slug, name_en: parsed.data.name_en, name_ar: parsed.data.name_ar || parsed.data.name_en })
+    .select('*')
+    .single();
+
+  if (error) {
+    // Already exists → treat as success and return the existing row.
+    if (/duplicate|unique/i.test(error.message)) {
+      const { data: existing } = await supabase.from('car_brands').select('*').eq('slug', slug).single();
+      if (existing) return { ok: true, brand: existing };
+    }
+    return { ok: false, error: error.message };
+  }
+  revalidatePath('/', 'layout'); // storefront BrandShowcase reads car_brands
+  return { ok: true, brand: data };
 }
 
 // ─── Update car ───────────────────────────────────────────────────────────────

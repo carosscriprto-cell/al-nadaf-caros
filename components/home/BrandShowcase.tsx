@@ -1,158 +1,69 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 
 import type { Car } from '@/types/vehicles';
-import { getBlurDataURL } from '@/lib/image';
+import type { CarBrand } from '@/lib/supabase/brands.server';
+import { brandLogoUrl, brandInitials } from '@/lib/tenant/brandLogo';
 import HeadSection from '../HeadSection';
-
-const brandLogoBlurDataURL = getBlurDataURL('#f8fafc', '#e2e8f0');
-
-const BRAND_LOGOS = {
-  audi: {
-    src: '/brands/audi.png',
-    width: 101,
-    height: 101,
-    label: 'Audi',
-  },
-  bmw: {
-    src: '/brands/bmw.png',
-    width: 96,
-    height: 96,
-    label: 'BMW',
-  },
-  ford: {
-    src: '/brands/ford.png',
-    width: 128,
-    height: 72,
-    label: 'Ford',
-  },
-  hyundai: {
-    src: '/brands/hyundai.png',
-    width: 160,
-    height: 90,
-    label: 'Hyundai',
-  },
-  kia: {
-    src: '/brands/kia.png',
-    width: 128,
-    height: 72,
-    label: 'Kia',
-  },
-  lexus: {
-    src: '/brands/lexus.png',
-    width: 128,
-    height: 72,
-    label: 'Lexus',
-  },
-  'mercedes-benz': {
-    src: '/brands/Mercedes-Benz.png',
-    width: 132,
-    height: 72,
-    label: 'Mercedes-Benz',
-  },
-  porsche: {
-    src: '/brands/Porsche.png',
-    width: 104,
-    height: 104,
-    label: 'Porsche',
-  },
-  'range-rover': {
-    src: '/brands/Range-Rover.png',
-    width: 148,
-    height: 60,
-    label: 'Range Rover',
-  },
-  tesla: {
-    src: '/brands/tesla.png',
-    width: 92,
-    height: 92,
-    label: 'Tesla',
-  },
-  toyota: {
-    src: '/brands/Toyota.png',
-    width: 132,
-    height: 76,
-    label: 'Toyota',
-  },
-} as const;
-
-type BrandLogoKey = keyof typeof BRAND_LOGOS;
 
 const MAX_BRANDS = 7;
 
-function formatBrandName(brand: string) {
-  return brand
-    .split('-')
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ');
+// Mirror the migration's normalization for legacy rows that have no brand_slug:
+// lowercase, trim, collapse whitespace → hyphen.
+function slugifyBrand(s: string): string {
+  return s.trim().toLowerCase().replace(/\s+/g, '-');
 }
 
-function getBrandFallback(brand: string) {
-  return brand
-    .split('-')
-    .slice(0, 2)
-    .map((part) => part.charAt(0).toUpperCase())
-    .join('');
-}
-
-function getTopBrands(cars: Car[]) {
-  return Object.entries(
-    cars.reduce((acc, car) => {
-      acc[car.brand] = (acc[car.brand] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>)
-  )
-    .map(([name, count]) => ({ name, count }))
+// Count cars per brand slug, then keep only seeded brands that actually have
+// inventory, ordered by count. The brand list comes from car_brands (E1) — no
+// hardcoded brands here.
+function getTopBrands(cars: Car[], brands: CarBrand[]) {
+  const counts = new Map<string, number>();
+  for (const car of cars) {
+    const key = car.brandSlug ?? slugifyBrand(car.brand);
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+  return brands
+    .map((brand) => ({ brand, count: counts.get(brand.slug) ?? 0 }))
+    .filter((b) => b.count > 0)
     .sort((a, b) => b.count - a.count)
     .slice(0, MAX_BRANDS);
 }
 
 // Clean, never-blank fallback: a brand monogram in a styled chip. Used when the
-// brand has no bundled logo, OR when a bundled logo fails to load.
-function BrandMonogram({ brand }: { brand: string }) {
+// brand has no resolvable logo, OR when the CDN logo fails to load.
+function BrandMonogram({ name }: { name: string }) {
   return (
     <div className="flex h-20 w-full items-center justify-center overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-accent/10 via-card to-card">
       <span className="text-2xl font-extrabold tracking-tight text-accent">
-        {getBrandFallback(brand)}
+        {brandInitials(name)}
       </span>
     </div>
   );
 }
 
-function BrandLogo({
-  brand,
-  priority,
-}: {
-  brand: string;
-  priority: boolean;
-}) {
-  const logo = BRAND_LOGOS[brand as BrandLogoKey];
+// Logo resolution (E3): manual override (car_brands.logo_url) → derived free-CDN
+// URL from slug → lettered placeholder on error. Native <img> so an unknown slug
+// degrades to the monogram without needing the CDN host in next.config.
+function BrandLogo({ brand }: { brand: CarBrand }) {
   const [errored, setErrored] = useState(false);
+  const src = brandLogoUrl(brand.slug, brand.logo_url);
 
-  // No bundled logo, or it failed to load → clean monogram (never blank).
-  if (!logo || errored) {
-    return <BrandMonogram brand={brand} />;
-  }
+  if (!src || errored) return <BrandMonogram name={brand.name_en} />;
 
   return (
     <div className="relative flex h-20 w-full items-center justify-center overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-card via-card to-muted/50 px-4">
       <div className="absolute inset-0 animate-pulse bg-[radial-gradient(circle_at_top,rgba(148,163,184,0.14),transparent_55%)]" />
-      <Image
-        src={logo.src}
-        alt={`${logo.label} logo`}
-        width={logo.width}
-        height={logo.height}
-        sizes="(min-width: 1280px) 148px, (min-width: 1024px) 132px, (min-width: 768px) 120px, 96px"
-        priority={priority}
-        quality={80}
-        placeholder="blur"
-        blurDataURL={brandLogoBlurDataURL}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={src}
+        alt={`${brand.name_en} logo`}
+        loading="lazy"
         onError={() => setErrored(true)}
-        className="relative z-10 h-auto max-h-12 w-auto object-contain transition duration-300 group-hover:scale-105 group-hover:grayscale-0"
+        className="relative z-10 h-auto max-h-12 w-auto object-contain transition duration-300 group-hover:scale-105"
       />
     </div>
   );
@@ -160,13 +71,15 @@ function BrandLogo({
 
 type BrandShowcaseProps = {
   cars: Car[];
+  brands: CarBrand[];
 };
 
-export default function BrandShowcase({ cars }: BrandShowcaseProps) {
+export default function BrandShowcase({ cars, brands }: BrandShowcaseProps) {
   const t = useTranslations('');
   const locale = useLocale();
 
-  const brands = getTopBrands(cars);
+  const top = getTopBrands(cars, brands);
+  if (top.length === 0) return null;
 
   return (
     <section className="bg-background py-16">
@@ -178,25 +91,27 @@ export default function BrandShowcase({ cars }: BrandShowcaseProps) {
         />
 
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
-          {brands.map((brand, index) => (
+          {top.map(({ brand, count }, index) => (
             <Link
-              key={brand.name}
-              href={`/${locale}/fleet?brand=${brand.name}`}
+              key={brand.slug}
+              // Fleet filters by the free-text car.brand; normalized cars store
+              // brand = name_en, so link by name_en to keep the filter working.
+              href={`/${locale}/fleet?brand=${encodeURIComponent(brand.name_en)}`}
               className="group relative flex min-h-[172px] flex-col rounded-3xl border border-border/60 bg-card/80 p-5 shadow-[0_18px_50px_rgba(15,23,42,0.06)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-1.5 hover:border-accent/30 hover:shadow-[0_24px_60px_rgba(59,130,246,0.14)]"
             >
               <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-accent/10 blur-2xl transition-transform duration-300 group-hover:scale-125" />
 
               <div className="absolute right-3 top-3 rounded-full bg-muted/80 px-2 py-1 text-[10px] font-medium text-muted-foreground">
-                {brand.count}
+                {count}
               </div>
 
               <div className="flex flex-1 items-center justify-center">
-                <BrandLogo brand={brand.name} priority={index < 3} />
+                <BrandLogo key={index} brand={brand} />
               </div>
 
               <div className="mt-5 text-center">
                 <p className="text-sm font-semibold text-muted-foreground transition-colors duration-300 group-hover:text-accent">
-                  {formatBrandName(brand.name)}
+                  {locale === 'ar' ? brand.name_ar : brand.name_en}
                 </p>
               </div>
             </Link>

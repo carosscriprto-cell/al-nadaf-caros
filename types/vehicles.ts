@@ -64,6 +64,9 @@ export type Car = {
   id: string | number;
   slug: string;
   brand: string;
+  // Canonical brand slug → car_brands (E1). Optional: legacy/unmatched rows have
+  // none and fall back to the free-text `brand` for display/grouping.
+  brandSlug?: string;
   model: string;
   trim?: string;
   year: number;

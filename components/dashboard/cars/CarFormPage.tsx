@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { toast } from 'sonner';
 import { ArrowLeft, Loader2, Tag, KeyRound, Layers } from 'lucide-react';
 import { Constants } from '@/lib/supabase/database.types';
-import { carFormSchema, type CarFormValues, type ContentLocaleValues } from '@/lib/dashboard/carSchema';
+import { carFormSchema, carCreateSchema, type CarFormValues, type ContentLocaleValues } from '@/lib/dashboard/carSchema';
 import { type TenantFeatures, allowedListingTypes } from '@/lib/tenant/features';
 import { safeRandomUUID } from '@/lib/utils/uuid';
 import { createCar, updateCar } from '@/app/(system)/dashboard/cars/actions';
@@ -17,6 +17,8 @@ import type { DashCarWithContent } from '@/lib/dashboard/cars';
 import { useDash } from '../DashboardI18n';
 import { Section, TextField, NumField, SelField, SwitchField, TextareaField, TagInput } from './fields';
 import ImagesField from './ImagesField';
+import BrandSelect from './BrandSelect';
+import type { CarBrand } from '@/lib/supabase/brands.server';
 
 const E = Constants.public.Enums;
 const STATUSES = ['available', 'sold', 'reserved'] as const;
@@ -38,7 +40,7 @@ function contentFrom(car: DashCarWithContent | undefined, locale: 'en' | 'ar'): 
 
 function initial(car: DashCarWithContent | undefined, listing: Listing): CarFormValues {
   return {
-    brand: car?.brand ?? '', model: car?.model ?? '', year: car?.year ?? new Date().getFullYear(), trim: car?.trim ?? '',
+    brand: car?.brand ?? '', brand_slug: car?.brand_slug ?? '', model: car?.model ?? '', year: car?.year ?? new Date().getFullYear(), trim: car?.trim ?? '',
     listing_type: listing, condition: car?.condition ?? 'used', category: car?.category ?? 'sedan', class: car?.class ?? 'standard',
     status: (car?.status as CarFormValues['status']) ?? 'available',
     available: car?.available ?? true, is_featured: car?.is_featured ?? false, is_hero: car?.is_hero ?? false,
@@ -63,8 +65,8 @@ function initial(car: DashCarWithContent | undefined, listing: Listing): CarForm
   };
 }
 
-export default function CarFormPage({ car, features, tenantId }: { car?: DashCarWithContent; features: TenantFeatures; tenantId: string }) {
-  const { t, el } = useDash();
+export default function CarFormPage({ car, features, tenantId, brands }: { car?: DashCarWithContent; features: TenantFeatures; tenantId: string; brands: CarBrand[] }) {
+  const { t, el, lang } = useDash();
   const cf = t.cf;
   const ph = cf.ph;
   const router = useRouter();
@@ -128,7 +130,8 @@ export default function CarFormPage({ car, features, tenantId }: { car?: DashCar
   );
 
   const submit = async () => {
-    const parsed = carFormSchema.safeParse(v);
+    // New cars must pick a brand; editing a legacy row (brand_slug=null) is not blocked.
+    const parsed = (isEdit ? carFormSchema : carCreateSchema).safeParse(v);
     if (!parsed.success) {
       const errs: Record<string, string> = {};
       parsed.error.issues.forEach((i) => { const key = i.path.join('.'); if (!errs[key]) errs[key] = i.message; });
@@ -166,7 +169,14 @@ export default function CarFormPage({ car, features, tenantId }: { car?: DashCar
 
       {/* Basics */}
       <Section title={cf.secBasics}>
-        <TextField label={cf.brand} value={v.brand} onChange={(x) => set('brand', x)} err={errOf('brand')} placeholder={ph.brand} />
+        <BrandSelect
+          brands={brands}
+          value={v.brand_slug}
+          onChange={(slug, nameEn) => setV((p) => ({ ...p, brand_slug: slug, brand: nameEn }))}
+          lang={lang}
+          err={errOf('brand_slug')}
+          labels={cf.brandSel}
+        />
         <TextField label={cf.model} value={v.model} onChange={(x) => set('model', x)} err={errOf('model')} placeholder={ph.model} />
         <NumField label={cf.year} value={v.year} onChange={(x) => set('year', x ?? new Date().getFullYear())} err={errOf('year')} placeholder={ph.year} />
         <TextField label={cf.trim} value={v.trim ?? ''} onChange={(x) => set('trim', x)} placeholder={ph.trim} />
