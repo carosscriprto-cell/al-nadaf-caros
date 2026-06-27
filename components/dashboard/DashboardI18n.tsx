@@ -59,6 +59,11 @@ const DICT = {
       noLeads: 'No leads yet', noLeadsHint: 'Inquiries and bookings from your storefront will appear here.',
       selected: 'selected', changeStatus: 'Set status', markNew: 'New', markContacted: 'Contacted', markClosed: 'Closed',
       leads: 'leads', general: 'General inquiry', noContact: 'No contact info', rentalWindow: 'Rental', via: 'via',
+      detailsTitle: 'Lead details', sectionCustomer: 'Customer', sectionMeta: 'Details', sectionMessage: 'Message', sectionVehicle: 'Vehicle', sectionBooking: 'Booking',
+      noMessage: 'No message provided.', viewCar: 'View in inventory', close: 'Close',
+      waBtn: 'WhatsApp', callBtn: 'Call', emailBtn: 'Email',
+      fSource: 'Source', fLocale: 'Language', fReceived: 'Received', pickup: 'Pickup location',
+      langName: { ar: 'Arabic', en: 'English' } as Record<string, string>, waGreeting: 'Hello',
     },
     ov: {
       subtitle: 'A snapshot of your inventory and incoming leads.',
@@ -185,6 +190,11 @@ const DICT = {
       noLeads: 'لا توجد طلبات بعد', noLeadsHint: 'ستظهر هنا الاستفسارات والحجوزات الواردة من متجرك.',
       selected: 'محدد', changeStatus: 'تعيين الحالة', markNew: 'جديد', markContacted: 'تم التواصل', markClosed: 'مغلق',
       leads: 'طلب', general: 'استفسار عام', noContact: 'لا توجد بيانات تواصل', rentalWindow: 'الإيجار', via: 'عبر',
+      detailsTitle: 'تفاصيل الطلب', sectionCustomer: 'العميل', sectionMeta: 'التفاصيل', sectionMessage: 'الرسالة', sectionVehicle: 'المركبة', sectionBooking: 'الحجز',
+      noMessage: 'لا توجد رسالة.', viewCar: 'عرض في المخزون', close: 'إغلاق',
+      waBtn: 'واتساب', callBtn: 'اتصال', emailBtn: 'بريد',
+      fSource: 'المصدر', fLocale: 'اللغة', fReceived: 'وردت', pickup: 'موقع الاستلام',
+      langName: { ar: 'العربية', en: 'الإنجليزية' } as Record<string, string>, waGreeting: 'مرحباً',
     },
     ov: {
       subtitle: 'لمحة سريعة عن مخزونك والطلبات الواردة.',

@@ -13,6 +13,7 @@ import type { DashLead } from '@/lib/dashboard/leads';
 import type { LeadStatus } from '@/lib/leads/schema';
 import { useDash } from '../DashboardI18n';
 import { setLeadStatus, bulkSetLeadStatus } from '@/app/(system)/dashboard/leads/actions';
+import LeadDetailModal from './LeadDetailModal';
 
 const PAGE_SIZE = 12;
 type SortKey = 'date' | 'status';
@@ -52,6 +53,7 @@ export default function LeadsTable({ leads, stats }: { leads: DashLead[]; stats:
   const [sort, setSort] = useState<{ key: SortKey; dir: 'asc' | 'desc' }>({ key: 'date', dir: 'desc' });
   const [page, setPage] = useState(0);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [openLeadId, setOpenLeadId] = useState<string | null>(null);
 
   const dateFmt = useMemo(
     () => new Intl.DateTimeFormat(lang === 'ar' ? 'ar' : 'en', { day: 'numeric', month: 'short', year: 'numeric' }),
@@ -107,6 +109,8 @@ export default function LeadsTable({ leads, stats }: { leads: DashLead[]; stats:
     });
 
   const ids = [...selected];
+  const openLead = openLeadId ? (leads.find((l) => l.id === openLeadId) ?? null) : null;
+  const changeStatus = (id: string, s: LeadStatus) => run(async () => setLeadStatus({ id, status: s }));
   const setSort2 = (key: SortKey) =>
     setSort((s) => (s.key === key ? { key, dir: s.dir === 'asc' ? 'desc' : 'asc' } : { key, dir: 'desc' }));
 
@@ -214,8 +218,12 @@ export default function LeadsTable({ leads, stats }: { leads: DashLead[]; stats:
                 const type = (l.type ?? 'inquiry') as string;
                 const hasRental = !!(l.rental_start || l.rental_end);
                 return (
-                  <tr key={l.id} className="border-b border-[#f3f3f3] last:border-0 hover:bg-[#fafbfc]">
-                    <td className="px-4 py-3"><Cb checked={selected.has(l.id)} onChange={() => toggleRow(l.id)} /></td>
+                  <tr
+                    key={l.id}
+                    onClick={() => setOpenLeadId(l.id)}
+                    className="cursor-pointer border-b border-[#f3f3f3] last:border-0 hover:bg-[#fafbfc]"
+                  >
+                    <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}><Cb checked={selected.has(l.id)} onChange={() => toggleRow(l.id)} /></td>
                     <td className="px-4 py-3 max-w-[220px]">
                       <div className="font-semibold">{l.name?.trim() || <span className="text-[#9aa0a8] font-normal">{ld.general}</span>}</div>
                       {l.message?.trim() && (
@@ -256,7 +264,7 @@ export default function LeadsTable({ leads, stats }: { leads: DashLead[]; stats:
                       )}
                     </td>
                     <td className="px-4 py-3 text-[#6b7178]">{dateFmt.format(new Date(l.created_at))}</td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                       <StatusMenu
                         current={status}
                         label={el('lead_status', status)}
@@ -284,6 +292,14 @@ export default function LeadsTable({ leads, stats }: { leads: DashLead[]; stats:
           </div>
         </div>
       )}
+
+      {/* Full-detail popup with quick-action contact buttons */}
+      <LeadDetailModal
+        lead={openLead}
+        onClose={() => setOpenLeadId(null)}
+        onSetStatus={changeStatus}
+        pending={pending}
+      />
     </div>
   );
 }
