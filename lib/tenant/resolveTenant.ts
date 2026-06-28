@@ -111,11 +111,13 @@ export async function resolveTenantId(host: string): Promise<string | null> {
 
   // 3. Local/apex dev fallback — ONLY when there is no subdomain (plain
   //    localhost / apex). Lets local dev render a tenant without lvh.me.
-  const fallbackSlug = process.env.DEFAULT_TENANT_SLUG;
-  if (fallbackSlug) {
-    const byFallback = await rpc('get_tenant_id_by_slug', { p_slug: fallbackSlug });
-    if (byFallback) return byFallback;
-  }
+  // Sanitize the env value: strip wrapping quotes / surrounding whitespace /
+  // newlines (a stray "dealer1" or trailing \n in Vercel would never match),
+  // and hard-fall back to 'dealer1' when empty after cleanup.
+  const rawSlug = process.env.DEFAULT_TENANT_SLUG ?? '';
+  const defaultSlug = rawSlug.trim().replace(/^["']+|["']+$/g, '').trim() || 'dealer1';
+  const byFallback = await rpc('get_tenant_id_by_slug', { p_slug: defaultSlug });
+  if (byFallback) return byFallback;
 
   return null;
 }
