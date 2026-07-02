@@ -11,6 +11,8 @@
       "range": "المدى",
       "daily_rate": "السعر اليومي",
       "purchase_price": "سعر الشراء",
+      "down_payment": "الدفعة الأولى",
+      "monthly_installment": "القسط الشهري",
       "price_on_request": "السعر عند الطلب",
       "was": "السعر السابق",
       "also_available": "متوفر أيضًا",

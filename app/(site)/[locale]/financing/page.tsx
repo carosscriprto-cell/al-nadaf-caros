@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
-import { redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
-import { getStorefrontFeatures } from '@/lib/supabase/getTenant';
+import { getStorefrontFeatures, getTenantConfig } from '@/lib/supabase/getTenant';
+import { getFinanceableCars } from '@/lib/supabase/queries.server';
+import { parseTenantContent } from '@/lib/tenant/content';
 import FinancingPageClient from '@/components/pages/FinancingPageClient';
 
 export const metadata: Metadata = {
@@ -17,12 +19,24 @@ export default async function FinancingPage({
   const locale = rawLocale === 'ar' ? 'ar' : 'en';
   setRequestLocale(locale);
 
-  // Financing is a Pro+ feature — gate the route: redirect to the fleet listing
-  // when the tenant doesn't have financing enabled.
+  // Financing is a Pro+ feature — the route does not exist for tenants without it.
   const features = await getStorefrontFeatures();
-  if (!features.enableFinancing) {
-    redirect(`/${locale}/fleet`);
-  }
+  if (!features.enableFinancing) notFound();
 
-  return <FinancingPageClient locale={locale} />;
+  // Section A copy: per-tenant overrides (tenants.content.financing) with the
+  // static i18n default as fallback. Section B: the financeable inventory grid.
+  const [tenant, { cars, contentMap }] = await Promise.all([
+    getTenantConfig(),
+    getFinanceableCars(locale),
+  ]);
+  const copy = parseTenantContent(tenant.content).financing[locale];
+
+  return (
+    <FinancingPageClient
+      locale={locale}
+      cars={cars}
+      contentMap={contentMap}
+      overrides={{ title: copy.title, description: copy.desc, cta: copy.cta }}
+    />
+  );
 }

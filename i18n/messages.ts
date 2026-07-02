@@ -10,7 +10,8 @@ const messageFiles = [
   'legal',
   'filters',
   'buttons',
-  'heroForm'
+  'heroForm',
+  'financing'
 ] as const;
 
 export async function loadMessages(locale: string) {

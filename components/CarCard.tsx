@@ -37,6 +37,9 @@ type Props = {
   content?: CarContentEntry;
   type?: 'rent' | 'sale' | 'all';
   imagePriority?: boolean;
+  // Financing page (V2): swap the standard price block for a compact
+  // down-payment + monthly-installment display. Everything else is unchanged.
+  financing?: boolean;
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -45,6 +48,7 @@ export default function CarCard({
   car,
   content,
   imagePriority = false,
+  financing = false,
 }: Props) {
   const locale = useLocale();
   const t = useTranslations('car');
@@ -228,6 +232,32 @@ export default function CarCard({
         </div>
 
         {/* Pricing block */}
+        {financing ? (
+          // Financing variant: down payment + monthly installment.
+          <div className="mb-3 rounded-3xl border border-white/8 bg-gradient-to-r from-accent/10 to-accent/5 px-4 py-3 backdrop-blur-2xl">
+            <div className="flex items-end justify-between gap-4">
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                  {t('card.down_payment')}
+                </p>
+                <p className="mt-1 text-[22px] font-semibold tracking-tight text-foreground">
+                  {car.pricing.downPayment != null ? formatMoney(car.pricing.downPayment) : '—'}
+                </p>
+              </div>
+
+              <div className="h-8 w-px bg-border" />
+
+              <div className="text-right">
+                <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                  {t('card.monthly_installment')}
+                </p>
+                <p className="mt-1 text-[22px] font-semibold tracking-tight text-foreground">
+                  {car.pricing.monthly != null ? formatMoney(car.pricing.monthly) : '—'}
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : (
         <div className="mb-3 rounded-3xl border border-white/8 bg-gradient-to-r from-accent/10 to-accent/5 px-4 py-3 backdrop-blur-2xl">
           <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
             {isBoth
@@ -294,6 +324,7 @@ export default function CarCard({
             )}
           </div>
         </div>
+        )}
 
         {/* CTAs */}
         <div className="mt-auto flex flex-col gap-3">

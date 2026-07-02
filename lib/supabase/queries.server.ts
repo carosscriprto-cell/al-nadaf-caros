@@ -179,6 +179,42 @@ export const getSimilarCars = cache(
   }
 );
 
+// ─── getFinanceableCars ───────────────────────────────────────
+// For the standalone financing page (V2). Same tenant + visibility scoping as the
+// other storefront queries (tenant_id, available, storefrontListingTypes), plus
+// is_financeable = true. Cards read downPayment (← cars.down_payment) and
+// pricing.monthly (← cars.price_monthly) from the mapped Car.
+
+export const getFinanceableCars = cache(
+  async (locale: 'en' | 'ar' = 'en'): Promise<{
+    cars:       Car[];
+    contentMap: CarContentMap;
+  }> => {
+    const supabase = createPublicServerClient();
+    const tenantId = await getTenantId();
+
+    const types = await getVisibleTypes();
+    let q = supabase
+      .from('cars')
+      .select(`*, car_content(*)`)
+      .eq('tenant_id', tenantId)
+      .eq('available', true)
+      .eq('is_financeable', true);
+    if (types) q = q.in('listing_type', types);
+    const { data, error } = await q
+      .order('is_featured', { ascending: false })
+      .order('created_at',  { ascending: false });
+
+    if (error || !data) return { cars: [], contentMap: {} };
+
+    const cars       = data.map(mapDbCarToCar);
+    const allContent = data.flatMap(c => c.car_content ?? []);
+    const contentMap = buildContentMap(data, allContent, locale);
+
+    return { cars, contentMap };
+  }
+);
+
 // ─── getAllCarsForSearch ───────────────────────────────────────
 // للـ search layer — يجلب كل السيارات بدون pagination
 // يُستخدم في HomeVehicleSearchForm و CarsListingPage

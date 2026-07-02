@@ -11,6 +11,8 @@
       "range": "Range",
       "daily_rate": "Daily Rate",
       "purchase_price": "Purchase Price",
+      "down_payment": "Down payment",
+      "monthly_installment": "Monthly installment",
       "price_on_request": "Price on request",
       "was": "Was",
       "also_available": "Also available",
