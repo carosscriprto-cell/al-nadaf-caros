@@ -33,6 +33,7 @@ import {
 
 import SmartLeadButtons from '@/components/leads/SmartLeadButtons';
 import VipDeliveryBadge from '@/components/VipDeliveryBadge';
+import { useTenantFeatures } from '@/components/providers/TenantFeaturesProvider';
 import type { Car } from '@/types/vehicles';
 import {
   getCarTitleFallback,
@@ -65,6 +66,7 @@ export default function FleetDetailClient({
   similarCars,
 }: FleetDetailClientProps) {
   const t = useTranslations('car');
+  const features = useTenantFeatures();
   const galleryImages = useMemo(
     () => (car.images.length ? car.images : [car.thumbnail]),
     [car.images, car.thumbnail]
@@ -89,6 +91,19 @@ export default function FleetDetailClient({
     car.listingType === 'sale' || car.listingType === 'both';
   const ctaIntent = isRental && isSale ? 'both' : isSale ? 'sale' : 'rent';
   const currency = car.pricing.currency || 'USD';
+
+  // Sale-only financing dealer: surface financing terms (down payment + monthly
+  // instalment) in place of the daily rental price, when this car is financeable
+  // and BOTH figures exist. Any other tenant type — or a missing figure — falls
+  // through to the unchanged sale/rent pricing. (car.pricing.downPayment ←
+  // cars.down_payment, car.pricing.monthly ← cars.price_monthly.)
+  const showFinancing =
+    features.enableSellCar &&
+    features.enableFinancing &&
+    !features.enableRental &&
+    car.isFinanceable &&
+    car.pricing.downPayment != null &&
+    car.pricing.monthly != null;
   const title = content?.title || getCarTitleFallback(car);
   const localeKey = locale === 'ar' ? 'ar' : 'en-US';
 
@@ -569,18 +584,35 @@ export default function FleetDetailClient({
               <div className="rounded-[2rem] border border-border/60 bg-card/80 p-6 shadow-xl backdrop-blur-xl">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    {isRental && car.pricing.daily && (
+                    {showFinancing ? (
                       <div>
                         <div className="text-sm text-muted-foreground">
-                          {t('detail.rental_price')}
+                          {t('detail.financing.down_payment')}
                         </div>
                         <div className="mt-1 text-4xl font-bold text-foreground">
-                          {formatPrice(car.pricing.daily)}
-                          <span className="ml-2 text-lg font-normal text-muted-foreground">
-                            / {t('detail.values.day')}
-                          </span>
+                          {formatPrice(car.pricing.downPayment)}
+                        </div>
+                        <div className="mt-4 text-sm text-muted-foreground">
+                          {t('detail.financing.monthly_installment')}
+                        </div>
+                        <div className="mt-1 text-2xl font-semibold text-foreground">
+                          {formatPrice(car.pricing.monthly)}
                         </div>
                       </div>
+                    ) : (
+                      isRental && car.pricing.daily && (
+                        <div>
+                          <div className="text-sm text-muted-foreground">
+                            {t('detail.rental_price')}
+                          </div>
+                          <div className="mt-1 text-4xl font-bold text-foreground">
+                            {formatPrice(car.pricing.daily)}
+                            <span className="ml-2 text-lg font-normal text-muted-foreground">
+                              / {t('detail.values.day')}
+                            </span>
+                          </div>
+                        </div>
+                      )
                     )}
 
                     {isSale && car.pricing.total && (
@@ -627,7 +659,7 @@ export default function FleetDetailClient({
                   </div>
                 ) : null}
 
-                {isRental && (
+                {isRental && !showFinancing && (
                   <div className="mt-6 grid gap-4 sm:grid-cols-3">
                     {car.pricing.weekly && (
                       <PriceBox
