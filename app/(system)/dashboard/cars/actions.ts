@@ -57,6 +57,8 @@ function mapFormToRow(d: CarFormValues) {
     price_total: d.price_total ?? null, price_old: d.price_old ?? null,
     negotiable: d.negotiable, financing_available: d.financing_available,
     monthly_installment: d.monthly_installment ?? null,
+    // financing (P7)
+    is_financeable: d.is_financeable, down_payment: d.down_payment ?? null,
     // rental pricing + terms
     price_daily: d.price_daily ?? null, price_weekly: d.price_weekly ?? null,
     price_monthly: d.price_monthly ?? null, price_hourly: d.price_hourly ?? null,

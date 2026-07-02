@@ -50,6 +50,7 @@ function initial(car: DashCarWithContent | undefined, listing: Listing): CarForm
     currency: car?.currency ?? 'USD',
     price_total: car?.price_total ?? undefined, price_old: car?.price_old ?? undefined, negotiable: car?.negotiable ?? false,
     financing_available: car?.financing_available ?? false, monthly_installment: car?.monthly_installment ?? undefined,
+    is_financeable: car?.is_financeable ?? true, down_payment: car?.down_payment ?? undefined,
     price_daily: car?.price_daily ?? undefined, price_weekly: car?.price_weekly ?? undefined, price_monthly: car?.price_monthly ?? undefined,
     price_hourly: car?.price_hourly ?? undefined, security_deposit: car?.security_deposit ?? undefined, min_rental_days: car?.min_rental_days ?? undefined,
     mileage_limit: car?.mileage_limit ?? undefined, insurance: car?.insurance ?? '',
@@ -243,6 +244,20 @@ export default function CarFormPage({ car, features, tenantId, brands }: { car?:
           <NumField label={cf.min_rental_days} value={v.min_rental_days} onChange={(x) => set('min_rental_days', x)} placeholder={ph.min_rental_days} />
           <NumField label={cf.mileage_limit} value={v.mileage_limit} onChange={(x) => set('mileage_limit', x)} placeholder={ph.mileage_limit} />
           <TextField label={cf.insurance} value={v.insurance ?? ''} onChange={(x) => set('insurance', x)} placeholder={ph.insurance} />
+        </Section>
+      )}
+
+      {/* Financing (P7) — only when the tenant has financing enabled */}
+      {features.enableFinancing && (
+        <Section title={cf.secFinancing}>
+          <SwitchField label={cf.is_financeable} hint={cf.is_financeableHint} checked={v.is_financeable} onChange={(x) => set('is_financeable', x)} />
+          <NumField label={cf.down_payment} value={v.down_payment} onChange={(x) => set('down_payment', x)} placeholder={ph.down_payment} />
+          {/* Monthly financing figure reuses price_monthly (→ pricing.monthly). For
+              rent/both cars it already appears in the Rental section, so only render
+              it here for sale-only cars to avoid a duplicate input for one column. */}
+          {!includeRent && (
+            <NumField label={cf.price_monthly} value={v.price_monthly} onChange={(x) => set('price_monthly', x)} placeholder={ph.price_monthly} />
+          )}
         </Section>
       )}
 

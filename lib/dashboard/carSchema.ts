@@ -81,6 +81,11 @@ export const carFormSchema = z.object({
   negotiable: z.boolean().default(false),
   financing_available: z.boolean().default(false),
   monthly_installment: optNum,
+  // financing (P7) — is_financeable is opt-out per car (default true); down_payment
+  // is the headline required down payment. The monthly financing figure reuses
+  // price_monthly (below), matching mapDbCarToCar → pricing.monthly.
+  is_financeable: z.boolean().default(true),
+  down_payment: optNum,
   // rental
   price_daily: optNum,
   price_weekly: optNum,
