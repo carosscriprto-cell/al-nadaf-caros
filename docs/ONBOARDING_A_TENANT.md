@@ -1,38 +1,45 @@
 # Onboarding a New Tenant (Dealer)
 
-The operational runbook for adding a dealer. **Onboarding is currently manual** (DB inserts by an operator) until V3 self-signup. After the inserts, the dealer does the rest from the dashboard.
+The operational runbook for adding a dealer. **Onboarding is currently manual** — DB inserts by
+an operator (until a future self-signup). After the inserts, the dealer does the rest from the
+dashboard. For the production hosting layer (domains / DNS / Vercel), see
+[DEPLOYMENT.md](./DEPLOYMENT.md).
 
-Prereqs: access to the Supabase project (Dashboard + SQL editor), and the values for the new dealer (name, slug, plan, brand colors, contact).
+Prereqs: access to the Supabase project (Dashboard + SQL editor) and the new dealer's details
+(name, slug, plan, brand colors, contact).
 
 ---
 
 ## Step 1 — Create the Auth user
 
-Supabase Dashboard → **Authentication → Users → Add user**. Use the dealer owner's email + a password (or invite). Copy the new user's **UUID** — you need it in Step 3.
+Supabase Dashboard → **Authentication → Users → Add user**. Use the dealer owner's email + a
+password (or invite). Copy the new user's **UUID** — needed in Step 3.
 
 > The user must exist in `auth.users` before linking; `tenant_users.user_id` has an FK to it.
 
 ## Step 2 — INSERT the `tenants` row
 
-Run in **SQL editor**. Only `name` and `slug` are strictly required (everything else has a default or is nullable), but set `plan`, colors, contact, and `subdomain` for a real launch. Apply the plan's **features preset** (see the table below) to `features`.
+Run in the **SQL editor**. Only `name` and `slug` are strictly required (everything else has a
+default or is nullable), but set `plan`, colors, contact, and `subdomain` for a real launch.
+Apply the plan's **features preset** (table below) to the `features` jsonb.
 
 ```sql
 insert into public.tenants (
-  name, name_ar, slug, subdomain,           -- identity + how the host resolves
+  name, name_ar, slug, subdomain,            -- identity + how the host resolves
   plan, active,
   color_primary, color_secondary, color_accent,
-  email, phone, whatsapp,
+  email, phone, whatsapp,                     -- whatsapp = the lead channel
   address_en, address_ar,
   seo_title_en, seo_desc_en,
   features
 ) values (
-  'Premier Motors', 'بريمير موتورز', 'premier', 'premier',  -- premier.<base-domain> resolves here
+  'Premier Motors', 'بريمير موتورز', 'premier', 'premier',  -- premier.<root-domain> resolves here
   'pro', true,
-  '#0A0A0A', '#FFFFFF', '#75ACE8',                          -- brand colors (injected as CSS vars)
-  'sales@premier.example', '+10000000000', '+10000000000',  -- whatsapp = the lead channel
+  '#0A0A0A', '#FFFFFF', '#75ACE8',                          -- injected as --color-* CSS vars
+  'sales@premier.example', '+9710000000', '+9710000000',
   '12 Showroom Rd, City', 'العنوان',
   'Premier Motors — Cars for sale & rent', 'Browse our certified inventory.',
-  -- features preset for the chosen plan (see table); JSON must match TenantFeatures:
+  -- features preset for the chosen plan (must match TenantFeatures — see table):
   '{
      "maxCars": 75, "maxImagesPerCar": 8,
      "enableSellCar": true, "enableRental": true, "enableFinancing": true,
@@ -43,18 +50,21 @@ insert into public.tenants (
 returning id;   -- copy this tenant id for Step 3
 ```
 
-**Required vs optional columns:**
+### Required vs optional columns (from `baseline_schema.sql`)
 
-| Required (no usable default) | Has a default | Nullable / optional |
+| Required (no usable default) | Has a DB default | Nullable / optional |
 |---|---|---|
-| `name`, `slug` | `plan`='starter', `active`=true, `color_primary`='#000000', `color_secondary`='#ffffff', `color_accent`='#3b82f6', `features`='{}' | `name_ar`, `subdomain`, `domain`, contact, address, SEO, `logo_url`, `favicon_url`, `og_image_url`, jsonb (`sections`/`pages`/`content`/`business_hours`/`social`/`map_center`) |
+| `name`, `slug` | `plan`='starter', `active`=true, `color_primary`='#000000', `color_secondary`='#ffffff', `color_accent`='#3b82f6', `features`='{}' | `name_ar`, `subdomain`, `domain`, `email`, `phone`, `whatsapp`, `address_en/ar`, all SEO, `logo_url`, `favicon_url`, `og_image_url`, and the jsonb config (`sections`, `pages`, `content`, `business_hours`, `social`, `map_center`) |
 
-- `slug` and `subdomain` (and `domain`, if custom) are **unique**. The host resolver matches subdomain → slug first, then `domain`/`subdomain` on the full host.
-- Leave `sections`/`pages`/`content` **NULL** — the app applies safe defaults (all sections on, all pages on, static copy). The dealer can customize them later in the Site tab.
+- `slug`, `subdomain`, and `domain` are each **unique**. Resolution matches subdomain → `slug`
+  first, then `domain`/`subdomain` on the full host (see [ARCHITECTURE.md](./ARCHITECTURE.md) §1).
+- Leave `sections` / `pages` / `content` **NULL** — the app applies safe defaults (all sections
+  on, all pages on, static copy). The dealer customizes them later in the **Site** tab.
 
 ### Features preset per plan
 
-Mirror `lib/tenant/plans.ts` (`getPlanFeatures(plan)`). Features may exceed the plan if you're upselling — `tenants.features` is the runtime authority.
+Mirror `lib/tenant/plans.ts` (`getPlanFeatures(plan)`). Features may exceed the plan if you're
+upselling — `tenants.features` is the runtime authority, presets are onboarding defaults only.
 
 | key | starter | pro | enterprise |
 |---|---|---|---|
@@ -79,29 +89,43 @@ values (
 );
 ```
 
-`owner` can edit tenant settings and manage other users; `admin` can delete cars/pages; `editor` can create/update cars. (See the RLS role checks in `supabase/migrations/20260614091000_rls_policies.sql`.)
+Role → capability (from the RLS role checks in `20260614091000_rls_policies.sql`):
+- `owner` — can edit tenant settings (`tenants` update is owner-only) and manage users.
+- `admin` — can delete cars/pages (delete requires `admin|owner`).
+- `editor` — can create/update cars.
 
 ## Step 4 — Dealer self-serves the rest
 
-The dealer logs in at `/auth/login` → `/dashboard` and completes setup themselves:
-- **Settings** (`/dashboard/settings`): logo, favicon, OG image, colors, contact, business hours, map center, SEO.
-- **Site** (`/dashboard/site`): toggle/reorder home **sections**, toggle optional **pages** & lead buttons, edit **content** (bilingual hero / whyChooseUs / howItWorks / about / financing / finalCta / faq) — each field falls back to the static i18n copy when left blank.
-- **Inventory** (`/dashboard/cars`): add vehicles + per-locale content; images upload to Supabase Storage.
-- **Leads** (`/dashboard/leads`): the inbox for incoming leads.
+The dealer logs in at `/auth/login` → `/dashboard` and finishes setup themselves:
+- **Settings** (`/dashboard/settings`): logo, favicon, OG image, colors, contact, business
+  hours, map center, SEO.
+- **Site** (`/dashboard/site`): toggle/reorder home **sections**, toggle optional **pages** &
+  lead-capture buttons, edit **content** (bilingual hero / whyChooseUs / howItWorks / about /
+  financing / finalCta / faq) — each field falls back to the static i18n copy when left blank.
+  (The financing section is locked when `enableFinancing` is off.)
+- **Inventory** (`/dashboard/cars`): add vehicles + per-locale content; images compress in the
+  browser and upload to Supabase Storage.
+- **Leads** (`/dashboard/leads`): the inbox for incoming leads (with a detail modal +
+  WhatsApp/call/email quick actions).
 
-Verify the storefront resolves: visit `https://<subdomain>.<base-domain>` (or `http://<slug>.lvh.me:3000` locally).
+Verify the storefront resolves: `https://<subdomain>.<root-domain>` in prod, or
+`http://<slug>.lvh.me:3000` locally.
 
 ---
 
 ## Setting tenant type (sale-only / rental-only / hybrid)
 
-Type is **purely the two feature flags** — there is no separate column. Set them in `features`:
+Type is **purely the two feature flags** — there is no separate column
+(`isHybridTenant(f) = enableSellCar && enableRental`, `lib/tenant/features.ts`).
 
-| Type | `enableSellCar` | `enableRental` | Effect |
+| Type | `enableSellCar` | `enableRental` | Storefront effect |
 |---|---|---|---|
-| **Sale-only** | `true` | `false` | No rental/booking; hero 4th filter = **Condition**; price filter shown |
-| **Rental-only** | `false` | `true` | Booking entry shown; hero 4th filter = **Body type**; no sale price filter |
-| **Hybrid** | `true` | `true` | Both; hero 4th filter = **listing type (sale/rent)** (`isHybridTenant`) |
+| **Sale-only** | `true` | `false` | No rental/booking; hero 4th filter = **Condition** |
+| **Rental-only** | `false` | `true` | Booking entry shown; hero 4th filter = **Body type** |
+| **Hybrid** | `true` | `true` | Both; hero 4th filter = **listing type (sale/rent)** |
+
+`storefrontListingTypes(features)` restricts which `listing_type` rows a single-type tenant
+surfaces (rental-only → `['rent','both']`, sale-only → `['sale','both']`).
 
 ```sql
 -- Flip an existing tenant to rental-only:
@@ -110,20 +134,20 @@ set features = features || '{"enableSellCar": false, "enableRental": true}'::jso
 where slug = 'premier';
 ```
 
-`isHybridTenant(features)` = `enableSellCar && enableRental` drives hybrid-only UI. Hybrid is *plan-gated* (`planAllowsHybrid`) for onboarding decisions, but not hard-enforced at runtime yet.
+Hybrid is *plan-gated* for onboarding decisions (`planAllowsHybrid`) but not hard-enforced at
+runtime yet.
 
 ## Local testing — the 3-tenant pattern
 
-For full coverage, keep three local tenants and exercise each:
+Keep three local tenants to exercise each type:
 
 | Slug | Plan | Features | Exercises |
 |---|---|---|---|
-| `dealer1` (hybrid+all) | enterprise | sale + rental + financing + VIP | hybrid hero filter, all sections, financing |
-| `dealer2` (rental-only) | pro | `enableSellCar:false, enableRental:true` | booking entry, body-type filter, no price |
-| `dealer3` (sale-only) | starter | `enableSellCar:true, enableRental:false` | condition filter, price filter, no booking |
+| `dealer1` | enterprise | sale + rental + financing + VIP | hybrid hero filter, all sections, financing |
+| `dealer2` | pro | `enableSellCar:false, enableRental:true` | booking entry, body-type filter |
+| `dealer3` | starter | `enableSellCar:true, enableRental:false` | condition filter, no booking |
 
-Create them with Steps 1–3, then access via `lvh.me`:
-- `http://dealer1.lvh.me:3000`, `http://dealer2.lvh.me:3000`, `http://dealer3.lvh.me:3000`
-- or set `DEFAULT_TENANT_SLUG=dealer1` to render one on plain `http://localhost:3000`.
-
-Use a tenant-A login in `.env.local` (`TEST_TENANT_A_EMAIL/PASSWORD`) so `npx tsx scripts/test-rls.ts` runs the full cross-tenant proof.
+Create them with Steps 1–3, then access via `lvh.me`
+(`http://dealer1.lvh.me:3000`, …), or set `DEFAULT_TENANT_SLUG=dealer1` to render one on plain
+`http://localhost:3000`. Put a tenant-A login in `.env.local` (`TEST_TENANT_A_EMAIL/PASSWORD`)
+so `npx tsx scripts/test-rls.ts` runs the full cross-tenant proof.
