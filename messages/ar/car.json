@@ -47,6 +47,10 @@
       "weekly": "أسبوعي",
       "monthly": "شهري",
       "hourly": "بالساعة",
+      "financing": {
+        "down_payment": "الدفعة الأولى",
+        "monthly_installment": "القسط الشهري"
+      },
       "vehicle_specifications": "مواصفات السيارة",
       "description": "الوصف",
       "features": "المزايا",
