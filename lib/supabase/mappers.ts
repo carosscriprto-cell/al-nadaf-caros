@@ -49,6 +49,14 @@ function guardCategory(value: Enums<'car_category'>, carId: string): CarCategory
 // ─── Car mapper ───────────────────────────────────────────────
 
 export function mapDbCarToCar(row: DbCar): Car {
+  // Financing (P7). `is_financeable` / `down_payment` are new columns; until
+  // database.types.ts is regenerated (do NOT hand-edit it) they aren't on DbCar,
+  // so read them through a local typed view. After regen this cast is a harmless
+  // no-op. `price_monthly` already exists on DbCar.
+  const fin = row as DbCar & {
+    is_financeable?: boolean | null;
+    down_payment?: number | null;
+  };
   return {
     id:            row.id,
     slug:          row.slug,
@@ -111,6 +119,7 @@ export function mapDbCarToCar(row: DbCar): Car {
       negotiable:          row.negotiable ?? undefined,
       financingAvailable:  row.financing_available ?? undefined,
       monthlyInstallment:  row.monthly_installment ?? undefined,
+      downPayment:         fin.down_payment ?? undefined,
     },
 
     // Location
@@ -136,6 +145,9 @@ export function mapDbCarToCar(row: DbCar): Car {
     // Ratings
     rating:       row.rating ?? undefined,
     reviewsCount: row.reviews_count ?? 0,
+
+    // Financing (P7)
+    isFinanceable: fin.is_financeable ?? true,
   };
 }
 

@@ -45,6 +45,7 @@ export type CarPricing = {
   negotiable?: boolean;
   financingAvailable?: boolean;
   monthlyInstallment?: number;
+  downPayment?: number;
 };
 
 export type CarOwnershipHistory = {
@@ -109,6 +110,9 @@ export type Car = {
   ownershipHistory?: CarOwnershipHistory;
   rating?: number;
   reviewsCount?: number;
+  // Financing (P7) — mapped from cars.is_financeable. down_payment → pricing.downPayment,
+  // price_monthly → pricing.monthly.
+  isFinanceable: boolean;
 };
 
 // ─── Domain: Car Content (localised) ─────────────────────────────────────

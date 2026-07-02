@@ -146,6 +146,7 @@ export type Database = {
           cylinders: number | null
           delivery_available: boolean | null
           doors: number
+          down_payment: number | null
           drivetrain: Database["public"]["Enums"]["drivetrain"] | null
           electric_range: number | null
           engine: string | null
@@ -163,6 +164,7 @@ export type Database = {
           interior_color: string | null
           is_best_seller: boolean | null
           is_featured: boolean | null
+          is_financeable: boolean
           is_hero: boolean | null
           is_new_arrival: boolean | null
           is_popular: boolean | null
@@ -215,6 +217,7 @@ export type Database = {
           cylinders?: number | null
           delivery_available?: boolean | null
           doors: number
+          down_payment?: number | null
           drivetrain?: Database["public"]["Enums"]["drivetrain"] | null
           electric_range?: number | null
           engine?: string | null
@@ -232,6 +235,7 @@ export type Database = {
           interior_color?: string | null
           is_best_seller?: boolean | null
           is_featured?: boolean | null
+          is_financeable?: boolean
           is_hero?: boolean | null
           is_new_arrival?: boolean | null
           is_popular?: boolean | null
@@ -284,6 +288,7 @@ export type Database = {
           cylinders?: number | null
           delivery_available?: boolean | null
           doors?: number
+          down_payment?: number | null
           drivetrain?: Database["public"]["Enums"]["drivetrain"] | null
           electric_range?: number | null
           engine?: string | null
@@ -301,6 +306,7 @@ export type Database = {
           interior_color?: string | null
           is_best_seller?: boolean | null
           is_featured?: boolean | null
+          is_financeable?: boolean
           is_hero?: boolean | null
           is_new_arrival?: boolean | null
           is_popular?: boolean | null
