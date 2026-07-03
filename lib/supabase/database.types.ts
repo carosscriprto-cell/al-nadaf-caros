@@ -160,6 +160,7 @@ export type Database = {
           horsepower: number | null
           id: string
           images: string[] | null
+          installment_monthly: number | null
           insurance: string | null
           interior_color: string | null
           is_best_seller: boolean | null
@@ -231,6 +232,7 @@ export type Database = {
           horsepower?: number | null
           id?: string
           images?: string[] | null
+          installment_monthly?: number | null
           insurance?: string | null
           interior_color?: string | null
           is_best_seller?: boolean | null
@@ -302,6 +304,7 @@ export type Database = {
           horsepower?: number | null
           id?: string
           images?: string[] | null
+          installment_monthly?: number | null
           insurance?: string | null
           interior_color?: string | null
           is_best_seller?: boolean | null

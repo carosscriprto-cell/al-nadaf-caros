@@ -56,6 +56,7 @@ export function mapDbCarToCar(row: DbCar): Car {
   const fin = row as DbCar & {
     is_financeable?: boolean | null;
     down_payment?: number | null;
+    installment_monthly?: number | null;
   };
   return {
     id:            row.id,
@@ -120,6 +121,9 @@ export function mapDbCarToCar(row: DbCar): Car {
       financingAvailable:  row.financing_available ?? undefined,
       monthlyInstallment:  row.monthly_installment ?? undefined,
       downPayment:         fin.down_payment ?? undefined,
+      // P8 — dedicated financing monthly (← cars.installment_monthly). Read via
+      // the `fin` cast until database.types.ts is regenerated (do NOT hand-edit).
+      installmentMonthly:  fin.installment_monthly ?? undefined,
     },
 
     // Location

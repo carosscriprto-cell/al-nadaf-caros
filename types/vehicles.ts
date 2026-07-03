@@ -46,6 +46,9 @@ export type CarPricing = {
   financingAvailable?: boolean;
   monthlyInstallment?: number;
   downPayment?: number;
+  // P8 — dedicated financing monthly instalment (← cars.installment_monthly).
+  // Kept separate from `monthly` (rental monthly price) to avoid value drift.
+  installmentMonthly?: number;
 };
 
 export type CarOwnershipHistory = {

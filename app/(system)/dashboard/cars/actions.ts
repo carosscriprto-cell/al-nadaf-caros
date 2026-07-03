@@ -56,9 +56,11 @@ function mapFormToRow(d: CarFormValues) {
     // sale pricing
     price_total: d.price_total ?? null, price_old: d.price_old ?? null,
     negotiable: d.negotiable, financing_available: d.financing_available,
-    monthly_installment: d.monthly_installment ?? null,
-    // financing (P7)
+    // financing (P7/P8). installment_monthly is the financing monthly figure; it is
+    // written SEPARATELY from price_monthly (the rental monthly, below). The legacy
+    // monthly_installment column is retired from the form path — no longer written.
     is_financeable: d.is_financeable, down_payment: d.down_payment ?? null,
+    installment_monthly: d.installment_monthly ?? null,
     // rental pricing + terms
     price_daily: d.price_daily ?? null, price_weekly: d.price_weekly ?? null,
     price_monthly: d.price_monthly ?? null, price_hourly: d.price_hourly ?? null,

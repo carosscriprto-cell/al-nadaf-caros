@@ -49,8 +49,9 @@ function initial(car: DashCarWithContent | undefined, listing: Listing): CarForm
     is_popular: car?.is_popular ?? false, is_new_arrival: car?.is_new_arrival ?? false, is_best_seller: car?.is_best_seller ?? false,
     currency: car?.currency ?? 'USD',
     price_total: car?.price_total ?? undefined, price_old: car?.price_old ?? undefined, negotiable: car?.negotiable ?? false,
-    financing_available: car?.financing_available ?? false, monthly_installment: car?.monthly_installment ?? undefined,
+    financing_available: car?.financing_available ?? false,
     is_financeable: car?.is_financeable ?? true, down_payment: car?.down_payment ?? undefined,
+    installment_monthly: car?.installment_monthly ?? undefined,
     price_daily: car?.price_daily ?? undefined, price_weekly: car?.price_weekly ?? undefined, price_monthly: car?.price_monthly ?? undefined,
     price_hourly: car?.price_hourly ?? undefined, security_deposit: car?.security_deposit ?? undefined, min_rental_days: car?.min_rental_days ?? undefined,
     mileage_limit: car?.mileage_limit ?? undefined, insurance: car?.insurance ?? '',
@@ -128,6 +129,10 @@ export default function CarFormPage({ car, features, tenantId, brands }: { car?:
 
   const includeSale = listing === 'sale' || listing === 'both';
   const includeRent = listing === 'rent' || listing === 'both';
+  // Price section = 3 independently-gated groups: Sale (enableSellCar), Rental
+  // (enableRental), Financing (enableFinancing). A listing can render 0–3 of them.
+  const showSale = features.enableSellCar && includeSale;
+  const showRent = features.enableRental && includeRent;
   const currencySel = (
     <SelField label={cf.currency} value={v.currency} onChange={(x) => set('currency', x as CarFormValues['currency'])} opts={E.currency} fmt={(o) => el('currency', o)} />
   );
@@ -211,33 +216,25 @@ export default function CarFormPage({ car, features, tenantId, brands }: { car?:
       />
 
       {/* Sale pricing & details */}
-      {includeSale && (
+      {showSale && (
         <Section title={cf.secSale}>
           {currencySel}
           <NumField label={cf.price_total} value={v.price_total} onChange={(x) => set('price_total', x)} err={errOf('price_total')} placeholder={ph.price_total} />
           <NumField label={cf.price_old} value={v.price_old} onChange={(x) => set('price_old', x)} placeholder={ph.price_old} />
           <SwitchField label={cf.negotiable} checked={v.negotiable} onChange={(x) => set('negotiable', x)} />
           {features.enableFinancing && <SwitchField label={cf.financing} checked={v.financing_available} onChange={(x) => set('financing_available', x)} />}
-          {features.enableFinancing && <NumField label={cf.monthly_installment} value={v.monthly_installment} onChange={(x) => set('monthly_installment', x)} placeholder={ph.monthly_installment} />}
         </Section>
       )}
 
-      {/* Ownership history (sale) */}
-      {includeSale && (
-        <Section title={cf.secOwnership} cols={2}>
-          <NumField label={cf.owners_count} value={v.owners_count} onChange={(x) => set('owners_count', x)} placeholder={ph.owners_count} />
-          <div />
-          <SwitchField label={cf.accidentFree} checked={v.accident_free} onChange={(x) => set('accident_free', x)} />
-          <SwitchField label={cf.serviceHistory} checked={v.service_history} onChange={(x) => set('service_history', x)} />
-        </Section>
-      )}
 
       {/* Rental pricing & terms */}
-      {includeRent && (
+      {showRent && (
         <Section title={cf.secRental}>
-          {!includeSale && currencySel}
+          {!showSale && currencySel}
           <NumField label={cf.price_daily} value={v.price_daily} onChange={(x) => set('price_daily', x)} err={errOf('price_daily')} placeholder={ph.price_daily} />
           <NumField label={cf.price_weekly} value={v.price_weekly} onChange={(x) => set('price_weekly', x)} placeholder={ph.price_weekly} />
+          {/* price_monthly = RENTAL monthly price only (distinct from the financing
+              installment_monthly below). */}
           <NumField label={cf.price_monthly} value={v.price_monthly} onChange={(x) => set('price_monthly', x)} placeholder={ph.price_monthly} />
           <NumField label={cf.price_hourly} value={v.price_hourly} onChange={(x) => set('price_hourly', x)} placeholder={ph.price_hourly} />
           <NumField label={cf.security_deposit} value={v.security_deposit} onChange={(x) => set('security_deposit', x)} placeholder={ph.security_deposit} />
@@ -252,15 +249,22 @@ export default function CarFormPage({ car, features, tenantId, brands }: { car?:
         <Section title={cf.secFinancing}>
           <SwitchField label={cf.is_financeable} hint={cf.is_financeableHint} checked={v.is_financeable} onChange={(x) => set('is_financeable', x)} />
           <NumField label={cf.down_payment} value={v.down_payment} onChange={(x) => set('down_payment', x)} placeholder={ph.down_payment} />
-          {/* Monthly financing figure reuses price_monthly (→ pricing.monthly). For
-              rent/both cars it already appears in the Rental section, so only render
-              it here for sale-only cars to avoid a duplicate input for one column. */}
-          {!includeRent && (
-            <NumField label={cf.price_monthly} value={v.price_monthly} onChange={(x) => set('price_monthly', x)} placeholder={ph.price_monthly} />
-          )}
+          {/* Financing monthly installment → its OWN column (installment_monthly),
+              NOT price_monthly (which is the rental monthly price). */}
+          <NumField label={cf.monthly_installment} value={v.installment_monthly} onChange={(x) => set('installment_monthly', x)} placeholder={ph.monthly_installment} />
         </Section>
       )}
 
+      {/* Ownership history (sale) */}
+      {includeSale && (
+        <Section title={cf.secOwnership} cols={2}>
+          <NumField label={cf.owners_count} value={v.owners_count} onChange={(x) => set('owners_count', x)} placeholder={ph.owners_count} />
+          <div />
+          <SwitchField label={cf.accidentFree} checked={v.accident_free} onChange={(x) => set('accident_free', x)} />
+          <SwitchField label={cf.serviceHistory} checked={v.service_history} onChange={(x) => set('service_history', x)} />
+        </Section>
+      )}
+      
       {/* Specs */}
       <Section title={cf.secSpecs}>
         <SelField label={cf.transmission} value={v.transmission} onChange={(x) => set('transmission', x as CarFormValues['transmission'])} opts={E.transmission} fmt={(o) => el('transmission', o)} />
