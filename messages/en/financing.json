@@ -1,7 +1,7 @@
 {
   "financing": {
     "eyebrow": "Flexible payment",
-    "title": "Financing available",
+    "title": "Installments available",
     "description": "Drive the car you want now and spread the cost over comfortable monthly installments. Tell us your budget and our team will tailor a plan.",
     "termsTitle": "How it works",
     "terms": {
@@ -22,12 +22,12 @@
         "text": "Final terms and approval are confirmed directly with the dealer."
       }
     },
-    "carsTitle": "Cars available for financing",
+    "carsTitle": "Cars available for installments",
     "carsSubtitle": "Browse vehicles you can drive now and pay for monthly.",
-    "empty": "No cars are currently available for financing.",
-    "ctaTitle": "Interested in financing?",
+    "empty": "No cars are currently available for installments.",
+    "ctaTitle": "Interested in installments?",
     "ctaText": "Leave your details and we will get back to you with a plan.",
-    "ctaButton": "Inquire about financing",
-    "subject": "financing"
+    "ctaButton": "Inquire about installments",
+    "subject": "installments"
   }
 }

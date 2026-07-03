@@ -72,7 +72,7 @@
       "cta": {
         "primary": "{intent, select, rent {Book This Vehicle} sale {Request Purchase Details} both {Rent or Buy This Vehicle} other {Contact Us}}",
         "secondary": "Chat on WhatsApp",
-        "helper": "{intent, select, rent {We usually reply within minutes and confirm availability, delivery, and the next booking steps.} sale {We usually reply within minutes with pricing details, financing options, and the next purchase steps.} both {We usually reply within minutes and help you choose the best rent or buy option.} other {We usually reply within minutes and guide you through the next steps.}}"
+        "helper": "{intent, select, rent {We usually reply within minutes and confirm availability, delivery, and the next booking steps.} sale {We usually reply within minutes with pricing details, installment options, and the next purchase steps.} both {We usually reply within minutes and help you choose the best rent or buy option.} other {We usually reply within minutes and guide you through the next steps.}}"
       },
       "trust": {
         "rating_reviews": "{rating} rating • {count} reviews",
@@ -120,7 +120,7 @@
         "delivery_available": "Delivery Available",
         "availability": "Availability",
         "price_negotiable": "Price Negotiable",
-        "financing_available": "Financing Available",
+        "financing_available": "Installments Available",
         "monthly_installment": "Monthly Installment",
         "previous_owners": "Previous Owners",
         "accident_free": "Accident Free",

@@ -73,9 +73,9 @@
   },
   "financing": {
     "eyebrow": "Flexible payment",
-    "title": "Financing available",
+    "title": "Installments available",
     "description": "Drive now and pay in installments. Ask us about monthly plans tailored to your budget.",
-    "cta": "Explore financing"
+    "cta": "Explore installments"
   },
   "brand-section": {
     "brand-title": "Discover Leading Brands",
@@ -122,7 +122,7 @@
       "selection": "Wide Inventory",
       "selection_desc": "From economy to luxury, find the right car to own.",
       "drivers": "Expert Guidance",
-      "drivers_desc": "Knowledgeable advisors to help you choose and finance with confidence.",
+      "drivers_desc": "Knowledgeable advisors to help you choose and pay in installments with confidence.",
       "awards": "Award Winning",
       "awards_desc": "Recognized for excellence in service and vehicle quality."
     },
@@ -180,7 +180,7 @@
           "description": "Book a viewing or test drive at a time that suits you."
         },
         "delivery": {
-          "title": "Finance & Purchase",
+          "title": "Installments & Purchase",
           "description": "Pick a payment or financing plan and complete the paperwork."
         },
         "drive": {
