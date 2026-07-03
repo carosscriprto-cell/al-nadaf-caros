@@ -38,6 +38,17 @@ export function getCarPrice(car: Car, mode: 'rent' | 'sale'): CarPriceResult {
   };
 }
 
-export function formatMoney(value: number): string {
-  return `$${value.toLocaleString()}`;
+// Tenant-currency-aware money formatter. Replaces the old hardcoded-`$`
+// formatMoney so every price on a card reflects car.pricing.currency (the
+// storefront is multi-tenant; not every dealer prices in USD).
+export function formatPrice(
+  value: number,
+  currency: string = 'USD',
+  locale: string = 'en',
+): string {
+  return new Intl.NumberFormat(locale === 'ar' ? 'ar' : 'en-US', {
+    style: 'currency',
+    currency,
+    maximumFractionDigits: 0,
+  }).format(value);
 }

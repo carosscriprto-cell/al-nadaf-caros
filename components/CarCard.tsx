@@ -20,8 +20,8 @@ import type { Car } from '@/types/vehicles';
 // Architecture doc § 3.2 — getListingCapabilities replaces inline isRent/isSale/isBoth
 import { getListingCapabilities } from '@/lib/vehicles/listingType';
 
-// Architecture doc § 12.2 — discriminated union pricing; formatMoney co-located
-import { getCarPrice, formatMoney } from '@/lib/vehicles/pricing';
+// Architecture doc § 12.2 — discriminated union pricing; tenant-currency formatter
+import { getCarPrice, formatPrice } from '@/lib/vehicles/pricing';
 
 import {
   getCarTitleFallback,
@@ -69,13 +69,16 @@ export default function CarCard({
   const rentPrice = getCarPrice(car, 'rent');
   const salePrice = getCarPrice(car, 'sale');
 
+  // Every price on the card formats in the tenant's currency (car.pricing.currency).
+  const fmt = (value: number) => formatPrice(value, car.pricing.currency, locale);
+
   const rentalPriceDisplay =
-    rentPrice.type === 'rent' ? formatMoney(rentPrice.daily) : null;
+    rentPrice.type === 'rent' ? fmt(rentPrice.daily) : null;
   const salePriceDisplay =
-    salePrice.type === 'sale' ? formatMoney(salePrice.total) : null;
+    salePrice.type === 'sale' ? fmt(salePrice.total) : null;
   const oldPriceDisplay =
     salePrice.type === 'sale' && salePrice.oldPrice
-      ? formatMoney(salePrice.oldPrice)
+      ? fmt(salePrice.oldPrice)
       : null;
 
   // i18n labels — unchanged, all keys preserved
@@ -241,7 +244,7 @@ export default function CarCard({
                   {t('card.down_payment')}
                 </p>
                 <p className="mt-1 text-[22px] font-semibold tracking-tight text-foreground">
-                  {car.pricing.downPayment != null ? formatMoney(car.pricing.downPayment) : '—'}
+                  {car.pricing.downPayment != null ? fmt(car.pricing.downPayment) : '—'}
                 </p>
               </div>
 
@@ -252,7 +255,7 @@ export default function CarCard({
                   {t('card.monthly_installment')}
                 </p>
                 <p className="mt-1 text-[22px] font-semibold tracking-tight text-foreground">
-                  {car.pricing.monthly != null ? formatMoney(car.pricing.monthly) : '—'}
+                  {car.pricing.installmentMonthly != null ? fmt(car.pricing.installmentMonthly) : '—'}
                 </p>
               </div>
             </div>

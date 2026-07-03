@@ -183,7 +183,7 @@ export const getSimilarCars = cache(
 // For the standalone financing page (V2). Same tenant + visibility scoping as the
 // other storefront queries (tenant_id, available, storefrontListingTypes), plus
 // is_financeable = true. Cards read downPayment (← cars.down_payment) and
-// pricing.monthly (← cars.price_monthly) from the mapped Car.
+// installmentMonthly (← cars.installment_monthly) from the mapped Car.
 
 export const getFinanceableCars = cache(
   async (locale: 'en' | 'ar' = 'en'): Promise<{
