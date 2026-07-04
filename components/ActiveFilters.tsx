@@ -1,6 +1,7 @@
 'use client';
 
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { X } from 'lucide-react';
 import Skeleton from '@/components/ui/skeleton';
 
@@ -12,6 +13,12 @@ export default function ActiveFilters({ isLoading = false }: Props) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
+  const tf = useTranslations('filters');
+
+  // Boolean facets carry the value "true" in the URL — show a friendly localized
+  // label instead of the raw value. (Matches the financing/delivery toggle keys.)
+  const chipLabel = (key: string, value: string) =>
+    key === 'financing' ? tf('financing_only') : value;
 
   const entries = Array.from(searchParams.entries()).filter(
     ([key, value]) =>
@@ -66,7 +73,7 @@ export default function ActiveFilters({ isLoading = false }: Props) {
             onClick={() => remove(key, v)}
             className="flex items-center gap-1 rounded-full border px-3 py-1 text-xs hover:bg-muted transition"
           >
-            {v}
+            {chipLabel(key, v)}
             <X size={12} />
           </button>
         ))

@@ -121,6 +121,8 @@ export function useVehicleFilters(maxPrice: number) {
       : null,
 
     delivery: get('delivery') === 'true',
+
+    financing: get('financing') === 'true',
   };
 
   return {

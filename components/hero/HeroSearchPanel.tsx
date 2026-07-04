@@ -11,7 +11,7 @@ import {
 
 import * as Slider from '@radix-ui/react-slider';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { Search, X, ArrowRight } from 'lucide-react';
+import { Search, X, ArrowRight, Wallet } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
@@ -64,6 +64,10 @@ export default function HeroSearchPanel({ cars, contentAr, contentEn, showTypeFi
   // so a sale-only or rent-only tenant never shows an empty, useless filter.
   const showTypeSelect =
     showTypeFilter && features.enableSellCar && features.enableRental;
+  // Optional installments-only toggle — only for sale tenants that also offer
+  // financing. Feeds the shared fleet filter via `financing=true` in the URL.
+  const showFinancingToggle =
+    features.enableFinancing && features.enableSellCar;
   const priceCopy = isRTL
     ? { label: 'السعر', min: 'الأدنى', max: 'الأعلى', book: 'احجز بالتاريخ' }
     : { label: 'Price', min: 'Min', max: 'Max', book: 'Book by date' };
@@ -291,6 +295,7 @@ export default function HeroSearchPanel({ cars, contentAr, contentEn, showTypeFi
     if (filters.model) params.set('model', filters.model);
     if (filters.fuelType) params.set('fuelType', filters.fuelType);
     if (filters.listingType) params.set('type', filters.listingType);
+    if (filters.financing) params.set('financing', 'true');
     // Only send bounds the user actually moved off the extremes.
     if (priceRange[0] > 0) params.set('minPrice', String(priceRange[0]));
     if (priceRange[1] < priceMax) params.set('maxPrice', String(priceRange[1]));
@@ -551,6 +556,22 @@ export default function HeroSearchPanel({ cars, contentAr, contentEn, showTypeFi
               >
                 {countLabel}
               </span>
+
+              {showFinancingToggle && (
+                <button
+                  type="button"
+                  onClick={() => setFilter('financing', !filters.financing)}
+                  aria-pressed={filters.financing}
+                  className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-semibold transition ${
+                    filters.financing
+                      ? 'border-accent bg-accent text-white'
+                      : 'border-border bg-background text-foreground hover:border-accent/40 hover:text-accent'
+                  }`}
+                >
+                  <Wallet size={14} aria-hidden="true" />
+                  {isRTL ? 'التقسيط فقط' : 'Installments only'}
+                </button>
+              )}
             </div>
 
             {showBooking && (

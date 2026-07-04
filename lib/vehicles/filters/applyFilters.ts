@@ -14,6 +14,7 @@ export function applyVehicleFilters(
   if (state.condition && car.condition !== state.condition) return false;
   if (state.seats && car.seats < Number(state.seats)) return false;
   if (state.delivery && !car.deliveryAvailable) return false;
+  if (state.financing && !car.isFinanceable) return false;
 
   const price = resolvePrice(car, priceField);
   if (state.minPrice != null && price != null && price < state.minPrice) return false;

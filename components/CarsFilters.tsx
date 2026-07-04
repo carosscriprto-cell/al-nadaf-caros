@@ -36,6 +36,7 @@ import { deriveVehicleOptions } from '@/lib/vehicles/options';
 
 import { Car } from '@/types/vehicles';
 import { FilterSelect } from './hero/FilterSelecte';
+import { useTenantFeatures } from '@/components/providers/TenantFeaturesProvider';
 
 // ─── Local types ─────────────────────────────────────────────────────────────
 
@@ -134,6 +135,7 @@ export default function CarsFilters({
 }: Props) {
   const tFilters = useTranslations('filters');
   const tCar = useTranslations('car');
+  const features = useTenantFeatures();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -319,6 +321,7 @@ export default function CarsFilters({
         get('minPrice'),
         get('maxPrice'),
         get('delivery'),
+        get('financing'),
       ].filter(Boolean).length,
     [get]
   );
@@ -597,6 +600,32 @@ export default function CarsFilters({
           {tFilters('delivery_available_only')}
         </span>
       </label>
+
+      {/* Installments-only toggle — only for tenants with financing enabled */}
+      {features.enableFinancing && (
+        <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-border/60 bg-card/60 px-4 py-3 text-sm backdrop-blur-sm transition hover:border-accent/40 hover:bg-accent/5">
+          <div
+            className={`relative h-5 w-9 rounded-full transition-colors duration-200 ${
+              get('financing') === 'true' ? 'bg-accent' : 'bg-border'
+            }`}
+          >
+            <div
+              className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform duration-200 ${
+                get('financing') === 'true' ? 'translate-x-4' : 'translate-x-0.5'
+              }`}
+            />
+            <input
+              type="checkbox"
+              checked={get('financing') === 'true'}
+              onChange={(e) => setSingle('financing', e.target.checked ? 'true' : '')}
+              className="sr-only"
+            />
+          </div>
+          <span className="text-sm text-foreground">
+            {tFilters('financing_only')}
+          </span>
+        </label>
+      )}
 
       {/* Clear all */}
       {activeCount > 0 && (

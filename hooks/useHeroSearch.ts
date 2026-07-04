@@ -46,6 +46,7 @@ export function useHeroSearch(
     listingType: pageType === 'all' ? '' : pageType,
     condition: '',
     category: '',
+    financing: false,
   });
 
   const [isOpen, setIsOpen] = useState(false);
@@ -75,7 +76,8 @@ export function useHeroSearch(
     !!filters.fuelType ||
     !!filters.listingType ||
     !!filters.condition ||
-    !!filters.category;
+    !!filters.category ||
+    filters.financing;
 
   const shouldShowResults =
     debouncedQuery.trim().length >= MIN_QUERY_LENGTH || hasFilters;
@@ -101,6 +103,7 @@ export function useHeroSearch(
       }
       if (filters.condition && car.condition !== filters.condition) return false;
       if (filters.category && car.category !== filters.category) return false;
+      if (filters.financing && !car.isFinanceable) return false;
       return true;
     },
     [filters],
@@ -175,6 +178,7 @@ export function useHeroSearch(
       listingType: pageType === 'all' ? '' : pageType,
       condition: '',
       category: '',
+      financing: false,
     });
     setIsOpen(false);
   }, [pageType]);

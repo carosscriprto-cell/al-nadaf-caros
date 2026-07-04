@@ -95,6 +95,7 @@ export default function CarsListingPage({
       maxPrice:     getFilterValue('maxPrice'),
       condition:    getFilterValue('condition'),
       delivery:     getFilterValue('delivery'),
+      financing:    getFilterValue('financing'),
       sort:         getFilterValue('sort') || 'all',
     }),
     [getFilterValue]
@@ -156,6 +157,9 @@ export default function CarsListingPage({
         const matchesDelivery =
           !filters.delivery || car.deliveryAvailable === true;
 
+        const matchesFinancing =
+          !filters.financing || car.isFinanceable === true;
+
         const carPrice =
           urlType === 'rent'
             ? car.pricing.daily ?? Infinity
@@ -182,6 +186,7 @@ export default function CarsListingPage({
           matchesSeats       &&
           matchesCondition   &&
           matchesDelivery    &&
+          matchesFinancing   &&
           matchesMinPrice    &&
           matchesMaxPrice
         );

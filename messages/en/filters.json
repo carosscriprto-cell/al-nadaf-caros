@@ -31,6 +31,7 @@
     "daily_price": "Daily Price",
     "search_placeholder": "Search brand, model, year...",
     "delivery_available_only": "Delivery available only",
+    "financing_only": "Installments only",
     "clear_all_filters": "Clear all filters",
     "active": "active",
     "reset": "Reset",

@@ -189,6 +189,9 @@ export type VehicleFilterState = {
   minPrice: number | null;
   maxPrice: number | null;
   delivery: boolean;
+  // Installments-only facet — keeps cars with is_financeable = true. URL-driven
+  // like `delivery`; the UI only surfaces it when features.enableFinancing.
+  financing: boolean;
 };
 
 export type VehicleFilterConfig = {
@@ -215,4 +218,7 @@ export type HeroFilterState = {
   //   sale-only → condition, rental-only → body type (category). '' = unset.
   condition: CarCondition | '';
   category: CarCategory | '';
+  // Optional installments-only toggle — surfaced only for sale + financing
+  // tenants; serialized to the fleet URL as `financing=true`.
+  financing: boolean;
 };
