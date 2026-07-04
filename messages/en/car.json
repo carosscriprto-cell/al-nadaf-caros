@@ -48,6 +48,8 @@
       "monthly": "Monthly",
       "hourly": "Hourly",
       "financing": {
+        "title": "Installments",
+        "badge": "Installments available",
         "down_payment": "Down Payment",
         "monthly_installment": "Monthly Installment"
       },

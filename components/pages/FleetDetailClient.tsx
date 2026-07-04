@@ -28,6 +28,7 @@ import {
   Shield,
   Star,
   Users,
+  Wallet,
   Zap,
 } from 'lucide-react';
 
@@ -92,18 +93,28 @@ export default function FleetDetailClient({
   const ctaIntent = isRental && isSale ? 'both' : isSale ? 'sale' : 'rent';
   const currency = car.pricing.currency || 'USD';
 
-  // Sale-only financing dealer: surface financing terms (down payment + monthly
-  // instalment) in place of the daily rental price, when this car is financeable
-  // and BOTH figures exist. Any other tenant type — or a missing figure — falls
-  // through to the unchanged sale/rent pricing. (car.pricing.downPayment ←
-  // cars.down_payment, car.pricing.monthly ← cars.price_monthly.)
-  const showFinancing =
-    features.enableSellCar &&
-    features.enableFinancing &&
-    !features.enableRental &&
+  // The price card renders up to three independently-gated, labeled groups so
+  // coexisting price types never blur into one another:
+  //   Sale         — listing sale|both, with a sale price.
+  //   Rental       — enableRental && listing rent|both (day/week/month rates;
+  //                  the monthly figure is pricing.monthly, the RENTAL monthly).
+  //   Installments — financeable & financing enabled, with BOTH the down payment
+  //                  and the monthly instalment present. The monthly here is
+  //                  pricing.installmentMonthly (← cars.installment_monthly), a
+  //                  DIFFERENT column than the rental monthly above.
+  const hasRentalRates =
+    car.pricing.daily != null ||
+    car.pricing.weekly != null ||
+    car.pricing.monthly != null ||
+    car.pricing.hourly != null;
+  const showSaleGroup = isSale && car.pricing.total != null;
+  const showRentalGroup =
+    features.enableRental && isRental && hasRentalRates;
+  const showInstallmentsGroup =
     car.isFinanceable &&
+    features.enableFinancing &&
     car.pricing.downPayment != null &&
-    car.pricing.monthly != null;
+    car.pricing.installmentMonthly != null;
   const title = content?.title || getCarTitleFallback(car);
   const localeKey = locale === 'ar' ? 'ar' : 'en-US';
 
@@ -248,12 +259,6 @@ export default function FleetDetailClient({
           }),
         }
       : null,
-    isSale && car.pricing.monthlyInstallment
-      ? {
-          label: t('detail.labels.monthly_installment'),
-          value: formatPrice(car.pricing.monthlyInstallment),
-        }
-      : null,
     isSale && car.pricing.negotiable !== undefined
       ? {
           label: t('detail.labels.price_negotiable'),
@@ -394,6 +399,13 @@ export default function FleetDetailClient({
                 ) : (
                   <span className="rounded-full bg-red-500/10 px-4 py-2 text-sm font-medium text-red-500">
                     {t('detail.unavailable')}
+                  </span>
+                )}
+
+                {car.isFinanceable && features.enableFinancing && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-accent/15 px-4 py-2 text-sm font-semibold text-accent ring-1 ring-accent/20">
+                    <Wallet className="h-4 w-4" />
+                    {t('detail.financing.badge')}
                   </span>
                 )}
 
@@ -583,56 +595,23 @@ export default function FleetDetailClient({
             <div className="space-y-6 lg:sticky lg:top-24">
               <div className="rounded-[2rem] border border-border/60 bg-card/80 p-6 shadow-xl backdrop-blur-xl">
                 <div className="flex items-start justify-between gap-4">
-                  <div>
-                    {showFinancing ? (
+                  <div className="min-w-0 flex-1 space-y-5">
+                    {/* Sale — listing sale|both */}
+                    {showSaleGroup && (
                       <div>
-                        <div className="text-sm text-muted-foreground">
-                          {t('detail.financing.down_payment')}
-                        </div>
-                        <div className="mt-1 text-4xl font-bold text-foreground">
-                          {formatPrice(car.pricing.downPayment)}
-                        </div>
-                        <div className="mt-4 text-sm text-muted-foreground">
-                          {t('detail.financing.monthly_installment')}
-                        </div>
-                        <div className="mt-1 text-2xl font-semibold text-foreground">
-                          {formatPrice(car.pricing.monthly)}
-                        </div>
-                      </div>
-                    ) : (
-                      isRental && car.pricing.daily && (
-                        <div>
-                          <div className="text-sm text-muted-foreground">
-                            {t('detail.rental_price')}
-                          </div>
-                          <div className="mt-1 text-4xl font-bold text-foreground">
-                            {formatPrice(car.pricing.daily)}
-                            <span className="ml-2 text-lg font-normal text-muted-foreground">
-                              / {t('detail.values.day')}
-                            </span>
-                          </div>
-                        </div>
-                      )
-                    )}
-
-                    {isSale && car.pricing.total && (
-                      <div className={isRental ? 'mt-6' : ''}>
-                        <div className="text-sm text-muted-foreground">
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                           {t('detail.sale_price')}
                         </div>
-
                         <div className="mt-1 flex flex-wrap items-center gap-3">
                           <div className="text-4xl font-bold text-foreground">
                             {formatPrice(car.pricing.total)}
                           </div>
-
                           {car.pricing.oldPrice && (
                             <div className="text-lg text-muted-foreground line-through">
                               {formatPrice(car.pricing.oldPrice)}
                             </div>
                           )}
                         </div>
-
                         {saleSavings ? (
                           <div className="mt-2 text-sm font-medium text-emerald-600">
                             {t('detail.labels.savings', {
@@ -642,6 +621,93 @@ export default function FleetDetailClient({
                         ) : null}
                       </div>
                     )}
+
+                    {/* Rental — day / week / month (month = pricing.monthly) */}
+                    {showRentalGroup && (
+                      <div
+                        className={
+                          showSaleGroup ? 'border-t border-border/60 pt-5' : ''
+                        }
+                      >
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                          {t('detail.rental_price')}
+                        </div>
+                        {car.pricing.daily && (
+                          <div className="mt-1 text-4xl font-bold text-foreground">
+                            {formatPrice(car.pricing.daily)}
+                            <span className="ml-2 text-lg font-normal text-muted-foreground">
+                              / {t('detail.values.day')}
+                            </span>
+                          </div>
+                        )}
+                        {(car.pricing.weekly ||
+                          car.pricing.monthly ||
+                          car.pricing.hourly) && (
+                          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                            {car.pricing.weekly && (
+                              <PriceBox
+                                title={t('detail.weekly')}
+                                value={formatPrice(car.pricing.weekly)!}
+                              />
+                            )}
+                            {car.pricing.monthly && (
+                              <PriceBox
+                                title={t('detail.monthly')}
+                                value={formatPrice(car.pricing.monthly)!}
+                              />
+                            )}
+                            {car.pricing.hourly && (
+                              <PriceBox
+                                title={t('detail.hourly')}
+                                value={formatPrice(car.pricing.hourly)!}
+                              />
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Installments — down payment + monthly (month = pricing.installmentMonthly) */}
+                    {showInstallmentsGroup && (
+                      <div
+                        className={
+                          showSaleGroup || showRentalGroup
+                            ? 'border-t border-border/60 pt-5'
+                            : ''
+                        }
+                      >
+                        <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-accent">
+                          <Wallet className="h-3.5 w-3.5" />
+                          {t('detail.financing.title')}
+                        </div>
+                        <div className="mt-3 grid grid-cols-2 gap-4">
+                          <div>
+                            <div className="text-sm text-muted-foreground">
+                              {t('detail.financing.down_payment')}
+                            </div>
+                            <div className="mt-1 text-2xl font-semibold text-foreground">
+                              {formatPrice(car.pricing.downPayment)}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-sm text-muted-foreground">
+                              {t('detail.financing.monthly_installment')}
+                            </div>
+                            <div className="mt-1 text-2xl font-semibold text-foreground">
+                              {formatPrice(car.pricing.installmentMonthly)}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {!showSaleGroup &&
+                      !showRentalGroup &&
+                      !showInstallmentsGroup && (
+                        <p className="text-sm text-muted-foreground">
+                          {t('card.price_on_request')}
+                        </p>
+                      )}
                   </div>
 
                   {car.deliveryAvailable && <VipDeliveryBadge />}
@@ -658,31 +724,6 @@ export default function FleetDetailClient({
                     ))}
                   </div>
                 ) : null}
-
-                {isRental && !showFinancing && (
-                  <div className="mt-6 grid gap-4 sm:grid-cols-3">
-                    {car.pricing.weekly && (
-                      <PriceBox
-                        title={t('detail.weekly')}
-                        value={formatPrice(car.pricing.weekly)!}
-                      />
-                    )}
-
-                    {car.pricing.monthly && (
-                      <PriceBox
-                        title={t('detail.monthly')}
-                        value={formatPrice(car.pricing.monthly)!}
-                      />
-                    )}
-
-                    {car.pricing.hourly && (
-                      <PriceBox
-                        title={t('detail.hourly')}
-                        value={formatPrice(car.pricing.hourly)!}
-                      />
-                    )}
-                  </div>
-                )}
 
                 {pricingSummaryRows.length ? (
                   <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -984,28 +1025,6 @@ export default function FleetDetailClient({
                     />
                   )}
 
-                  {car.pricing.financingAvailable !== undefined && (
-                    <OverviewRow
-                      label={t(
-                        'detail.labels.financing_available'
-                      )}
-                      value={formatBoolean(
-                        car.pricing.financingAvailable
-                      )}
-                    />
-                  )}
-
-                  {car.pricing.monthlyInstallment && (
-                    <OverviewRow
-                      label={t(
-                        'detail.labels.monthly_installment'
-                      )}
-                      value={formatPrice(
-                        car.pricing.monthlyInstallment
-                      )!}
-                    />
-                  )}
-
                   {car.ownershipHistory?.owners !== undefined && (
                     <OverviewRow
                       label={t('detail.labels.previous_owners')}
@@ -1071,25 +1090,6 @@ export default function FleetDetailClient({
                   <OverviewRow
                     label={t('detail.labels.security_deposit')}
                     value={formatPrice(car.pricing.securityDeposit)!}
-                  />
-                ) : null}
-
-                {isSale &&
-                car.pricing.financingAvailable !== undefined ? (
-                  <OverviewRow
-                    label={t('detail.labels.financing_available')}
-                    value={formatBoolean(
-                      car.pricing.financingAvailable
-                    )}
-                  />
-                ) : null}
-
-                {isSale && car.pricing.monthlyInstallment ? (
-                  <OverviewRow
-                    label={t('detail.labels.monthly_installment')}
-                    value={formatPrice(
-                      car.pricing.monthlyInstallment
-                    )!}
                   />
                 ) : null}
 

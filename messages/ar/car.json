@@ -48,6 +48,8 @@
       "monthly": "شهري",
       "hourly": "بالساعة",
       "financing": {
+        "title": "التقسيط",
+        "badge": "متاح للتقسيط",
         "down_payment": "الدفعة الأولى",
         "monthly_installment": "القسط الشهري"
       },
