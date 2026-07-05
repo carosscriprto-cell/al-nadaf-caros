@@ -124,6 +124,7 @@ export default async function LocaleLayout({
                       {children}
                     </main>
                     <Footer
+                      brandName={brandName}
                       social={resolveSocial(tenant.social)}
                       contact={{
                         phone: tenant.phone ?? undefined,

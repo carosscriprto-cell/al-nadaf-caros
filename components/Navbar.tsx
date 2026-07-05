@@ -9,7 +9,6 @@ import { Car, Menu, Phone, X } from 'lucide-react';
 
 import LanguageSwitcher from './LanguageSwitcher';
 import ThemeSwitcher from './ThemeSwitcher';
-import { siteConfig } from '@/config';
 import { useTenantFeatures } from '@/components/providers/TenantFeaturesProvider';
 import { useTenantPages } from '@/components/providers/TenantPagesProvider';
 import { useTenantContact } from '@/components/providers/TenantContactProvider';
@@ -68,11 +67,10 @@ export default function Navbar({ brandName, logoUrl }: NavbarProps) {
     [t, features.enableRental, features.enableFinancing, pages.about]
   );
 
-  const displayBrand =
-    brandName ??
-    (locale === 'ar'
-      ? siteConfig.brand.localizedName.ar
-      : siteConfig.brand.localizedName.en);
+  // Tenant name only (resolved server-side per locale in the site layout:
+  // name_ar for ar, name otherwise). No static "Caros"/siteConfig fallback on
+  // the storefront — this is a white-label surface.
+  const displayBrand = brandName ?? '';
 
   return (
     <header className="sticky top-0 z-99 border-b border-border/60 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70">
@@ -102,9 +100,6 @@ export default function Navbar({ brandName, logoUrl }: NavbarProps) {
                 <div className="min-w-0">
                   <div className="truncate text-base font-semibold tracking-tight text-foreground">
                     {displayBrand}
-                  </div>
-                  <div className="truncate text-xs uppercase tracking-[0.24em] text-muted-foreground">
-                    {t('brand.name')}
                   </div>
                 </div>
               )

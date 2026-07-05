@@ -18,6 +18,7 @@ import { useDash } from '../DashboardI18n';
 import { Section, TextField, NumField, SelField, SwitchField, TextareaField, TagInput } from './fields';
 import ImagesField from './ImagesField';
 import BrandSelect from './BrandSelect';
+import StickyActionBar from '../StickyActionBar';
 import type { CarBrand } from '@/lib/supabase/brands.server';
 
 const E = Constants.public.Enums;
@@ -175,6 +176,15 @@ export default function CarFormPage({ car, features, tenantId, brands }: { car?:
       <BackLink label={cf.backToList} />
       <h1 className="text-2xl font-bold tracking-tight">{isEdit ? cf.editTitle : cf.addTitle}</h1>
 
+      {/* Save bar — sticky to the top on desktop, fixed to the bottom on mobile */}
+      <StickyActionBar>
+        <Link href="/dashboard/cars" className="rounded-xl border border-[#ececec] px-5 py-2.5 text-sm font-semibold text-[#6b7178] hover:bg-[#f0f1f3]">{cf.backToList}</Link>
+        <button onClick={submit} disabled={busy} className="flex items-center gap-2 rounded-xl bg-[#75ACE8] px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#75ACE8]/25 transition hover:bg-[#5f9ad9] disabled:opacity-60">
+          {busy && <Loader2 size={15} className="animate-spin" />}
+          {busy ? cf.saving : isEdit ? cf.saveBtn : cf.createBtn}
+        </button>
+      </StickyActionBar>
+
       {/* Basics */}
       <Section title={cf.secBasics}>
         <BrandSelect
@@ -328,17 +338,6 @@ export default function CarFormPage({ car, features, tenantId, brands }: { car?:
         {includeRent && <TagInput label={cf.included_services} values={c.included_services} onChange={(x) => setC('included_services', x)} hint={cf.tagHint} />}
         <TextField full label={cf.warranty} value={c.warranty ?? ''} onChange={(x) => setC('warranty', x)} placeholder={ph.warranty} />
       </Section>
-
-      {/* Sticky save bar */}
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-[#ececec] bg-white/90 px-5 py-3 backdrop-blur lg:ltr:pl-60 lg:rtl:pr-60">
-        <div className="mx-auto flex max-w-4xl items-center justify-end gap-3">
-          <Link href="/dashboard/cars" className="rounded-xl border border-[#ececec] px-5 py-2.5 text-sm font-semibold text-[#6b7178] hover:bg-[#f0f1f3]">{cf.backToList}</Link>
-          <button onClick={submit} disabled={busy} className="flex items-center gap-2 rounded-xl bg-[#75ACE8] px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#75ACE8]/25 transition hover:bg-[#5f9ad9] disabled:opacity-60">
-            {busy && <Loader2 size={15} className="animate-spin" />}
-            {busy ? cf.saving : isEdit ? cf.saveBtn : cf.createBtn}
-          </button>
-        </div>
-      </div>
     </div>
   );
 }

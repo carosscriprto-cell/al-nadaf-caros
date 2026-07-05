@@ -22,6 +22,7 @@ import HeroQuickFilters, { type QuickChip } from './HeroQuickFilters';
 
 import { useHeroSearch } from '@/hooks/useHeroSearch';
 import { useHeroPlaceholder } from '@/hooks/useHeroPlaceholder';
+import useDebouncedValue from '@/hooks/useDebouncedValue';
 import { useTenantFeatures } from '@/components/providers/TenantFeaturesProvider';
 import { deriveVehicleOptions } from '@/lib/vehicles/options';
 import { FilterSelect } from './FilterSelecte';
@@ -281,6 +282,12 @@ export default function HeroSearchPanel({ cars, contentAr, contentEn, showTypeFi
   // the structured+price filtered inventory. Updates immediately as filters
   // change, so the user sees each filter's effect (carwow feedback pattern).
   const queryActive = filters.query.trim().length >= 2;
+  // Presentation-only loading flag: a query is typed but the (same 250ms)
+  // debounce that feeds useHeroSearch hasn't settled yet. Drives the dropdown's
+  // loading state; the search pipeline itself is untouched.
+  const debouncedHeroQuery = useDebouncedValue(filters.query, 250);
+  const isSearching =
+    queryActive && filters.query.trim() !== debouncedHeroQuery.trim();
   const matchCount = queryActive ? liveResults.length : liveAllCars.length;
   const countLabel = isRTL
     ? `${matchCount.toLocaleString()} سيارة`
@@ -613,6 +620,7 @@ export default function HeroSearchPanel({ cars, contentAr, contentEn, showTypeFi
                 allCars={liveAllCars}
                 hasQuery={hasQuery}
                 hasActiveFilters={hasFilters}
+                isSearching={isSearching}
                 countLabel={countLabel}
                 searchURL={buildSearchURL()}
                 onClose={closeDropdown}

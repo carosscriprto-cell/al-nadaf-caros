@@ -5,7 +5,7 @@
 // fields fall back to the static i18n defaults on the storefront. Server Action
 // + zod (updateTenantContent).
 
-import { useTransition } from 'react';
+import { useEffect, useTransition } from 'react';
 import {
   useForm,
   useFieldArray,
@@ -16,11 +16,12 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { Save, Lock, FileEdit, ChevronDown, Plus, Trash2 } from 'lucide-react';
+import { Lock, ChevronDown, Plus, Trash2 } from 'lucide-react';
 import { contentSchema, type ContentValues } from '@/lib/dashboard/contentSchema';
 import { WHY_ITEMS, HOW_STEPS, MAX_FAQ } from '@/lib/tenant/content';
 import { updateTenantContent } from '@/app/(system)/dashboard/site/contentActions';
 import { useDash } from '../DashboardI18n';
+import type { EditorArea, FormMeta } from './SiteEditor';
 
 type Reg = UseFormRegister<ContentValues>;
 type Path = FieldPath<ContentValues>;
@@ -30,10 +31,19 @@ export default function ContentForm({
   defaultValues,
   canEdit,
   enableFinancing,
+  area,
+  formId,
+  onMeta,
 }: {
   defaultValues: ContentValues;
   canEdit: boolean;
   enableFinancing: boolean;
+  // Editor split (layout only): home content vs the About sub-page. Both stay
+  // mounted so react-hook-form retains every field and one submit still writes
+  // the full tenants.content object.
+  area: EditorArea;
+  formId: string;
+  onMeta: (meta: FormMeta) => void;
 }) {
   const { t } = useDash();
   const st = t.st;
@@ -64,113 +74,97 @@ export default function ContentForm({
   };
 
   const disabled = !canEdit || pending;
-  const SaveBtn = (
-    <button
-      type="submit"
-      disabled={disabled || !isDirty}
-      className="flex items-center gap-2 rounded-xl bg-[#75ACE8] px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#75ACE8]/25 transition hover:bg-[#5f9ad9] disabled:opacity-50"
-    >
-      <Save size={16} /> {pending ? st.saving : st.save}
-    </button>
-  );
+
+  // Surface dirty/pending to the SiteEditor's shared sticky save bar.
+  useEffect(() => {
+    onMeta({ isDirty, pending });
+  }, [isDirty, pending, onMeta]);
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="mx-auto mt-8 max-w-4xl space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#75ACE8]/12 text-[#3d7cc0]">
-            <FileEdit size={16} />
-          </span>
-          <div>
-            <h2 className="text-sm font-bold">{ci.heading}</h2>
-            <p className="text-xs text-[#9aa0a8]">{ci.hint}</p>
-          </div>
-        </div>
-        {SaveBtn}
-      </div>
+    <form id={formId} onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      {/* Home-sections area — hero + section content + banners + FAQ */}
+      {area === 'home' && (
+        <div className="space-y-4">
+          {/* Hero — badge + headline + sub-headline (all optional overrides) */}
+          <Collapsible title={ci.secHero}>
+            <DefaultHint text={ci.defaultHint} />
+            <div className="grid gap-5 lg:grid-cols-2">
+              {LANGS.map((lang) => (
+                <div key={lang} dir={lang === 'ar' ? 'rtl' : 'ltr'} className="space-y-3">
+                  <LangTag label={lang === 'ar' ? ci.langAr : ci.langEn} />
+                  <Field label={ci.fBadge}>
+                    <input {...register(`hero.${lang}.badge` as Path)} disabled={disabled} className={inp} />
+                  </Field>
+                  <Field label={ci.fHeadline1}>
+                    <input {...register(`hero.${lang}.headline.line1` as Path)} disabled={disabled} className={inp} />
+                  </Field>
+                  <Field label={ci.fHeadline2}>
+                    <input {...register(`hero.${lang}.headline.line2` as Path)} disabled={disabled} className={inp} />
+                  </Field>
+                  <Field label={ci.fSubheadline}>
+                    <textarea {...register(`hero.${lang}.subheadline` as Path)} disabled={disabled} rows={2} className={inp} />
+                  </Field>
+                </div>
+              ))}
+            </div>
+          </Collapsible>
 
-      {!canEdit && (
-        <div className="flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          <Lock size={16} className="shrink-0" /> {st.ownerOnly}
+          <SectionEditor base="whyChooseUs" title={ci.secWhy} itemCount={WHY_ITEMS} itemLabel={ci.fItem} register={register} disabled={disabled} ci={ci} />
+          <SectionEditor base="howItWorks" title={ci.secHow} itemCount={HOW_STEPS} itemLabel={ci.fStep} register={register} disabled={disabled} ci={ci} />
+
+          {/* Financing + Final CTA banners — title + description + button label.
+              Financing is locked (with a hint) when the plan has no financing — it
+              can't appear on the storefront, so its copy isn't editable. Saved copy
+              is preserved (round-trips via defaultValues; the inputs are hidden). */}
+          <CtaEditor
+            base="financing"
+            title={ci.secFinancing}
+            register={register}
+            disabled={disabled}
+            ci={ci}
+            lockedHint={enableFinancing ? undefined : st.sectionGatedFinancing}
+          />
+          <CtaEditor base="finalCta" title={ci.secFinalCta} register={register} disabled={disabled} ci={ci} />
+
+          {/* FAQ — dynamic q/a rows per language (shared dealer set, H2c) */}
+          <Collapsible title={ci.secFaq}>
+            <DefaultHint text={ci.defaultHint} />
+            <div className="grid gap-5 lg:grid-cols-2">
+              {LANGS.map((lang) => (
+                <FaqLangList
+                  key={lang}
+                  lang={lang}
+                  control={control}
+                  register={register}
+                  disabled={disabled}
+                  ci={ci}
+                />
+              ))}
+            </div>
+          </Collapsible>
         </div>
       )}
 
-      <SectionEditor base="whyChooseUs" title={ci.secWhy} itemCount={WHY_ITEMS} itemLabel={ci.fItem} register={register} disabled={disabled} ci={ci} />
-      <SectionEditor base="howItWorks" title={ci.secHow} itemCount={HOW_STEPS} itemLabel={ci.fStep} register={register} disabled={disabled} ci={ci} />
-
-      {/* About — heading + body paragraphs */}
-      <Collapsible title={ci.secAbout}>
-        <div className="grid gap-5 lg:grid-cols-2">
-          {LANGS.map((lang) => (
-            <div key={lang} dir={lang === 'ar' ? 'rtl' : 'ltr'} className="space-y-3">
-              <LangTag label={lang === 'ar' ? ci.langAr : ci.langEn} />
-              <Field label={ci.fHeading}>
-                <input {...register(`about.${lang}.heading` as Path)} disabled={disabled} className={inp} />
-              </Field>
-              <Field label={ci.fBody} hint={ci.bodyHint}>
-                <textarea {...register(`about.${lang}.body` as Path)} disabled={disabled} rows={6} className={inp} />
-              </Field>
+      {/* Sub-pages area — About page copy */}
+      {area === 'subpages' && (
+        <div className="space-y-4">
+          <Collapsible title={ci.secAbout}>
+            <div className="grid gap-5 lg:grid-cols-2">
+              {LANGS.map((lang) => (
+                <div key={lang} dir={lang === 'ar' ? 'rtl' : 'ltr'} className="space-y-3">
+                  <LangTag label={lang === 'ar' ? ci.langAr : ci.langEn} />
+                  <Field label={ci.fHeading}>
+                    <input {...register(`about.${lang}.heading` as Path)} disabled={disabled} className={inp} />
+                  </Field>
+                  <Field label={ci.fBody} hint={ci.bodyHint}>
+                    <textarea {...register(`about.${lang}.body` as Path)} disabled={disabled} rows={6} className={inp} />
+                  </Field>
+                </div>
+              ))}
             </div>
-          ))}
+          </Collapsible>
         </div>
-      </Collapsible>
-
-      {/* Hero — badge + headline + sub-headline (all optional overrides) */}
-      <Collapsible title={ci.secHero}>
-        <DefaultHint text={ci.defaultHint} />
-        <div className="grid gap-5 lg:grid-cols-2">
-          {LANGS.map((lang) => (
-            <div key={lang} dir={lang === 'ar' ? 'rtl' : 'ltr'} className="space-y-3">
-              <LangTag label={lang === 'ar' ? ci.langAr : ci.langEn} />
-              <Field label={ci.fBadge}>
-                <input {...register(`hero.${lang}.badge` as Path)} disabled={disabled} className={inp} />
-              </Field>
-              <Field label={ci.fHeadline1}>
-                <input {...register(`hero.${lang}.headline.line1` as Path)} disabled={disabled} className={inp} />
-              </Field>
-              <Field label={ci.fHeadline2}>
-                <input {...register(`hero.${lang}.headline.line2` as Path)} disabled={disabled} className={inp} />
-              </Field>
-              <Field label={ci.fSubheadline}>
-                <textarea {...register(`hero.${lang}.subheadline` as Path)} disabled={disabled} rows={2} className={inp} />
-              </Field>
-            </div>
-          ))}
-        </div>
-      </Collapsible>
-
-      {/* Financing + Final CTA banners — title + description + button label.
-          Financing is locked (with a hint) when the plan has no financing — it
-          can't appear on the storefront, so its copy isn't editable. Saved copy is
-          preserved (round-trips via defaultValues; the inputs are just hidden). */}
-      <CtaEditor
-        base="financing"
-        title={ci.secFinancing}
-        register={register}
-        disabled={disabled}
-        ci={ci}
-        lockedHint={enableFinancing ? undefined : st.sectionGatedFinancing}
-      />
-      <CtaEditor base="finalCta" title={ci.secFinalCta} register={register} disabled={disabled} ci={ci} />
-
-      {/* FAQ — dynamic q/a rows per language (shared dealer set, H2c) */}
-      <Collapsible title={ci.secFaq}>
-        <DefaultHint text={ci.defaultHint} />
-        <div className="grid gap-5 lg:grid-cols-2">
-          {LANGS.map((lang) => (
-            <FaqLangList
-              key={lang}
-              lang={lang}
-              control={control}
-              register={register}
-              disabled={disabled}
-              ci={ci}
-            />
-          ))}
-        </div>
-      </Collapsible>
-
-      <div className="flex justify-end">{SaveBtn}</div>
+      )}
     </form>
   );
 }

@@ -19,6 +19,7 @@
     "company": "Premium car rental, vehicle sales, and transport services tailored for modern mobility needs.",
     "badge": "Premium Mobility",
     "copyright": "© {year} {brand}. All rights reserved.",
+    "powered_by": "Powered by",
     "sections": {
       "company": "Company",
       "services": "Services",

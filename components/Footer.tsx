@@ -45,9 +45,13 @@ const socialIcons = {
 export default function Footer({
   social,
   contact,
+  brandName,
 }: {
   social?: StorefrontSocial;
   contact?: FooterContact;
+  // Tenant brand name (resolved per locale in the site layout). White-label:
+  // no static "Caros"/siteConfig brand fallback on the storefront.
+  brandName?: string;
 }) {
   const t = useTranslations();
   const locale = useLocale();
@@ -65,11 +69,6 @@ export default function Footer({
   const addressLines = tenantAddress ? [tenantAddress] : [localizedAddress.line1, localizedAddress.line2];
   const hoursWeekdays = contact?.hours?.weekdays ?? t('footer.contact.hours.weekdays');
   const hoursWeekends = contact?.hours?.weekends ?? t('footer.contact.hours.weekends');
-
-  const brandName =
-    locale === 'ar'
-      ? siteConfig.brand.localizedName.ar
-      : siteConfig.brand.localizedName.en;
 
   const companyLinks = [
     { href: `/${locale}/about`, label: t('footer.links.about') },
@@ -369,12 +368,28 @@ export default function Footer({
         </div>
 
         <div className="mt-10 flex flex-col gap-4 border-t border-border/60 pt-6 text-sm text-muted-foreground md:flex-row md:items-center md:justify-between">
-          <p>
-            {t('footer.copyright', {
-              year: siteConfig.legal.copyrightStartYear,
-              brand: brandName,
-            })}
-          </p>
+          <div className="flex flex-col gap-1 md:flex-row md:items-center md:gap-4">
+            <p>
+              {t('footer.copyright', {
+                year: siteConfig.legal.copyrightStartYear,
+                brand: brandName ?? '',
+              })}
+            </p>
+
+            {/* Permanent "Powered by Caros" attribution — shown for EVERY tenant,
+                not tenant-configurable and not hidden by white-label. */}
+            <p className="text-muted-foreground">
+              {t('footer.powered_by')}{' '}
+              <a
+                href="https://caros.scripto-technology.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium underline-offset-4 transition-colors duration-200 hover:text-accent hover:underline"
+              >
+                Caros
+              </a>
+            </p>
+          </div>
 
           <div className="flex flex-wrap items-center gap-4 md:justify-end">
             {legalLinks.map((item) => (

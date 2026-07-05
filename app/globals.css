@@ -210,6 +210,33 @@
 }
 
 /* ════════════════════════════════════════════════════════════════════════
+   TENANT-FOLLOW FIX for the DERIVED accent shades
+   ────────────────────────────────────────────────────────────────────────
+   --accent-strong / --accent-subtle (and the @theme tokens that expose them,
+   --color-accent-strong / --color-accent-subtle) are DERIVED from
+   --color-accent. The tenant overrides --color-accent on <body> (inline style
+   in app/(site)/[locale]/layout.tsx). But a custom property whose value uses
+   var(--color-accent) and is DECLARED on :root is computed against :root's
+   default (blue) and then inherited as-is — the per-tenant body override never
+   reaches it, so the strong/subtle shades rendered the default blue (search
+   button, hover states, CTA backgrounds, hero accent line…).
+   Re-declaring them on <body> — the element that carries the tenant
+   --color-accent — recomputes both shades from the tenant color, so every
+   bg/text/border-accent-strong|subtle utility follows the tenant. Same oklch
+   math as above; light on <body>, dark on .dark <body>.
+   ════════════════════════════════════════════════════════════════════════ */
+body {
+  --accent-strong: oklch(from var(--color-accent) calc(l - 0.15) calc(c + 0.06) h);
+  --accent-subtle: oklch(from var(--color-accent) 0.95 0.04 h);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-subtle: var(--accent-subtle);
+}
+.dark body {
+  --accent-strong: oklch(from var(--color-accent) calc(l - 0.06) calc(c + 0.04) h);
+  --accent-subtle: oklch(from var(--color-accent) 0.30 0.07 h);
+}
+
+/* ════════════════════════════════════════════════════════════════════════
    BASE + UTILITIES
    ════════════════════════════════════════════════════════════════════════ */
 @layer base {

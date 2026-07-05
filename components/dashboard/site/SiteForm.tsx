@@ -5,29 +5,39 @@
 // order/visibility control (tenants.sections). Owner-only (RLS-gated server-side;
 // non-owners see a read-only banner). Server Action + zod.
 
-import { useTransition } from 'react';
+import { useEffect, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import {
-  Save, Lock, FileText, LayoutList, ArrowUp, ArrowDown, Eye, EyeOff, Check, Minus,
+  Lock, FileText, LayoutList, ArrowUp, ArrowDown, Eye, EyeOff, Check, Minus,
 } from 'lucide-react';
 import { siteSchema, type SiteValues } from '@/lib/dashboard/siteSchema';
 import { isSectionLocked, type HomeSectionKey } from '@/lib/tenant/sections';
 import { updateTenantSite } from '@/app/(system)/dashboard/site/actions';
 import { useDash } from '../DashboardI18n';
+import type { EditorArea, FormMeta } from './SiteEditor';
 
 export default function SiteForm({
   defaultValues,
   canEdit,
   enableRental,
   enableFinancing,
+  area,
+  formId,
+  onMeta,
 }: {
   defaultValues: SiteValues;
   canEdit: boolean;
   enableRental: boolean;
   enableFinancing: boolean;
+  // Editor split (layout only): the Site editor shows one area at a time. Both
+  // areas stay mounted so react-hook-form retains every value and one submit
+  // still writes the full tenants.sections + tenants.pages object.
+  area: EditorArea;
+  formId: string;
+  onMeta: (meta: FormMeta) => void;
 }) {
   const { t } = useDash();
   const st = t.st;
@@ -83,30 +93,15 @@ export default function SiteForm({
 
   const disabled = !canEdit || pending;
 
+  // Surface dirty/pending to the SiteEditor's shared sticky save bar.
+  useEffect(() => {
+    onMeta({ isDirty, pending });
+  }, [isDirty, pending, onMeta]);
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="mx-auto max-w-4xl space-y-6">
-      {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">{si.title}</h1>
-          <p className="mt-1 text-sm text-[#8a9099]">{si.subtitle}</p>
-        </div>
-        <button
-          type="submit"
-          disabled={disabled || !isDirty}
-          className="flex items-center gap-2 rounded-xl bg-[#75ACE8] px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#75ACE8]/25 transition hover:bg-[#5f9ad9] disabled:opacity-50"
-        >
-          <Save size={16} /> {pending ? st.saving : st.save}
-        </button>
-      </div>
-
-      {!canEdit && (
-        <div className="flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          <Lock size={16} className="shrink-0" /> {st.ownerOnly}
-        </div>
-      )}
-
-      {/* Pages & buttons */}
+    <form id={formId} onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      {/* Sub-pages area — optional page & lead-button toggles */}
+      {area === 'subpages' && (
       <Section icon={FileText} title={si.secPages} hint={si.pagesHint}>
         <ToggleRow
           label={si.aboutPage} hint={si.aboutHint}
@@ -128,8 +123,10 @@ export default function SiteForm({
           <AutoRow label={si.bookingFlow} on={enableRental} si={si} />
         </div>
       </Section>
+      )}
 
-      {/* Home sections — relocated from Settings */}
+      {/* Home-sections area — storefront home section order/visibility */}
+      {area === 'home' && (
       <Section icon={LayoutList} title={st.secSections} hint={st.sectionsHint}>
         <div className="space-y-2">
           {sections.map((s, i) => {
@@ -181,16 +178,7 @@ export default function SiteForm({
           })}
         </div>
       </Section>
-
-      <div className="flex justify-end">
-        <button
-          type="submit"
-          disabled={disabled || !isDirty}
-          className="flex items-center gap-2 rounded-xl bg-[#75ACE8] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#75ACE8]/25 transition hover:bg-[#5f9ad9] disabled:opacity-50"
-        >
-          <Save size={16} /> {pending ? st.saving : st.save}
-        </button>
-      </div>
+      )}
     </form>
   );
 }
