@@ -102,14 +102,49 @@ export async function middleware(request: NextRequest) {
 
   // ─── Storefront: runtime tenant resolution (P4) ──────────────
   const host = request.headers.get('host') ?? '';
-  const tenantId = await resolveTenantId(host);
 
-  // Unknown host → hard 404 (no tenant exists for this address).
-  if (!tenantId) {
-    return new NextResponse(TENANT_NOT_FOUND_HTML, {
-      status: 404,
-      headers: { 'content-type': 'text/html; charset=utf-8' },
-    });
+  // ─── Single-tenant lock (opt-in — FORCE_SINGLE_TENANT="true") ─
+  // When enabled, EVERY storefront host serves the one DEFAULT_TENANT_SLUG
+  // tenant; subdomain/domain extraction is bypassed entirely, so no host can
+  // ever surface a different dealer (no fallback, no leak). Purely additive:
+  // when the flag is unset/false this block is skipped and the multi-tenant
+  // path below is byte-identical to before.
+  const forceSingle = (process.env.FORCE_SINGLE_TENANT ?? '').trim() === 'true';
+
+  let tenantId: string | null;
+  if (forceSingle) {
+    // Require an explicit slug in this mode — fail LOUD (500), never silently
+    // serve a hard-coded default. Sanitize exactly like resolveTenant does.
+    const rawSlug = process.env.DEFAULT_TENANT_SLUG ?? '';
+    const slug = rawSlug.trim().replace(/^["']+|["']+$/g, '').trim();
+    if (!slug) {
+      return new NextResponse(
+        'Server misconfigured: FORCE_SINGLE_TENANT is on but DEFAULT_TENANT_SLUG is not set.',
+        { status: 500, headers: { 'content-type': 'text/plain; charset=utf-8' } },
+      );
+    }
+    // Resolve straight to DEFAULT_TENANT_SLUG by handing resolveTenantId a host
+    // with NO subdomain and NOT a custom domain: 'localhost' short-circuits both
+    // the subdomain lookup and the domain lookup and lands on the resolver's
+    // DEFAULT_TENANT_SLUG branch — reusing its existing resolution + env
+    // sanitization, with no new resolveTenantId error semantics.
+    tenantId = await resolveTenantId('localhost');
+    // Slug is set but did not resolve → a deployment error, not a bad host.
+    if (!tenantId) {
+      return new NextResponse(
+        `Server misconfigured: FORCE_SINGLE_TENANT tenant "${slug}" did not resolve.`,
+        { status: 500, headers: { 'content-type': 'text/plain; charset=utf-8' } },
+      );
+    }
+  } else {
+    // Multi-tenant path — UNCHANGED. Host → tenant; unknown host → real 404.
+    tenantId = await resolveTenantId(host);
+    if (!tenantId) {
+      return new NextResponse(TENANT_NOT_FOUND_HTML, {
+        status: 404,
+        headers: { 'content-type': 'text/html; charset=utf-8' },
+      });
+    }
   }
 
   const requestHeaders = new Headers(request.headers);
