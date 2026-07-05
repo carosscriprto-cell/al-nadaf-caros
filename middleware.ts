@@ -42,11 +42,31 @@ export async function middleware(request: NextRequest) {
   // not by the storefront host — so skip host resolution / 404 here and run the
   // Supabase session check instead (also refreshes the session cookie).
   if (isAuth || isDashboard) {
+    // Fail CLOSED, never throw — a thrown error here is MIDDLEWARE_INVOCATION_FAILED
+    // (a hard 500). When we can't validate a session (missing env or the auth call
+    // rejects), treat the user as unauthenticated: /dashboard → login, /auth → allow.
+    const failClosed = () => {
+      if (isDashboard) {
+        const loginUrl = new URL('/auth/login', request.url);
+        loginUrl.searchParams.set('redirectTo', pathname);
+        return NextResponse.redirect(loginUrl);
+      }
+      return NextResponse.next({ request });
+    };
+
+    // Same URL fallback the storefront resolver uses (SUPABASE_URL == the public
+    // project URL per env spec). Guard BEFORE constructing the client — the
+    // non-null assertions were compile-time only; a blank value throws inside
+    // createServerClient.
+    const url = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!url || !key) return failClosed();
+
     let response = NextResponse.next({ request });
 
     const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      url,
+      key,
       {
         cookies: {
           getAll() {
@@ -63,8 +83,11 @@ export async function middleware(request: NextRequest) {
       },
     );
 
-    // getUser() validates the token with Supabase (secure; not just decode).
-    const { data: { user } } = await supabase.auth.getUser();
+    // getUser() validates the token with Supabase (secure; not just decode). A
+    // rejected fetch here would also 500 — catch it and fail closed instead.
+    const result = await supabase.auth.getUser().catch(() => null);
+    if (!result) return failClosed();
+    const user = result.data.user;
 
     if (isDashboard && !user) {
       const loginUrl = new URL('/auth/login', request.url);
