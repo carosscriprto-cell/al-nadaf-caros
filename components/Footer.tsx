@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   Accordion,
   AccordionContent,
@@ -46,42 +47,44 @@ export default function Footer({
   social,
   contact,
   brandName,
+  faviconUrl,
+  footerTagline,
 }: {
   social?: StorefrontSocial;
   contact?: FooterContact;
   // Tenant brand name (resolved per locale in the site layout). White-label:
   // no static "Caros"/siteConfig brand fallback on the storefront.
   brandName?: string;
+  // Tenant favicon (square) shown in the brand card — no static Car fallback
+  // unless the tenant hasn't set one.
+  faviconUrl?: string | null;
+  // Tenant footer blurb (resolved per locale in the site layout). Falls back to
+  // the i18n footer.company copy so the brand card never renders empty.
+  footerTagline?: string | null;
 }) {
   const t = useTranslations();
   const locale = useLocale();
   const features = useTenantFeatures();
-  const localizedAddress =
-    siteConfig.contact.address.localized[
-      locale as keyof typeof siteConfig.contact.address.localized
-    ] ?? siteConfig.contact.address.localized.en;
 
-  // Tenant values win; fall back to the static defaults / i18n.
-  const phoneDisplay = contact?.phone ?? siteConfig.contact.phone.display;
-  const phoneRaw = contact?.phone ?? siteConfig.contact.phone.raw;
-  const emailPrimary = contact?.email ?? siteConfig.contact.email.primary;
+  // White-label: render real tenant values or omit the row — no generic seed
+  // placeholders ("123 Main Street", "+1 555…", "info@caros.com").
+  const phoneDisplay = contact?.phone;
+  const phoneRaw = contact?.phone;
+  const emailPrimary = contact?.email;
   const tenantAddress = locale === 'ar' ? contact?.addressAr : contact?.addressEn;
-  const addressLines = tenantAddress ? [tenantAddress] : [localizedAddress.line1, localizedAddress.line2];
-  const hoursWeekdays = contact?.hours?.weekdays ?? t('footer.contact.hours.weekdays');
-  const hoursWeekends = contact?.hours?.weekends ?? t('footer.contact.hours.weekends');
+  const hoursWeekdays = contact?.hours?.weekdays;
+  const hoursWeekends = contact?.hours?.weekends;
 
-  const companyLinks = [
+  // One flowing "Links" column: whatever nav routes are enabled for this tenant,
+  // gated per feature. Merges the old Company + Services columns so a sale-only
+  // tenant never shows an empty Services gap.
+  const navLinks = [
     { href: `/${locale}/about`, label: t('footer.links.about') },
     { href: `/${locale}/fleet`, label: t('footer.links.fleet') },
     // Financing link only for tenants with financing enabled (gated route).
     ...(features.enableFinancing
       ? [{ href: `/${locale}/financing`, label: t('nav.financing') }]
       : []),
-    { href: `/${locale}/contact`, label: t('footer.links.contact') },
-  ];
-
-  const serviceLinks = [
-    { href: `/${locale}/fleet`, label: t('footer.links.fleet') },
     // Services + booking are rental-tenant concepts — hidden for sale-only tenants.
     ...(features.enableRental
       ? [
@@ -89,6 +92,7 @@ export default function Footer({
           { href: `/${locale}/booking`, label: t('footer.services.booking') },
         ]
       : []),
+    { href: `/${locale}/contact`, label: t('footer.links.contact') },
   ];
 
   const legalLinks = [
@@ -109,16 +113,16 @@ export default function Footer({
   ) as Array<[keyof typeof socialIcons, string]>;
 
   const contactItems = [
-    features.enablePhoneContact
+    features.enablePhoneContact && phoneRaw
       ? {
           key: 'phone',
           icon: Phone,
           href: `tel:${phoneRaw}`,
           title: t('footer.contact.phone'),
-          lines: [phoneDisplay],
+          lines: [phoneDisplay as string],
         }
       : null,
-    features.enableEmailContact
+    features.enableEmailContact && emailPrimary
       ? {
           key: 'email',
           icon: Mail,
@@ -127,18 +131,22 @@ export default function Footer({
           lines: [emailPrimary],
         }
       : null,
-    {
-      key: 'address',
-      icon: MapPin,
-      title: t('footer.contact.address'),
-      lines: addressLines,
-    },
-    {
-      key: 'hours',
-      icon: Clock3,
-      title: t('footer.contact.hours.title'),
-      lines: [hoursWeekdays, hoursWeekends],
-    },
+    tenantAddress
+      ? {
+          key: 'address',
+          icon: MapPin,
+          title: t('footer.contact.address'),
+          lines: [tenantAddress],
+        }
+      : null,
+    hoursWeekdays || hoursWeekends
+      ? {
+          key: 'hours',
+          icon: Clock3,
+          title: t('footer.contact.hours.title'),
+          lines: [hoursWeekdays, hoursWeekends].filter(Boolean) as string[],
+        }
+      : null,
   ].filter(Boolean) as Array<{
     key: string;
     icon: LucideIcon;
@@ -153,11 +161,21 @@ export default function Footer({
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(148,163,184,0.08),transparent_35%)]" />
 
       <div className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-        <div className="grid gap-8 md:grid-cols-[1.2fr_0.8fr_0.8fr_1fr]">
+        <div className="grid gap-8 md:grid-cols-[1.4fr_1fr_1fr]">
           <div className="rounded-[2rem] border border-border/60 bg-background/70 p-6 shadow-[0_24px_80px_rgba(15,23,42,0.08)] backdrop-blur-xl">
             <div className="flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-border/70 bg-card text-accent shadow-sm">
-                <Car className="h-5 w-5" />
+                {faviconUrl ? (
+                  <Image
+                    src={faviconUrl}
+                    alt={brandName ?? ''}
+                    width={40}
+                    height={40}
+                    className="h-10 w-10 object-contain"
+                  />
+                ) : (
+                  <Car className="h-5 w-5" />
+                )}
               </div>
               <div>
                 <p className="text-lg font-semibold tracking-tight text-foreground">
@@ -170,7 +188,7 @@ export default function Footer({
             </div>
 
             <p className="mt-5 max-w-md text-sm leading-6 text-muted-foreground">
-              {t('footer.company')}
+              {footerTagline || t('footer.company')}
             </p>
 
             <div className="mt-6 flex flex-wrap gap-3">
@@ -193,7 +211,7 @@ export default function Footer({
             </div>
           </div>
 
-          <div className="md:hidden md:col-span-3">
+          <div className="md:hidden md:col-span-2">
             <Accordion className="space-y-3">
               <AccordionItem>
                 <AccordionTrigger>
@@ -201,27 +219,7 @@ export default function Footer({
                 </AccordionTrigger>
                 <AccordionContent>
                   <ul className="space-y-3 text-sm text-muted-foreground">
-                    {companyLinks.map((item) => (
-                      <li key={item.href}>
-                        <Link
-                          href={item.href}
-                          className="transition-colors duration-200 hover:text-accent"
-                        >
-                          {item.label}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </AccordionContent>
-              </AccordionItem>
-
-              <AccordionItem>
-                <AccordionTrigger>
-                  {t('footer.sections.services')}
-                </AccordionTrigger>
-                <AccordionContent>
-                  <ul className="space-y-3 text-sm text-muted-foreground">
-                    {serviceLinks.map((item) => (
+                    {navLinks.map((item) => (
                       <li key={item.href}>
                         <Link
                           href={item.href}
@@ -289,25 +287,7 @@ export default function Footer({
               {t('footer.sections.company')}
             </h3>
             <ul className="space-y-3 text-sm text-muted-foreground">
-              {companyLinks.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className="transition-colors duration-200 hover:text-accent"
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="hidden space-y-4 md:block">
-            <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-foreground/90">
-              {t('footer.sections.services')}
-            </h3>
-            <ul className="space-y-3 text-sm text-muted-foreground">
-              {serviceLinks.map((item) => (
+              {navLinks.map((item) => (
                 <li key={item.href}>
                   <Link
                     href={item.href}

@@ -30,9 +30,18 @@ const CARS = [
   },
 ] as const;
 
-export default function HeroBackgroundCars() {
+export default function HeroBackgroundCars({
+  heroImageUrl,
+}: {
+  // Per-tenant hero background (P). When set, it replaces the two-car static
+  // composition with a single full-bleed image + accent overlay. null → the
+  // default two-car scene (unchanged fallback).
+  heroImageUrl?: string | null;
+} = {}) {
   // One broken-flag per car so a single missing asset doesn't take the other down.
   const [broken, setBroken] = useState<Record<string, boolean>>({});
+  // Degrade a broken tenant hero to the gradient-only base (same as the cars).
+  const [heroBroken, setHeroBroken] = useState(false);
 
   return (
     <div
@@ -41,6 +50,21 @@ export default function HeroBackgroundCars() {
     >
       {/* Themed base */}
       <div className="absolute inset-0 bg-background" />
+
+      {/* Per-tenant hero image: single full-bleed background with the accent
+          wash layered ON TOP for text contrast. Broken/missing → gradient only. */}
+      {heroImageUrl && !heroBroken && (
+        <Image
+          src={heroImageUrl}
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          onError={() => setHeroBroken(true)}
+          className="select-none object-cover"
+          quality={100}
+        />
+      )}
 
       {/* Accent wash over the whole scene — subtle, accent-tinted, white-label */}
       <div
@@ -52,8 +76,9 @@ export default function HeroBackgroundCars() {
       />
 
       {/* The two cars — vertically centred, large, bleeding off the edges. Hidden
-          on small screens so they never crowd the content (legibility first). */}
-      {CARS.map(({ src, box }) =>
+          on small screens so they never crowd the content (legibility first).
+          Skipped entirely when a tenant hero image is in use. */}
+      {!(heroImageUrl && !heroBroken) && CARS.map(({ src, box }) =>
         broken[src] ? null : (
           <div
             key={src}

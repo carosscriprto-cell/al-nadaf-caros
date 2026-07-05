@@ -22,7 +22,7 @@ type Props = {
   label: string;
   hint?: string;
   disabled?: boolean;
-  variant?: 'logo' | 'icon';
+  variant?: 'logo' | 'icon' | 'hero';
   copy: { upload: string; replace: string; remove: string; uploading: string };
 };
 
@@ -33,9 +33,10 @@ export default function ImageUploadField({
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
 
-  // Logos: keep transparency-friendly size; favicons: small square.
-  const maxDim = variant === 'icon' ? 256 : 640;
-  const previewCls = variant === 'icon' ? 'h-16 w-16' : 'h-16 w-28';
+  // Logos: keep transparency-friendly size; favicons: small square; hero: wide,
+  // full-res background (larger max dimension → ~2MB post-compress).
+  const maxDim = variant === 'icon' ? 256 : variant === 'hero' ? 1920 : 640;
+  const previewCls = variant === 'icon' ? 'h-16 w-16' : variant === 'hero' ? 'h-16 w-40' : 'h-16 w-28';
 
   const handleFile = async (files: FileList | null) => {
     const file = files?.[0];

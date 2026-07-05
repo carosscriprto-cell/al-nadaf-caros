@@ -40,10 +40,14 @@ type NavbarProps = {
   // Tenant branding (P4) — resolved server-side and passed down. Falls back to
   // the static siteConfig when absent so the component still renders standalone.
   brandName?: string;
+  // logoUrl = the light/white logo (shown on dark theme). logoDarkUrl = the
+  // dark-optimized logo for LIGHT backgrounds. Variant is picked via CSS theme
+  // classes (no useTheme) so there's no hydration flash; falls back to logoUrl.
   logoUrl?: string | null;
+  logoDarkUrl?: string | null;
 };
 
-export default function Navbar({ brandName, logoUrl }: NavbarProps) {
+export default function Navbar({ brandName, logoUrl, logoDarkUrl }: NavbarProps) {
   const locale = useLocale();
   const pathname = usePathname();
   const t = useTranslations();
@@ -82,16 +86,28 @@ export default function Navbar({ brandName, logoUrl }: NavbarProps) {
             href={`/${locale}`}
             className="group flex min-w-0 items-center gap-3 rounded-xl transition-transform duration-300 hover:scale-[1.01]"
           >
-            <div className="flex w-24 items-center justify-center overflow-hidden rounded-md  text-accent">
+            <div className="flex h-12 items-center text-accent md:h-14">
               {logoUrl ? (
-                <Image
-                  src={logoUrl}
-                  alt={displayBrand}
-                  width={64}
-                  height={64}
-                  className="h-full w-full object-contain"
-                  quality={100}
-                />
+                <>
+                  {/* Light theme → dark-optimized logo (falls back to logoUrl) */}
+                  <Image
+                    src={logoDarkUrl ?? logoUrl}
+                    alt={displayBrand}
+                    width={200}
+                    height={56}
+                    className="block h-full w-auto object-contain dark:hidden"
+                    quality={100}
+                  />
+                  {/* Dark theme → white logo */}
+                  <Image
+                    src={logoUrl}
+                    alt={displayBrand}
+                    width={200}
+                    height={56}
+                    className="hidden h-full w-auto object-contain dark:block"
+                    quality={100}
+                  />
+                </>
               ) : (
                 <Car className="h-5 w-5" />
               )}

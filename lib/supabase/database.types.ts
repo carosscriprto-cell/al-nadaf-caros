@@ -527,7 +527,11 @@ export type Database = {
           email: string | null
           favicon_url: string | null
           features: Json
+          footer_tagline_ar: string | null
+          footer_tagline_en: string | null
+          hero_image_url: string | null
           id: string
+          logo_dark_url: string | null
           logo_url: string | null
           map_center: Json | null
           name: string
@@ -561,7 +565,11 @@ export type Database = {
           email?: string | null
           favicon_url?: string | null
           features?: Json
+          footer_tagline_ar?: string | null
+          footer_tagline_en?: string | null
+          hero_image_url?: string | null
           id?: string
+          logo_dark_url?: string | null
           logo_url?: string | null
           map_center?: Json | null
           name: string
@@ -595,7 +603,11 @@ export type Database = {
           email?: string | null
           favicon_url?: string | null
           features?: Json
+          footer_tagline_ar?: string | null
+          footer_tagline_en?: string | null
+          hero_image_url?: string | null
           id?: string
+          logo_dark_url?: string | null
           logo_url?: string | null
           map_center?: Json | null
           name?: string

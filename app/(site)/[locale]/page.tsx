@@ -47,7 +47,7 @@ export default async function Home({
 
   // Each section keyed so the page can render them in the tenant's order.
   const sectionMap: Record<HomeSectionKey, React.ReactNode> = {
-    hero: <HeroSection cars={cars} contentAr={contentAr} contentEn={contentEn} showTypeFilter={hybrid} />,
+    hero: <HeroSection cars={cars} contentAr={contentAr} contentEn={contentEn} showTypeFilter={hybrid} heroImageUrl={tenant.hero_image_url} />,
     brandShowcase: <BrandShowcase cars={cars} brands={brands} />,
     featuredCars: <FeaturedCarsSection locale={locale} />,
     whyChooseUs: <WhyChooseUs />,

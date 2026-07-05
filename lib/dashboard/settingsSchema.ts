@@ -44,13 +44,18 @@ export const settingsSchema = z.object({
   color_secondary: hexColor,
   color_accent: hexColor,
   logo_url: optUrl,
+  logo_dark_url: optUrl,
   favicon_url: optUrl,
+  hero_image_url: optUrl,
   og_image_url: optUrl,
   // SEO
   seo_title_en: optText(160),
   seo_title_ar: optText(160),
   seo_desc_en: optText(320),
   seo_desc_ar: optText(320),
+  // footer brand blurb (bilingual)
+  footer_tagline_en: optText(320),
+  footer_tagline_ar: optText(320),
   // structured jsonb
   business_hours: businessHoursSchema,
   social: socialSchema,

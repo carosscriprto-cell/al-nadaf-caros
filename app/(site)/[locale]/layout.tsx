@@ -91,6 +91,10 @@ export default async function LocaleLayout({
   const [tenant, features] = await Promise.all([getTenantConfig(), getStorefrontFeatures()]);
   const brandName =
     (locale === 'ar' ? tenant.name_ar : tenant.name) ?? tenant.name;
+  // Footer blurb resolved per locale (like brandName). null → Footer falls back
+  // to the i18n footer.company copy.
+  const footerTagline =
+    locale === 'ar' ? tenant.footer_tagline_ar : tenant.footer_tagline_en;
   // Inject tenant colors as CSS variables; Tailwind v4 utilities reference
   // var(--color-*), so these override the globals.css @theme defaults.
   const brandStyle = {
@@ -119,12 +123,14 @@ export default async function LocaleLayout({
                 <TenantContentProvider value={parseTenantContent(tenant.content)}>
                 <ErrorBoundary>
                   <div className="font-sans antialiased min-h-screen flex flex-col">
-                    <Navbar brandName={brandName} logoUrl={tenant.logo_url} />
+                    <Navbar brandName={brandName} logoUrl={tenant.logo_url} logoDarkUrl={tenant.logo_dark_url} />
                     <main className="flex-1">
                       {children}
                     </main>
                     <Footer
                       brandName={brandName}
+                      faviconUrl={tenant.favicon_url}
+                      footerTagline={footerTagline}
                       social={resolveSocial(tenant.social)}
                       contact={{
                         phone: tenant.phone ?? undefined,

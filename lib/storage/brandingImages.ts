@@ -8,7 +8,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { safeRandomUUID } from '@/lib/utils/uuid';
 import { CAR_IMAGES_BUCKET } from './carImages';
 
-export type BrandingKind = 'logo' | 'favicon';
+export type BrandingKind = 'logo' | 'logo_dark' | 'favicon' | 'hero';
 
 export async function uploadBrandingImage(
   client: SupabaseClient,

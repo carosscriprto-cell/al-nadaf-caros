@@ -175,11 +175,33 @@ export default function SettingsForm({
           />
           <ImageUploadField
             tenantId={tenantId}
+            kind="logo_dark"
+            variant="logo"
+            value={watch('logo_dark_url') ?? ''}
+            onChange={(url) => setValue('logo_dark_url', url, { shouldDirty: true })}
+            label={st.f.logo_dark_url}
+            hint={st.imageHint}
+            disabled={disabled}
+            copy={st.upload}
+          />
+          <ImageUploadField
+            tenantId={tenantId}
             kind="favicon"
             variant="icon"
             value={watch('favicon_url') ?? ''}
             onChange={(url) => setValue('favicon_url', url, { shouldDirty: true })}
             label={st.f.favicon_url}
+            hint={st.imageHint}
+            disabled={disabled}
+            copy={st.upload}
+          />
+          <ImageUploadField
+            tenantId={tenantId}
+            kind="hero"
+            variant="hero"
+            value={watch('hero_image_url') ?? ''}
+            onChange={(url) => setValue('hero_image_url', url, { shouldDirty: true })}
+            label={st.f.hero_image_url}
             hint={st.imageHint}
             disabled={disabled}
             copy={st.upload}
@@ -208,6 +230,14 @@ export default function SettingsForm({
           </Field>
           <Field label={st.f.seo_desc_ar}>
             <textarea {...register('seo_desc_ar')} disabled={disabled} dir="rtl" rows={2} className={inp} />
+          </Field>
+        </Grid>
+        <Grid>
+          <Field label={st.f.footer_tagline_en}>
+            <textarea {...register('footer_tagline_en')} disabled={disabled} rows={2} className={inp} />
+          </Field>
+          <Field label={st.f.footer_tagline_ar}>
+            <textarea {...register('footer_tagline_ar')} disabled={disabled} dir="rtl" rows={2} className={inp} />
           </Field>
         </Grid>
       </Section>

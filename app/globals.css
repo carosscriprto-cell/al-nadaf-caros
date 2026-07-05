@@ -1,6 +1,12 @@
 @import "tailwindcss";
 @import "./fonts.css";
 
+/* Tailwind v4: bind the `dark:` variant to the `.dark` CLASS that next-themes
+   toggles on <html> (attribute="class"), NOT the default prefers-color-scheme
+   media query. Without this, `dark:` utilities follow the OS setting and ignore
+   the manual theme toggle — e.g. the navbar logo variants never switch. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Self-hosted font family vars — these replace the CSS variables that
    next/font/google used to inject on <body>. The @font-face rules live in
    fonts.css (vendored woff2, no build-time fetch). */

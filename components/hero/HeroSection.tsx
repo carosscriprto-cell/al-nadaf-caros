@@ -29,9 +29,11 @@ type HeroSectionProps = {
   contentAr?: CarContentMap;
   contentEn?: CarContentMap;
   showTypeFilter?: boolean;
+  // Per-tenant hero background image (P). null → default two-car composition.
+  heroImageUrl?: string | null;
 };
 
-export default function HeroSection({ cars, contentAr, contentEn, showTypeFilter = true }: HeroSectionProps) {
+export default function HeroSection({ cars, contentAr, contentEn, showTypeFilter = true, heroImageUrl }: HeroSectionProps) {
   const t = useTranslations();
   const locale = useLocale();
   const prefersReduced = useReducedMotion();
@@ -70,7 +72,7 @@ export default function HeroSection({ cars, contentAr, contentEn, showTypeFilter
       {/* ── Background — two showroom cars bleeding in from the edges over a
           single accent wash. RTL-aware, white-label, graceful fallback when the
           asset is missing (gradient only). See HeroBackgroundCars. */}
-      <HeroBackgroundCars />
+      <HeroBackgroundCars heroImageUrl={heroImageUrl} />
 
       {/* ── Content ──────────────────────────────────────────────────────── */}
       <div className="mx-auto flex min-h-[88svh] max-w-5xl flex-col justify-center px-4 pb-28 pt-16 sm:px-6 sm:pb-32 sm:pt-14 lg:px-8">
