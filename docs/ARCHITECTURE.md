@@ -85,7 +85,7 @@ Schema is version-controlled in `supabase/migrations/` (baseline
 |---|---|---|
 | **`tenants`** | One row per dealer | `id`, `name`, `name_ar`, `slug` (unique), `subdomain` (unique), `domain` (unique), `active`, `plan`, `color_primary/secondary/accent`, `logo_url`, `favicon_url`, `og_image_url`, `email`, `phone`, `whatsapp`, `address_en/ar`, `seo_title_*`/`seo_desc_*`, + jsonb: `features`, `sections`, `pages`, `content`, `business_hours`, `social`, `map_center` |
 | **`tenant_users`** | `auth.users` ↔ tenant with a role | `tenant_id`, `user_id`, `role` (`owner`/`admin`/`editor`), unique `(tenant_id, user_id)` |
-| **`cars`** | Inventory, tenant-scoped | `tenant_id`, `slug` (unique per tenant), `brand`, `brand_slug` (FK → `car_brands.slug`, nullable), `model`, `year`, `listing_type`, `condition`, `category`, `class`, `available`, `status` (`available`/`sold`/`reserved`), merchandising flags (`is_featured`/`is_popular`/…), specs, pricing (`price_daily/total/…`, `currency`), rental terms (`mileage_limit`, `insurance`, `min_rental_days`, `security_deposit`), `thumbnail`, `images[]` |
+| **`cars`** | Inventory, tenant-scoped | `tenant_id`, `slug` (unique per tenant), `brand`, `brand_slug` (FK → `car_brands.slug`, nullable), `model`, `year`, `listing_type`, `condition`, `category`, `class`, `available`, `status` (`available`/`sold`/`reserved`), merchandising flags (`is_featured`/`is_popular`/…), specs, pricing (`price_daily/total/…`, `currency`), rental terms (`mileage_limit`, `insurance`, `min_rental_days`, `security_deposit`), financing (`is_financeable` bool NOT NULL default true, `down_payment`, `installment_monthly`), `thumbnail`, `images[]` |
 | **`car_content`** | Localized copy, one row per car per locale | `car_id`, `locale` (`ar`/`en`), `title`, descriptions, feature arrays, `warranty`, **per-locale** `city`/`address`/`color`/`interior_color`/`pickup_locations` (E4), unique `(car_id, locale)` |
 | **`car_brands`** | **Global** (non-tenant) brand reference | `slug` (unique, lowercase), `name_en`, `name_ar`, `logo_url` (optional override). Public-read; owner/admin write |
 | **`leads`** | Lead/booking capture (unified — **no separate `bookings` table**) | `tenant_id`, `car_id?`, `name/email/phone/message`, `source`, `type`, `status`, `locale`, `rental_start`/`rental_end`/`pickup_location`, `whatsapp_opened` |
@@ -97,6 +97,18 @@ Schema is version-controlled in `supabase/migrations/` (baseline
 > content into them (`mapFormToRow` in `app/(system)/dashboard/cars/actions.ts`). The
 > storefront reads the per-locale `car_content` values (AR→EN fallback) and only uses `cars.*`
 > as an ultimate fallback. `country` stays single (not per-locale).
+
+> **Financing pricing (P7/P8) — two distinct monthly columns, never conflate them.**
+> `price_monthly` is the **rental** monthly price (→ `pricing.monthly`); `installment_monthly`
+> (P8, `20260703000000_p8_installment_monthly.sql`) is the **financing** monthly instalment
+> (→ `pricing.installmentMonthly`). They are separate on purpose to stop value drift.
+> `is_financeable` (opt-out per car, default `true`) + `down_payment` + `installment_monthly`
+> are the financing set (P7 added the first two, `20260702000000_p7_car_financing.sql`).
+> A **legacy `monthly_installment`** column still exists in the DB (baseline
+> `20260101000000_baseline_schema.sql:129`) but is an **orphan**: the form path no longer writes
+> it (`mapFormToRow`, `app/(system)/dashboard/cars/actions.ts`) — **no writer** — only
+> `mapDbCarToCar` still *reads* it into `pricing.monthlyInstallment` for pre-existing rows. Its
+> drop migration is pending — see [ROADMAP.md](./ROADMAP.md).
 
 ### `tenants` jsonb columns (white-label config, each has a parser + safe default)
 
@@ -203,8 +215,10 @@ components, or sign-in appears to "hang" as `/dashboard` bounces back to `/auth/
 + `getTenantId()` + `.eq('tenant_id', …).eq('available', true)`. `getVisibleTypes()` applies
 `storefrontListingTypes(features)` so a single-type tenant never surfaces the other listing
 type. Functions: `getCarsWithContent`, `getCarBySlug`, `getFeaturedCars`, `getSimilarCars`,
-`getAllCarsForSearch` (fetches both AR+EN content maps for the search index). Rows are mapped
-via `mapDbCarToCar` / `buildContentMap` (`lib/supabase/mappers.ts`).
+`getAllCarsForSearch` (fetches both AR+EN content maps for the search index), and
+`getFinanceableCars` (the `/financing` page grid — adds `.eq('is_financeable', true)` on top of
+the tenant + `available` + `storefrontListingTypes` scoping). Rows are mapped via
+`mapDbCarToCar` / `buildContentMap` (`lib/supabase/mappers.ts`).
 
 ## 5. Feature gating (plans → features)
 
@@ -230,6 +244,25 @@ via `mapDbCarToCar` / `buildContentMap` (`lib/supabase/mappers.ts`).
 (e.g. the hero's 4th filter: hybrid → listing type, sale-only → condition, rental-only → body
 type; financing section auto-hidden unless `enableFinancing`). The dashboard reads the same
 flags to show/hide capabilities.
+
+**Financing (`enableFinancing`) — P7/P8.** Three gated surfaces, all keyed off the flag:
+- **Standalone `/financing` page** (`app/(site)/[locale]/financing/page.tsx`) —
+  `getStorefrontFeatures()`; `!enableFinancing` → **`notFound()`** (the route does not exist for
+  tenants without it). Section A copy = `tenants.content.financing` per-tenant override → static
+  i18n fallback; Section B = `getFinanceableCars`. (The `financing` **home section** is separately
+  auto-hidden via `resolveVisibleSections`.)
+- **"Installments only" fleet filter** — a URL-driven boolean facet (`financing=true`) rendered
+  in `components/CarsFilters.tsx` **only when `enableFinancing`**; the live grid applies it in
+  `components/pages/CarsListingPage.tsx` (`!filters.financing || car.isFinanceable`).
+- **Hero toggle** — `components/hero/HeroSearchPanel.tsx` shows it only when
+  `enableFinancing && enableSellCar`, feeding the same `financing=true` param into `/fleet`.
+- **Parallel filter abstraction, NOT wired to the live fleet:** `VehicleFilterState.financing` +
+  `lib/vehicles/filters/applyFilters.ts` (`state.financing && !car.isFinanceable`) +
+  `hooks/useVehicleFilters.ts` also carry the facet, but the live fleet uses `CarsFilters` +
+  `CarsListingPage` (inline filtering) instead — see [ROADMAP.md](./ROADMAP.md).
+- **i18n:** the user-facing term was renamed to **"التقسيط" / "Installments"** (display values
+  only); the `financing` namespace/keys, the `/financing` route, and the `content.financing`
+  column are **unchanged**.
 
 ## 6. Storefront vs dashboard
 
@@ -274,6 +307,21 @@ reads/updates leads in `/dashboard/leads` (own-tenant only, via RLS).
 - **Per-tenant accent (white-label):** `app/(site)/[locale]/layout.tsx` injects
   `--color-primary/secondary/accent` from the `tenants` row as inline CSS vars on `<body>`,
   overriding the `globals.css` defaults at runtime.
+- **White-label derived-token fix (`oklch(from …)`):** the accent **shades** `--accent-strong` /
+  `--accent-subtle` (and the `@theme` tokens `--color-accent-strong` / `--color-accent-subtle`)
+  are derived from `--color-accent` via `oklch(from var(--color-accent) …)`. Declared only on
+  `:root` they compute against `:root`'s **default** accent and inherit that value unchanged — the
+  per-tenant `<body>` override never reached them, so every `*-accent-strong/subtle` utility
+  rendered the default blue (search button, hovers, CTA fills, hero accent line). `app/globals.css`
+  therefore **re-declares** them on **`body`** (and `.dark body`) — the element that carries the
+  tenant `--color-accent` — so both shades recompute per tenant. `oklch()` relative color is
+  **Baseline 2024** (widely available). Direct `bg/text-accent` (raw `var(--color-accent)`) always
+  followed the tenant; only the *derived* shades were affected.
+- **Brand chrome is tenant-driven:** `components/Navbar.tsx` and `components/Footer.tsx` render the
+  tenant `name`/`logo_url` (resolved per-locale in the layout) with **no static `siteConfig`/"Caros"
+  fallback**. The footer additionally carries a **permanent, non-configurable "Powered by Caros"**
+  attribution (`footer.powered_by` + a link to `caros.scripto-technology.com`), independent of the
+  tenant brand.
 - **Fonts** are **self-hosted `@font-face`** in `app/fonts.css` (vendored woff2 under
   `public/fonts/`): **Inter** (Latin), **IBM Plex Sans Arabic** and **Cairo** (Arabic +
   Latin), **Space Grotesk** (display). The dashboard uses `--font-cairo`. There is **no

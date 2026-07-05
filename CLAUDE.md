@@ -34,6 +34,9 @@ Full detail lives in [docs/](docs/) — read it, don't duplicate it here.
   document apply order in the header, and `NOTIFY pgrst, 'reload schema';` after schema changes.
   `ALTER TYPE … ADD VALUE` must not run in a txn that also uses the value (add-only migrations).
   SECURITY DEFINER functions must `set search_path = ''` + schema-qualify.
+- **`price_monthly` = rental monthly; `installment_monthly` = financing instalment — never
+  conflate them** (P7/P8). `down_payment` + `installment_monthly` are the financing pair; the
+  baseline `monthly_installment` column is a legacy orphan (no writer, pending drop).
 - **Fonts are self-hosted `@font-face` in `app/fonts.css`.** There is no `lib/fonts.ts` and no
   `next/font` — don't add them.
 - **Regenerate `lib/supabase/database.types.ts` as UTF-8** on Windows

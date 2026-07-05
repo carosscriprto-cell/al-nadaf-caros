@@ -17,6 +17,7 @@ short hard-rules version.
   → p5a_storage_car_images → p5b_leads_bookings → p6_tenant_sections
   → p2_5_lead_types → p2_5_4b_tenant_pages → p2_5_4b2_tenant_content
   → qa2b_lead_whatsapp_flag → e1e3_car_brands → e4_car_content_per_locale
+  → p7_car_financing → p8_installment_monthly
   ```
 - **`ALTER TYPE … ADD VALUE` cannot run in a transaction that also *uses* the value.** Keep
   enum-extension migrations add-only (see `20260614090000_extend_market_enums.sql`).
@@ -89,6 +90,7 @@ a regen the mappers stay the single bridge between `database.types.ts` and `type
 | Subdomain resolves to the wrong / default tenant in prod | `NEXT_PUBLIC_ROOT_DOMAIN` unset → host treated as apex/`*.vercel.app` | set `NEXT_PUBLIC_ROOT_DOMAIN` and redeploy |
 | Server component renders Arabic when URL is `/en` | next-intl `getLocale()` can't resolve without its own middleware | pages call `setRequestLocale(locale)` from the route param (already done in layouts/pages) |
 | A "body type" shows `electric` | legacy `car_category='electric'` overlaps fuel | app code flags/excludes it; full fix is the P3 remap |
+| Financing monthly shows the **rental** price / a car appears to have "two monthly" values | `installment_monthly` (financing) conflated with `price_monthly` (rental) | keep them separate: `pricing.installmentMonthly` ← `installment_monthly`, `pricing.monthly` ← `price_monthly` (P8). `down_payment` + `installment_monthly` are the financing pair |
 
 ## Project structure (map)
 
