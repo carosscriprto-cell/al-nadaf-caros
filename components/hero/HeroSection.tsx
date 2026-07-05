@@ -45,6 +45,11 @@ export default function HeroSection({ cars, contentAr, contentEn, showTypeFilter
   const hero = useTenantContent().hero[locale === 'ar' ? 'ar' : 'en'];
   const features = useTenantFeatures();
 
+  // A custom hero image makes the background an IMAGE with a fixed dark scrim
+  // (see HeroBackgroundCars), so the headline/subtitle must be light in BOTH
+  // themes — NOT theme-aware. Without a hero image, keep the themed text colors.
+  const hasHeroImage = Boolean(heroImageUrl);
+
   // Type-aware DEFAULT subheadline (same mechanism as HowItWorks): sale-only →
   // sale framing, rental-only → rental framing, hybrid (or neither) → generic.
   // A tenant's content override (hero.subheadline) always wins.
@@ -85,7 +90,7 @@ export default function HeroSection({ cars, contentAr, contentEn, showTypeFilter
           custom={0}
         >
           <span className="h-1.5 w-1.5 rounded-full bg-accent" aria-hidden="true" />
-          <span className="text-xs font-medium uppercase tracking-[0.22em] text-muted-foreground">
+          <span className={`text-xs font-medium uppercase tracking-[0.22em] ${hasHeroImage ? 'text-white/80' : 'text-muted-foreground'}`}>
             {badge}
           </span>
         </motion.div>
@@ -99,12 +104,12 @@ export default function HeroSection({ cars, contentAr, contentEn, showTypeFilter
           animate="visible"
           custom={0.08}
         >
-          <h1 className="mx-auto max-w-4xl text-balance font-heading text-[clamp(2.75rem,8vw,5.75rem)] font-semibold leading-[1.0] tracking-[-0.02em] text-foreground">
+          <h1 className={`mx-auto max-w-4xl text-balance font-heading text-[clamp(2.75rem,8vw,5.75rem)] font-semibold leading-[1.0] tracking-[-0.02em] ${hasHeroImage ? 'text-white' : 'text-foreground'}`}>
             {headlineLine1}{' '}
-            <span className="text-accent-strong">{headlineLine2}</span>
+            <span className={hasHeroImage ? 'text-accent' : 'text-accent-strong'}>{headlineLine2}</span>
           </h1>
 
-          <p className="mx-auto mt-7 max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground">
+          <p className={`mx-auto mt-7 max-w-xl text-pretty text-lg leading-relaxed ${hasHeroImage ? 'text-white/85' : 'text-muted-foreground'}`}>
             {subheadline}
           </p>
         </motion.div>

@@ -40,77 +40,110 @@ export default function HeroBackgroundCars({
 } = {}) {
   // One broken-flag per car so a single missing asset doesn't take the other down.
   const [broken, setBroken] = useState<Record<string, boolean>>({});
-  // Degrade a broken tenant hero to the gradient-only base (same as the cars).
+  // A broken tenant hero drops the <Image> but KEEPS the dark scrim scene (below),
+  // so white headline text stays readable — it never falls back to the light
+  // two-car scene (which would leave the forced-white text unreadable).
   const [heroBroken, setHeroBroken] = useState(false);
+
+  // When a tenant hero image is configured, the hero is an IMAGE background: a
+  // fixed dark scrim guarantees white-text contrast in BOTH themes. The default
+  // two-car scene stays fully theme-aware.
+  const hasHero = Boolean(heroImageUrl);
 
   return (
     <div
       aria-hidden="true"
       className="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
     >
-      {/* Themed base */}
+      {/* Themed base — sits under everything (also the scrim's backing if the
+          hero image is broken/missing). */}
       <div className="absolute inset-0 bg-background" />
 
-      {/* Per-tenant hero image: single full-bleed background with the accent
-          wash layered ON TOP for text contrast. Broken/missing → gradient only. */}
-      {heroImageUrl && !heroBroken && (
-        <Image
-          src={heroImageUrl}
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          onError={() => setHeroBroken(true)}
-          className="select-none object-cover"
-          quality={100}
-        />
-      )}
-
-      {/* Accent wash over the whole scene — subtle, accent-tinted, white-label */}
-      <div
-        className="absolute inset-0 opacity-[0.08]"
-        style={{
-          background:
-            'radial-gradient(65% 60% at 50% 38%, var(--color-accent) 0%, transparent 70%)',
-        }}
-      />
-
-      {/* The two cars — vertically centred, large, bleeding off the edges. Hidden
-          on small screens so they never crowd the content (legibility first).
-          Skipped entirely when a tenant hero image is in use. */}
-      {!(heroImageUrl && !heroBroken) && CARS.map(({ src, box }) =>
-        broken[src] ? null : (
-          <div
-            key={src}
-            className={`absolute top-1/2 hidden h-[62%] w-[64vw] max-w-[680px] -translate-y-1/2 md:block ${box}`}
-          >
+      {hasHero ? (
+        <>
+          {/* Base layer: the tenant hero photo, full-bleed. */}
+          {!heroBroken && (
             <Image
-              src={src}
+              src={heroImageUrl as string}
               alt=""
               fill
               priority
-              sizes="64vw"
-              onError={() => setBroken((b) => ({ ...b, [src]: true }))}
-              className="select-none object-contain opacity-95"
+              sizes="100vw"
+              onError={() => setHeroBroken(true)}
+              className="select-none object-cover"
               quality={100}
             />
-          </div>
-        ),
+          )}
+
+          {/* Fixed dark scrim ON TOP of the image — theme-INDEPENDENT (not gated
+              on dark:). Bottom-weighted so the headline + search card always keep
+              WCAG-ish contrast for white text over a bright showroom photo. */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                'linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.35) 40%, rgba(0,0,0,0.65) 100%)',
+            }}
+          />
+
+          {/* Accent tint ABOVE the scrim — low opacity, white-label brand hint. */}
+          <div
+            className="absolute inset-0 opacity-[0.10]"
+            style={{
+              background:
+                'radial-gradient(65% 60% at 50% 38%, var(--color-accent) 0%, transparent 70%)',
+            }}
+          />
+        </>
+      ) : (
+        <>
+          {/* Accent wash over the whole scene — subtle, accent-tinted, white-label */}
+          <div
+            className="absolute inset-0 opacity-[0.08]"
+            style={{
+              background:
+                'radial-gradient(65% 60% at 50% 38%, var(--color-accent) 0%, transparent 70%)',
+            }}
+          />
+
+          {/* The two cars — vertically centred, large, bleeding off the edges.
+              Hidden on small screens so they never crowd the content. */}
+          {CARS.map(({ src, box }) =>
+            broken[src] ? null : (
+              <div
+                key={src}
+                className={`absolute top-1/2 hidden h-[62%] w-[64vw] max-w-[680px] -translate-y-1/2 md:block ${box}`}
+              >
+                <Image
+                  src={src}
+                  alt=""
+                  fill
+                  priority
+                  sizes="64vw"
+                  onError={() => setBroken((b) => ({ ...b, [src]: true }))}
+                  className="select-none object-contain opacity-95"
+                  quality={100}
+                />
+              </div>
+            ),
+          )}
+
+          {/* Headline halo — a soft clearing of the themed background colour behind
+              the upper content, so the text lifts cleanly off the cars. Themed
+              (var(--background)), so it only belongs to the two-car scene. */}
+          <div
+            className="absolute inset-x-0 top-[14%] mx-auto h-[52vh] w-[88%] max-w-4xl"
+            style={{
+              background:
+                'radial-gradient(closest-side at 50% 40%, var(--background) 55%, transparent 100%)',
+            }}
+          />
+
+          {/* Gentle fade at the very bottom into the next section (themed) */}
+          <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-b from-transparent to-background" />
+        </>
       )}
 
-      {/* Headline halo — a soft clearing of the background colour behind the upper
-          content, so the text lifts cleanly off the cars. Sits above the cars but
-          below the page content (this whole layer is -z-10). */}
-      <div
-        className="absolute inset-x-0 top-[14%] mx-auto h-[52vh] w-[88%] max-w-4xl"
-        style={{
-          background:
-            'radial-gradient(closest-side at 50% 40%, var(--background) 55%, transparent 100%)',
-        }}
-      />
-
-      {/* Gentle fade at the very bottom into the next section */}
-      <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-b from-transparent to-background" />
       <div className="absolute inset-x-0 bottom-0 h-px bg-border" />
     </div>
   );
