@@ -12,13 +12,29 @@ export const WHY_ITEMS = 6;
 export const HOW_STEPS = 4;
 // Hard cap on tenant-supplied FAQ rows (defensive: ignore anything beyond this).
 export const MAX_FAQ = 15;
+// Hard cap on tenant-supplied About statistic rows (the storefront shows ~4).
+export const MAX_ABOUT_STATS = 6;
 // Static i18n keys per slot — used by the storefront resolver for fallback.
 export const WHY_KEYS = ['safe', 'service', 'quality', 'selection', 'drivers', 'awards'] as const;
 export const HOW_KEYS = ['choose', 'book', 'delivery', 'drive'] as const;
 
 export type ContentItem = { title?: string; text?: string };
 export type SectionLocale = { title?: string; description?: string; items?: ContentItem[] };
-export type AboutLocale = { heading?: string; body?: string };
+// One About statistic card (e.g. value "10+", label "Years Experience").
+export type AboutStat = { value?: string; label?: string };
+// The whole About page is tenant-editable. Every field optional → the storefront
+// falls back to the static i18n copy per field, so a blank/partial content.about
+// renders identically to before.
+export type AboutLocale = {
+  hero?: { title?: string; highlight?: string; descPrimary?: string; descSecondary?: string };
+  experienceCard?: { label?: string; title?: string; description?: string };
+  heading?: string;            // story heading
+  body?: string;               // story body (paragraphs split on blank lines)
+  storyDescription?: string;   // story sub-heading (middle line)
+  stats?: AboutStat[];         // "Proven by numbers" cards + hero card figure
+  numbers?: { title?: string; description?: string };
+  locations?: { title?: string; description?: string };
+};
 // Hero headline — two lines matching the storefront's i18n title (line2 = accent
 // line). Every field optional; the storefront falls back to hero.* i18n per line.
 export type HeroHeadline = { line1?: string; line2?: string };
@@ -56,9 +72,46 @@ function parseSection(v: unknown, count: number): SectionLocale {
   return { title: str(o.title), description: str(o.description), items: parseItems(o.items, count) };
 }
 
+// About stats: tolerate non-arrays, cap at MAX_ABOUT_STATS, drop fully-empty rows
+// so a blank row can never blank out a figure on the storefront.
+function parseAboutStats(v: unknown): AboutStat[] {
+  const arr = Array.isArray(v) ? v : [];
+  const out: AboutStat[] = [];
+  for (const item of arr) {
+    if (out.length >= MAX_ABOUT_STATS) break;
+    const o = rec(item);
+    const value = str(o.value);
+    const label = str(o.label);
+    if (value || label) out.push({ value, label });
+  }
+  return out;
+}
+
 function parseAbout(v: unknown): AboutLocale {
   const o = rec(v);
-  return { heading: str(o.heading), body: str(o.body) };
+  const hero = rec(o.hero);
+  const exp = rec(o.experienceCard);
+  const numbers = rec(o.numbers);
+  const locations = rec(o.locations);
+  return {
+    hero: {
+      title: str(hero.title),
+      highlight: str(hero.highlight),
+      descPrimary: str(hero.descPrimary),
+      descSecondary: str(hero.descSecondary),
+    },
+    experienceCard: {
+      label: str(exp.label),
+      title: str(exp.title),
+      description: str(exp.description),
+    },
+    heading: str(o.heading),
+    body: str(o.body),
+    storyDescription: str(o.storyDescription),
+    stats: parseAboutStats(o.stats),
+    numbers: { title: str(numbers.title), description: str(numbers.description) },
+    locations: { title: str(locations.title), description: str(locations.description) },
+  };
 }
 
 // Headline: new shape is { line1, line2 }. Tolerate the OLD single-string headline

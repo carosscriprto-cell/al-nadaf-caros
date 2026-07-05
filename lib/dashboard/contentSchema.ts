@@ -3,7 +3,7 @@
 // field is a (possibly empty) string — empty = "use the static default".
 
 import { z } from 'zod';
-import { WHY_ITEMS, HOW_STEPS, MAX_FAQ } from '@/lib/tenant/content';
+import { WHY_ITEMS, HOW_STEPS, MAX_FAQ, MAX_ABOUT_STATS } from '@/lib/tenant/content';
 
 const itemSchema = z.object({
   title: z.string().max(120),
@@ -17,9 +17,29 @@ const sectionSchema = (n: number) =>
     items: z.array(itemSchema).length(n),
   });
 
+const aboutStatSchema = z.object({
+  value: z.string().max(12),
+  label: z.string().max(80),
+});
+
 const aboutSchema = z.object({
+  hero: z.object({
+    title: z.string().max(160),
+    highlight: z.string().max(80),
+    descPrimary: z.string().max(600),
+    descSecondary: z.string().max(600),
+  }),
+  experienceCard: z.object({
+    label: z.string().max(60),
+    title: z.string().max(120),
+    description: z.string().max(400),
+  }),
   heading: z.string().max(160),
   body: z.string().max(2000),
+  storyDescription: z.string().max(600),
+  stats: z.array(aboutStatSchema).max(MAX_ABOUT_STATS, `Maximum ${MAX_ABOUT_STATS} statistics`),
+  numbers: z.object({ title: z.string().max(160), description: z.string().max(600) }),
+  locations: z.object({ title: z.string().max(160), description: z.string().max(600) }),
 });
 
 // B1-overridable banners. Every field is an empty-allowed string (empty = "use
@@ -60,6 +80,7 @@ export const contentSchema = z.object({
 export type ContentValues = z.infer<typeof contentSchema>;
 export type SectionValues = ContentValues['whyChooseUs']['en'];
 export type AboutValues = ContentValues['about']['en'];
+export type AboutStatValues = AboutValues['stats'][number];
 export type HeroValues = ContentValues['hero']['en'];
 export type CtaValues = ContentValues['financing']['en'];
 export type FaqRowValues = ContentValues['faq']['en'][number];
@@ -74,7 +95,12 @@ export function hasAnyContent(d: ContentValues): boolean {
     }
   }
   for (const loc of ['en', 'ar'] as const) {
-    strs.push(d.about[loc].heading, d.about[loc].body);
+    const ab = d.about[loc];
+    strs.push(ab.heading, ab.body, ab.storyDescription);
+    strs.push(ab.hero.title, ab.hero.highlight, ab.hero.descPrimary, ab.hero.descSecondary);
+    strs.push(ab.experienceCard.label, ab.experienceCard.title, ab.experienceCard.description);
+    strs.push(ab.numbers.title, ab.numbers.description, ab.locations.title, ab.locations.description);
+    for (const s of ab.stats) strs.push(s.value, s.label);
     strs.push(d.hero[loc].badge, d.hero[loc].headline.line1, d.hero[loc].headline.line2, d.hero[loc].subheadline);
     strs.push(d.financing[loc].title, d.financing[loc].desc, d.financing[loc].cta);
     strs.push(d.finalCta[loc].title, d.finalCta[loc].desc, d.finalCta[loc].cta);

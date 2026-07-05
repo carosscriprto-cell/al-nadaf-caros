@@ -18,7 +18,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Lock, ChevronDown, Plus, Trash2 } from 'lucide-react';
 import { contentSchema, type ContentValues } from '@/lib/dashboard/contentSchema';
-import { WHY_ITEMS, HOW_STEPS, MAX_FAQ } from '@/lib/tenant/content';
+import { WHY_ITEMS, HOW_STEPS, MAX_FAQ, MAX_ABOUT_STATS } from '@/lib/tenant/content';
 import { updateTenantContent } from '@/app/(system)/dashboard/site/contentActions';
 import { useDash } from '../DashboardI18n';
 import type { EditorArea, FormMeta } from './SiteEditor';
@@ -145,20 +145,80 @@ export default function ContentForm({
         </div>
       )}
 
-      {/* Sub-pages area — About page copy */}
+      {/* Sub-pages area — the whole About page copy (every block, bilingual) */}
       {area === 'subpages' && (
         <div className="space-y-4">
           <Collapsible title={ci.secAbout}>
+            <DefaultHint text={ci.defaultHint} />
             <div className="grid gap-5 lg:grid-cols-2">
               {LANGS.map((lang) => (
-                <div key={lang} dir={lang === 'ar' ? 'rtl' : 'ltr'} className="space-y-3">
+                <div key={lang} dir={lang === 'ar' ? 'rtl' : 'ltr'} className="space-y-4">
                   <LangTag label={lang === 'ar' ? ci.langAr : ci.langEn} />
-                  <Field label={ci.fHeading}>
-                    <input {...register(`about.${lang}.heading` as Path)} disabled={disabled} className={inp} />
-                  </Field>
-                  <Field label={ci.fBody} hint={ci.bodyHint}>
-                    <textarea {...register(`about.${lang}.body` as Path)} disabled={disabled} rows={6} className={inp} />
-                  </Field>
+
+                  {/* Hero */}
+                  <SubGroup label={ci.aboutHero}>
+                    <Field label={ci.fTitle}>
+                      <input {...register(`about.${lang}.hero.title` as Path)} disabled={disabled} className={inp} />
+                    </Field>
+                    <Field label={ci.fHighlight}>
+                      <input {...register(`about.${lang}.hero.highlight` as Path)} disabled={disabled} className={inp} />
+                    </Field>
+                    <Field label={ci.fDescPrimary}>
+                      <textarea {...register(`about.${lang}.hero.descPrimary` as Path)} disabled={disabled} rows={2} className={inp} />
+                    </Field>
+                    <Field label={ci.fDescSecondary}>
+                      <textarea {...register(`about.${lang}.hero.descSecondary` as Path)} disabled={disabled} rows={2} className={inp} />
+                    </Field>
+                  </SubGroup>
+
+                  {/* Experience card */}
+                  <SubGroup label={ci.aboutExperience}>
+                    <Field label={ci.fLabel}>
+                      <input {...register(`about.${lang}.experienceCard.label` as Path)} disabled={disabled} className={inp} />
+                    </Field>
+                    <Field label={ci.fTitle}>
+                      <input {...register(`about.${lang}.experienceCard.title` as Path)} disabled={disabled} className={inp} />
+                    </Field>
+                    <Field label={ci.fDesc}>
+                      <textarea {...register(`about.${lang}.experienceCard.description` as Path)} disabled={disabled} rows={2} className={inp} />
+                    </Field>
+                  </SubGroup>
+
+                  {/* Story */}
+                  <SubGroup label={ci.aboutStory}>
+                    <Field label={ci.fHeading}>
+                      <input {...register(`about.${lang}.heading` as Path)} disabled={disabled} className={inp} />
+                    </Field>
+                    <Field label={ci.fDescription}>
+                      <input {...register(`about.${lang}.storyDescription` as Path)} disabled={disabled} className={inp} />
+                    </Field>
+                    <Field label={ci.fBody} hint={ci.bodyHint}>
+                      <textarea {...register(`about.${lang}.body` as Path)} disabled={disabled} rows={6} className={inp} />
+                    </Field>
+                  </SubGroup>
+
+                  {/* Numbers section header */}
+                  <SubGroup label={ci.aboutNumbers}>
+                    <Field label={ci.fTitle}>
+                      <input {...register(`about.${lang}.numbers.title` as Path)} disabled={disabled} className={inp} />
+                    </Field>
+                    <Field label={ci.fDesc}>
+                      <textarea {...register(`about.${lang}.numbers.description` as Path)} disabled={disabled} rows={2} className={inp} />
+                    </Field>
+                  </SubGroup>
+
+                  {/* Stats — dynamic value/label rows (empty → storefront defaults) */}
+                  <AboutStatsList lang={lang} control={control} register={register} disabled={disabled} ci={ci} />
+
+                  {/* Locations section header */}
+                  <SubGroup label={ci.aboutLocations}>
+                    <Field label={ci.fTitle}>
+                      <input {...register(`about.${lang}.locations.title` as Path)} disabled={disabled} className={inp} />
+                    </Field>
+                    <Field label={ci.fDesc}>
+                      <textarea {...register(`about.${lang}.locations.description` as Path)} disabled={disabled} rows={2} className={inp} />
+                    </Field>
+                  </SubGroup>
                 </div>
               ))}
             </div>
@@ -316,8 +376,79 @@ function FaqLangList({
   );
 }
 
+// One language column of the About statistics — dynamic value/label rows
+// (useFieldArray), capped at MAX_ABOUT_STATS. Empty list = storefront falls back
+// to the default figures (10+/500+/50+/24-7).
+function AboutStatsList({
+  lang, control, register, disabled, ci,
+}: {
+  lang: (typeof LANGS)[number];
+  control: Control<ContentValues>;
+  register: Reg;
+  disabled: boolean;
+  ci: Ci;
+}) {
+  // en/ar rows share an identical shape; cast the dynamic name to one concrete path.
+  const { fields, append, remove } = useFieldArray({ control, name: `about.${lang}.stats` as 'about.en.stats' });
+  const atMax = fields.length >= MAX_ABOUT_STATS;
+
+  return (
+    <SubGroup label={ci.aboutStats}>
+      {fields.length === 0 && <p className="text-[11px] text-[#9aa0a8]">{ci.statEmpty}</p>}
+
+      {fields.map((field, i) => (
+        <div key={field.id} className="space-y-2 rounded-xl border border-[#f0f1f3] bg-[#fafbfc] p-3">
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] font-semibold text-[#9aa0a8]">{ci.statRow} {i + 1}</p>
+            <button
+              type="button"
+              onClick={() => remove(i)}
+              disabled={disabled}
+              className="flex items-center gap-1 text-[11px] font-medium text-[#c0504d] transition hover:text-[#a13c39] disabled:opacity-50"
+            >
+              <Trash2 size={13} /> {ci.faqRemove}
+            </button>
+          </div>
+          <input
+            {...register(`about.${lang}.stats.${i}.value` as Path)}
+            disabled={disabled}
+            placeholder={ci.statValue}
+            className={inp}
+          />
+          <input
+            {...register(`about.${lang}.stats.${i}.label` as Path)}
+            disabled={disabled}
+            placeholder={ci.statLabel}
+            className={inp}
+          />
+        </div>
+      ))}
+
+      <button
+        type="button"
+        onClick={() => append({ value: '', label: '' })}
+        disabled={disabled || atMax}
+        className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-[#d4d6d9] py-2 text-xs font-semibold text-[#6b7178] transition hover:border-[#75ACE8] hover:text-[#3d7cc0] disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        <Plus size={14} /> {ci.statAdd}
+      </button>
+      {atMax && <p className="text-[11px] text-[#9aa0a8]">{ci.statMax}</p>}
+    </SubGroup>
+  );
+}
+
 function DefaultHint({ text }: { text: string }) {
   return <p className="mb-4 text-[11px] text-[#9aa0a8]">{text}</p>;
+}
+
+// Labeled, bordered container that groups related fields inside a section column.
+function SubGroup({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="space-y-2 rounded-xl border border-[#f0f1f3] bg-[#fafbfc] p-3">
+      <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#9aa0a8]">{label}</p>
+      <div className="space-y-3">{children}</div>
+    </div>
+  );
 }
 
 // Shown in place of a section's editor when the section is feature-gated off the

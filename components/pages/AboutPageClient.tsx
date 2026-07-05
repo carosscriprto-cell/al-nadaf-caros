@@ -13,28 +13,55 @@ export default function AboutPageClient() {
   const locale = useLocale();
   const t = useTranslations('about');
 
-  // Per-tenant story override (heading + body paragraphs); empty → static i18n.
+  // Per-tenant About override (every field). Empty field → static i18n default,
+  // so a blank/partial content.about renders exactly like the original page.
   const ab = useTenantContent().about[locale === 'ar' ? 'ar' : 'en'];
+
+  // Hero
+  const heroTitle = ab.hero?.title || t('hero.title');
+  const heroHighlight = ab.hero?.highlight || t('hero.highlight');
+  const heroDescPrimary = ab.hero?.descPrimary || t('hero.description_primary');
+  const heroDescSecondary = ab.hero?.descSecondary || t('hero.description_secondary');
+
+  // Experience card
+  const expLabel = ab.experienceCard?.label || t('experience_card.label');
+  const expTitle = ab.experienceCard?.title || t('experience_card.title');
+  const expDescription = ab.experienceCard?.description || t('experience_card.description');
+
+  // Story
   const storyHeading = ab.heading || t('story.title');
+  const storyDescription = ab.storyDescription || t('story.description');
   const storyParagraphs = ab.body
     ? ab.body.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean)
     : [t('story.paragraph_one'), t('story.paragraph_two')];
 
-  const stats = [
+  // Numbers + locations section headers
+  const numbersTitle = ab.numbers?.title || t('numbers.title');
+  const numbersDescription = ab.numbers?.description || t('numbers.description');
+  const locationsTitle = ab.locations?.title || t('locations.title');
+  const locationsDescription = ab.locations?.description || t('locations.description');
+
+  // Stat cards: tenant-supplied set wins; empty → the original 4 i18n/literal
+  // defaults. No hardcoded figures remain outside this fallback list.
+  const defaultStats = [
     { number: '10+', label: t('stats.years_experience') },
     { number: '500+', label: t('stats.happy_clients') },
     { number: '50+', label: t('stats.vehicles') },
     { number: '24/7', label: t('stats.support') },
   ];
+  const tenantStats = (ab.stats ?? [])
+    .map((s) => ({ number: s.value ?? '', label: s.label ?? '' }))
+    .filter((s) => s.number || s.label);
+  const stats = tenantStats.length ? tenantStats : defaultStats;
 
   return (
     <div className="min-h-screen bg-background overflow-hidden">
       <PageHero
         // badge={t('hero.badge')}
-        title={t('hero.title')}
-        highlight={t('hero.highlight')}
-        description={t('hero.description_primary')}
-        secondaryDescription={t('hero.description_secondary')}
+        title={heroTitle}
+        highlight={heroHighlight}
+        description={heroDescPrimary}
+        secondaryDescription={heroDescSecondary}
         primaryButton={{
           label: t('actions.browse_fleet'),
           href: `/${locale}/fleet`,
@@ -54,17 +81,17 @@ export default function AboutPageClient() {
 
             <div>
               <p className="text-sm text-muted-foreground">
-                {t('experience_card.label')}
+                {expLabel}
               </p>
               <h2 className="text-5xl font-bold text-accent">
-                {stats[0].number}
+                {stats[0]?.number || '10+'}
               </h2>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              {stats.slice(1).map((stat) => (
+              {stats.slice(1).map((stat, i) => (
                 <div
-                  key={stat.label}
+                  key={i}
                   className="rounded-2xl border border-border/60 bg-background/60 p-4 backdrop-blur-xl hover:scale-[1.04] hover:shadow-xl transition"
                 >
                   <p className="text-lg font-semibold text-foreground">
@@ -79,10 +106,10 @@ export default function AboutPageClient() {
 
             <div className="rounded-2xl border border-border/60 bg-background/60 p-4 backdrop-blur-xl">
               <p className="text-sm font-medium text-foreground">
-                {t('experience_card.title')}
+                {expTitle}
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                {t('experience_card.description')}
+                {expDescription}
               </p>
             </div>
 
@@ -94,7 +121,7 @@ export default function AboutPageClient() {
         <div className="mx-auto max-w-4xl px-4 text-center">
           <HeadSection
             title={storyHeading}
-            description={t('story.description')}
+            description={storyDescription}
             divider
           />
 
@@ -109,15 +136,15 @@ export default function AboutPageClient() {
       <section className="py-20">
         <div className="mx-auto max-w-7xl px-4">
           <HeadSection
-            title={t('numbers.title')}
-            description={t('numbers.description')}
+            title={numbersTitle}
+            description={numbersDescription}
             divider
           />
 
           <div className="grid grid-cols-2 gap-6 lg:grid-cols-4 mt-10">
             {stats.map((stat, i) => (
               <motion.div
-                key={stat.label}
+                key={i}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
@@ -145,8 +172,8 @@ export default function AboutPageClient() {
       <section className="py-20">
         <div className="mx-auto max-w-7xl px-4">
           <HeadSection
-            title={t('locations.title')}
-            description={t('locations.description')}
+            title={locationsTitle}
+            description={locationsDescription}
             divider
           />
 

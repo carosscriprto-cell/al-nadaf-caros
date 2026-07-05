@@ -3,7 +3,7 @@
 
 import type { DashTenant } from './settings';
 import type { SiteValues } from './siteSchema';
-import type { ContentValues, SectionValues, HeroValues, CtaValues, FaqRowValues } from './contentSchema';
+import type { ContentValues, SectionValues, HeroValues, CtaValues, FaqRowValues, AboutValues } from './contentSchema';
 import { parseTenantPages } from '@/lib/tenant/pages';
 import { parseSections } from '@/lib/tenant/sections';
 import {
@@ -14,6 +14,7 @@ import {
   type HeroLocale,
   type CtaLocale,
   type FaqEntry,
+  type AboutLocale,
 } from '@/lib/tenant/content';
 
 export function tenantToSiteValues(t: DashTenant): SiteValues {
@@ -53,15 +54,34 @@ function faqToForm(rows: FaqEntry[]): FaqRowValues[] {
   return rows.map((r) => ({ q: r.q ?? '', a: r.a ?? '' }));
 }
 
+function aboutToForm(a: AboutLocale): AboutValues {
+  return {
+    hero: {
+      title: a.hero?.title ?? '',
+      highlight: a.hero?.highlight ?? '',
+      descPrimary: a.hero?.descPrimary ?? '',
+      descSecondary: a.hero?.descSecondary ?? '',
+    },
+    experienceCard: {
+      label: a.experienceCard?.label ?? '',
+      title: a.experienceCard?.title ?? '',
+      description: a.experienceCard?.description ?? '',
+    },
+    heading: a.heading ?? '',
+    body: a.body ?? '',
+    storyDescription: a.storyDescription ?? '',
+    stats: (a.stats ?? []).map((s) => ({ value: s.value ?? '', label: s.label ?? '' })),
+    numbers: { title: a.numbers?.title ?? '', description: a.numbers?.description ?? '' },
+    locations: { title: a.locations?.title ?? '', description: a.locations?.description ?? '' },
+  };
+}
+
 export function tenantToContentValues(t: DashTenant): ContentValues {
   const c = parseTenantContent(t.content);
   return {
     whyChooseUs: { en: sectionToForm(c.whyChooseUs.en, WHY_ITEMS), ar: sectionToForm(c.whyChooseUs.ar, WHY_ITEMS) },
     howItWorks: { en: sectionToForm(c.howItWorks.en, HOW_STEPS), ar: sectionToForm(c.howItWorks.ar, HOW_STEPS) },
-    about: {
-      en: { heading: c.about.en.heading ?? '', body: c.about.en.body ?? '' },
-      ar: { heading: c.about.ar.heading ?? '', body: c.about.ar.body ?? '' },
-    },
+    about: { en: aboutToForm(c.about.en), ar: aboutToForm(c.about.ar) },
     hero: { en: heroToForm(c.hero.en), ar: heroToForm(c.hero.ar) },
     financing: { en: ctaToForm(c.financing.en), ar: ctaToForm(c.financing.ar) },
     finalCta: { en: ctaToForm(c.finalCta.en), ar: ctaToForm(c.finalCta.ar) },

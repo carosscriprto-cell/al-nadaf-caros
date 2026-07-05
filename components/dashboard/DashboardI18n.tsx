@@ -107,6 +107,14 @@ const DICT = {
       faqRow: 'Question', faqAdd: 'Add question', faqRemove: 'Remove',
       faqMax: 'Maximum 15 questions reached.',
       faqEmpty: 'No custom questions yet — the storefront uses the default set.',
+      // About page sub-groups + fields
+      aboutHero: 'Hero', aboutExperience: 'Experience card', aboutStory: 'Story',
+      aboutNumbers: 'Numbers section', aboutLocations: 'Locations section', aboutStats: 'Statistics',
+      fLabel: 'Label', fHighlight: 'Highlighted word',
+      fDescPrimary: 'Description (primary)', fDescSecondary: 'Description (secondary)',
+      statValue: 'Value (e.g. 10+)', statLabel: 'Label (e.g. Years Experience)', statRow: 'Statistic',
+      statAdd: 'Add statistic', statMax: 'Maximum 6 statistics reached.',
+      statEmpty: 'No custom statistics — the storefront uses the defaults.',
     },
     st: {
       title: 'Settings', subtitle: 'Your storefront identity, branding, and SEO.',
@@ -252,6 +260,14 @@ const DICT = {
       faqRow: 'سؤال', faqAdd: 'إضافة سؤال', faqRemove: 'حذف',
       faqMax: 'تم بلوغ الحد الأقصى (15 سؤالاً).',
       faqEmpty: 'لا توجد أسئلة مخصّصة بعد — يستخدم المتجر المجموعة الافتراضية.',
+      // أقسام صفحة «من نحن» وحقولها
+      aboutHero: 'الواجهة', aboutExperience: 'بطاقة الخبرة', aboutStory: 'قصتنا',
+      aboutNumbers: 'قسم الأرقام', aboutLocations: 'قسم المواقع', aboutStats: 'الإحصاءات',
+      fLabel: 'التسمية', fHighlight: 'الكلمة المميّزة',
+      fDescPrimary: 'الوصف (رئيسي)', fDescSecondary: 'الوصف (ثانوي)',
+      statValue: 'القيمة (مثال: +10)', statLabel: 'التسمية (مثال: سنوات الخبرة)', statRow: 'إحصائية',
+      statAdd: 'إضافة إحصائية', statMax: 'تم بلوغ الحد الأقصى (6 إحصاءات).',
+      statEmpty: 'لا توجد إحصاءات مخصّصة — يستخدم المتجر الإعدادات الافتراضية.',
     },
     st: {
       title: 'الإعدادات', subtitle: 'هوية متجرك وهويته البصرية وتحسين محركات البحث.',
