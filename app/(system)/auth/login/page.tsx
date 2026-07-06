@@ -42,8 +42,8 @@ export default function LoginPage() {
   const redirectTo = searchParams.get('redirectTo') || '/dashboard';
 
   const [lang, setLang] = useState<Lang>('en');
-  const [email, setEmail] = useState('comapny@caros.app');
-  const [password, setPassword] = useState('password');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -108,7 +108,7 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 autoComplete="email"
-                placeholder="name@company.com"
+                placeholder="company@caros.app"
                 className="w-full rounded-xl border border-black/10 bg-[#F7F7F7] py-3 text-sm outline-none transition placeholder:text-[#b3b8bf] focus:border-[#75ACE8] focus:bg-white focus:ring-4 focus:ring-[#75ACE8]/15 ltr:pl-10 ltr:pr-3.5 rtl:pr-10 rtl:pl-3.5"
               />
             </Field>
