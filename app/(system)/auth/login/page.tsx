@@ -42,8 +42,8 @@ export default function LoginPage() {
   const redirectTo = searchParams.get('redirectTo') || '/dashboard';
 
   const [lang, setLang] = useState<Lang>('en');
-  const [email, setEmail] = useState('caros@gmail.com');
-  const [password, setPassword] = useState('caros123');
+  const [email, setEmail] = useState('comapny@caros.app');
+  const [password, setPassword] = useState('password');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
