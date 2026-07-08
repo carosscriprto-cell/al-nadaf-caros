@@ -47,7 +47,7 @@ const enums: Record<DashLang, EnumGroups> = {
 
 const DICT = {
   en: {
-    overview: 'Overview', inventory: 'Inventory', leads: 'Leads', site: 'Site', settings: 'Settings', signOut: 'Sign out', dashboard: 'Dashboard', langToggle: 'العربية',
+    overview: 'Overview', inventory: 'Inventory', leads: 'Leads', site: 'Site', settings: 'Settings', qrCodes: 'QR Codes', signOut: 'Sign out', dashboard: 'Dashboard', langToggle: 'العربية',
     welcome: 'Welcome back', totalCars: 'Total vehicles', available: 'Available', hidden: 'Hidden', featured: 'Featured',
     newLeads: 'New leads', overviewLeadsHint: 'unhandled — review them in Leads.',
     overviewHint: 'Manage your inventory from the Inventory section.',
@@ -150,6 +150,18 @@ const DICT = {
         weekdays: 'Weekdays', weekends: 'Weekends',
       },
     },
+    qr: {
+      subtitle: 'Printable QR codes that link customers straight to a vehicle’s page.',
+      search: 'Search brand, model, year…',
+      pickTitle: 'Vehicles',
+      selectPrompt: 'Select a vehicle to generate its QR code.',
+      noResults: 'No vehicles match your search.',
+      shortLink: 'Short link', copy: 'Copy', copied: 'Copied',
+      showLogo: 'Show logo in center',
+      downloadSvg: 'Download SVG', downloadPng: 'Download PNG', print: 'Print',
+      notPublic: 'This vehicle is hidden from your storefront — the QR link shows a 404 page until it is visible again.',
+      scanHint: 'Scan to view this vehicle',
+    },
     inventoryTitle: 'Inventory', inventorySubtitle: 'Manage your vehicles — availability, status, and details.',
     addCar: 'Add vehicle', search: 'Search brand, model…', noCars: 'No vehicles yet', noCarsHint: 'Add your first vehicle to get started.',
     // table
@@ -200,7 +212,7 @@ const DICT = {
     },
   },
   ar: {
-    overview: 'نظرة عامة', inventory: 'المخزون', leads: 'الطلبات', site: 'الموقع', settings: 'الإعدادات', signOut: 'تسجيل الخروج', dashboard: 'لوحة التحكم', langToggle: 'English',
+    overview: 'نظرة عامة', inventory: 'المخزون', leads: 'الطلبات', site: 'الموقع', settings: 'الإعدادات', qrCodes: 'رموز QR', signOut: 'تسجيل الخروج', dashboard: 'لوحة التحكم', langToggle: 'English',
     welcome: 'مرحباً بعودتك', totalCars: 'إجمالي المركبات', available: 'متاحة', hidden: 'مخفية', featured: 'مميّزة',
     newLeads: 'طلبات جديدة', overviewLeadsHint: 'بانتظار المتابعة — راجعها في قسم الطلبات.',
     overviewHint: 'أدر مخزونك من قسم المخزون.',
@@ -302,6 +314,18 @@ const DICT = {
         footer_tagline_en: 'وصف التذييل (إنجليزي)', footer_tagline_ar: 'وصف التذييل (عربي)',
         weekdays: 'أيام الأسبوع', weekends: 'نهاية الأسبوع',
       },
+    },
+    qr: {
+      subtitle: 'رموز QR قابلة للطباعة توصل العملاء مباشرة إلى صفحة المركبة.',
+      search: 'ابحث بالماركة أو الموديل أو السنة…',
+      pickTitle: 'المركبات',
+      selectPrompt: 'اختر مركبة لإنشاء رمز QR الخاص بها.',
+      noResults: 'لا توجد مركبات مطابقة لبحثك.',
+      shortLink: 'الرابط المختصر', copy: 'نسخ', copied: 'تم النسخ',
+      showLogo: 'إظهار الشعار في المنتصف',
+      downloadSvg: 'تنزيل SVG', downloadPng: 'تنزيل PNG', print: 'طباعة',
+      notPublic: 'هذه المركبة مخفية عن متجرك — يعرض رابط QR صفحة 404 حتى تظهر من جديد.',
+      scanHint: 'امسح الرمز لعرض هذه المركبة',
     },
     inventoryTitle: 'المخزون', inventorySubtitle: 'أدر مركباتك — التوفر والحالة والتفاصيل.',
     addCar: 'إضافة مركبة', search: 'ابحث بالماركة أو الموديل…', noCars: 'لا توجد مركبات بعد', noCarsHint: 'أضف أول مركبة للبدء.',

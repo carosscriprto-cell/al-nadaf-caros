@@ -12,6 +12,7 @@ export type TenantFeatures = {
   enableVipDelivery: boolean;
   enableEmailContact: boolean;
   enablePhoneContact: boolean;
+  enableCarQr: boolean;
 };
 
 export const DEFAULT_FEATURES: TenantFeatures = {
@@ -24,6 +25,7 @@ export const DEFAULT_FEATURES: TenantFeatures = {
   enableVipDelivery: false,
   enableEmailContact: true,
   enablePhoneContact: true,
+  enableCarQr: false,
 };
 
 export function parseTenantFeatures(raw: unknown): TenantFeatures {
@@ -40,6 +42,7 @@ export function parseTenantFeatures(raw: unknown): TenantFeatures {
     enableVipDelivery: bool('enableVipDelivery'),
     enableEmailContact: bool('enableEmailContact'),
     enablePhoneContact: bool('enablePhoneContact'),
+    enableCarQr: bool('enableCarQr'),
   };
 }
 

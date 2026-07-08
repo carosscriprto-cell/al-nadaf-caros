@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Car, LayoutDashboard, Inbox, Settings, LayoutTemplate } from 'lucide-react';
+import { Car, LayoutDashboard, Inbox, Settings, LayoutTemplate, QrCode } from 'lucide-react';
 import type { Tables } from '@/lib/supabase/database.types';
+import { parseTenantFeatures } from '@/lib/tenant/features';
 import { useDash } from './DashboardI18n';
 
 type Props = {
@@ -15,11 +16,17 @@ export default function DashboardSidebar({ tenant }: Props) {
   const pathname = usePathname();
   const { t, lang } = useDash();
 
+  const features = parseTenantFeatures(tenant.features);
+
   const nav = [
     { href: '/dashboard', icon: LayoutDashboard, label: t.overview, exact: true },
     { href: '/dashboard/cars', icon: Car, label: t.inventory, exact: false },
     { href: '/dashboard/leads', icon: Inbox, label: t.leads, exact: false },
     { href: '/dashboard/site', icon: LayoutTemplate, label: t.site, exact: false },
+    // Feature-gated tool (enterprise preset / per-tenant flag).
+    ...(features.enableCarQr
+      ? [{ href: '/dashboard/qr', icon: QrCode, label: t.qrCodes, exact: false }]
+      : []),
     { href: '/dashboard/settings', icon: Settings, label: t.settings, exact: false },
   ];
 
